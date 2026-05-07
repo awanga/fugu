@@ -248,6 +248,9 @@
 
     /* temp directories created this session; cleaned up on disconnect and quit */
     NSMutableArray              *_tempDirectories;
+
+    /* deferred keychain save: set when user opts in, committed after auth succeeds */
+    BOOL                        _pendingKeychainSave;
 }
 
 - ( void )showUploadProgress;

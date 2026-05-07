@@ -522,6 +522,7 @@ DOT_OR_DOTDOT:
     int			rc, status, pwsent = 0, validpw = 0, showrb = 0, threestrikes = 0;
     int			was_uploading = 0, was_downloading = 0, was_changing = 0, sethomedir = 0;
     int			was_removing = 0, was_renaming = 0, was_listing = 0;
+    int			suppress_auth_log = 0;
     char		ttyname[ MAXPATHLEN ], **execargs;
     char		buf[ MAXPATHLEN * 2 ];
     NSArray		*argv = nil, *passedInArgs = [ params copy ];    
@@ -613,6 +614,7 @@ DOT_OR_DOTDOT:
                 };
                 if ( connecting ) [ controller requestPasswordWithPrompt: ( char * )buf ];
                 pwsent = 1;
+                suppress_auth_log = 1;
             } else if ( strstr(( char * )buf, "rename \"" ) != NULL ) {
                 was_renaming = 1;
             } else if ( strstr(( char * )buf, "sftp> " ) != NULL ) {
@@ -620,6 +622,7 @@ DOT_OR_DOTDOT:
                 if ( !connected ) {
                     pwsent++;	/* for key auth */
                     validpw++;
+                    suppress_auth_log = 0;
                     [ controller showRemoteFiles ];
                     showrb++;
                 } else if ( !sethomedir ) {
@@ -736,6 +739,7 @@ DOT_OR_DOTDOT:
                 if ( strncmp(( char * )buf, "Permission denied, ",
                                 strlen( "Permission denied, " )) == 0 ) {
                     pwsent = 0;
+                    suppress_auth_log = 0;
                     threestrikes++;
                 } else if ( [ self bufferContainsError: buf ] ) {
                     [ controller connectionError: [ NSString stringWithUTF8String: buf ]];
@@ -754,6 +758,7 @@ DOT_OR_DOTDOT:
                     }
                 } else if ( strstr(( char * )buf, "passphrase for key" ) != NULL ) {
                     pwsent = 0;
+                    suppress_auth_log = 1;
                     threestrikes = 0;	/* if pubkey auth fails, password prompt will appear */
                     [ controller requestPasswordWithPrompt: ( char * )buf ];
                 } else if ( strstr(( char * )buf, "Changing owner on" ) != NULL
@@ -808,8 +813,10 @@ DOT_OR_DOTDOT:
                 [ controller cancelConnection: nil ];
             }
             
-            if ( buf[ 0 ] != '\0' ) {
+            if ( buf[ 0 ] != '\0' && !suppress_auth_log ) {
                 [ controller addToLog: [ NSString stringWithUTF8String: ( void * )buf ]];
+                memset( buf, '\0', strlen(( char * )buf ));
+            } else if ( suppress_auth_log ) {
                 memset( buf, '\0', strlen(( char * )buf ));
             }
         }

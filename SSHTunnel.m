@@ -14,6 +14,12 @@
 #include <netdb.h>
 #include <unistd.h>
 
+static void
+zero_buf( volatile char *buf, size_t len )
+{
+    while ( len-- ) *buf++ = '\0';
+}
+
 extern int		mfd;
 
 @implementation SSHTunnel
@@ -256,6 +262,7 @@ WRITE_ERR:
         [ self addPasswordToKeychain ];
     }
     [ self write: pass ];
+    zero_buf( pass, sizeof( pass ) );
     [ passwordField setStringValue: @"" ];
 }
 

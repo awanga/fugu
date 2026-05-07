@@ -53,6 +53,12 @@
 #include "argcargv.h"
 #include "typeforchar.h"
 #include "fdwrite.h"
+
+static void
+zero_buf( volatile char *buf, size_t len )
+{
+    while ( len-- ) *buf++ = '\0';
+}
 #include "keychain.h"
 #include "sshversion.h"
 
@@ -231,7 +237,8 @@ permcmp( id ob1, id ob2, void *context )
     _springLoadedRootPath = nil;
     _sftpCommandQueue = nil;
     _tempDirectories = nil;
-    
+    _pendingKeychainSave = NO;
+
 #ifdef notdef
     [[ NSAppleEventManager sharedAppleEventManager ] setEventHandler: self
 	    andSelector: @selector( testHandleEvent:replyEvent: )
@@ -1367,6 +1374,11 @@ NSLog( @"setting home directory" );
     connecting = 0;
     connected = 1;
 
+    if ( _pendingKeychainSave ) {
+        [ self addPasswordToKeychain ];
+        _pendingKeychainSave = NO;
+    }
+
     [[ remoteBrowser window ] makeFirstResponder: remoteBrowser ];
     [ localBrowser setNextKeyView: remoteBrowser ];
     [ self writeCommand: cdcmd ];
@@ -1531,6 +1543,7 @@ WRITE_ERR:
     int		i;
 
     [ self cleanupTempDirectories ];
+    _pendingKeychainSave = NO;
     [ uploadQueue removeAllObjects ];
     if ( [ rPathPopUp numberOfItems ] ) {
         [[ rPathPopUp itemAtIndex: 0 ] setImage: nil ];
@@ -3306,10 +3319,8 @@ NSLog( @"setting springloaded root" );
 	return;
     }
     
-    if ( [ addToKeychainSwitch state ] == NSOnState ) {
-        [ self addPasswordToKeychain ];
-    }
-    
+    _pendingKeychainSave = ( [ addToKeychainSwitch state ] == NSOnState );
+
     [ passErrorField setStringValue: @"" ];
     [ passView addSubview: authProgBar ];
     [ authProgBar setUsesThreadedAnimation: YES ];
@@ -3321,6 +3332,7 @@ NSLog( @"setting springloaded root" );
     bcopy( [[ passWord stringValue ] UTF8String ], pass, strlen( [[ passWord stringValue ] UTF8String ] ));
     [ passWord setEnabled: NO ];
     [ self writeCommand: pass ];
+    zero_buf( pass, sizeof( pass ) );
     [ passWord setStringValue: @"" ];
 }
 
@@ -3331,6 +3343,7 @@ NSLog( @"setting springloaded root" );
                             @"Permission denied. Try again." ) ];
     [ self setFirstPasswordPrompt: NO ];
     [ addToKeychainSwitch setState: NSOffState ];
+    _pendingKeychainSave = NO;
 }
 
 - ( void )enableFavButton: ( NSNotification * )aNotification
