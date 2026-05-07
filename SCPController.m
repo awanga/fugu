@@ -42,7 +42,11 @@ static int		SCPTYPE = 0;
     NSPort		*recPort;
     NSPort		*sendPort;
     NSArray		*portArray;
-    
+
+    if ( !( self = [ super init ] )) {
+        return( nil );
+    }
+
     /* prepare distributed objects for scp task thread, but don't establish connection yet */
     recPort = [ NSPort port ];
     sendPort = [ NSPort port ];
@@ -52,15 +56,12 @@ static int		SCPTYPE = 0;
     scp = nil;
     scppid = 0;
     portArray = [ NSArray arrayWithObjects: sendPort, recPort, nil ];
-    
     bytescopied = 0.0;
 
     [ NSThread detachNewThreadSelector: @selector( connectWithPorts: )
                                         toTarget: [ SCPTransfer class ]
                                         withObject: portArray ];
-                                                                                    
-                                            
-    return (( self = [ super init ] ) ? self : nil );
+    return( self );
 }
 
 - ( void )awakeFromNib

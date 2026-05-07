@@ -23,7 +23,11 @@ extern int		mfd;
     NSPort		*recPort;
     NSPort		*sendPort;
     NSArray		*portArray;
-    
+
+    if ( !( self = [ super init ] )) {
+        return( nil );
+    }
+
     /* prepare distributed objects for scp task thread, but don't establish connection yet */
     recPort = [ NSPort port ];
     sendPort = [ NSPort port ];
@@ -35,8 +39,7 @@ extern int		mfd;
     [ NSThread detachNewThreadSelector: @selector( connectWithPorts: )
                                         toTarget: [ SSHTunnelAuth class ]
                                         withObject: portArray ];
-                                            
-    return (( self = [ super init ] ) ? self : nil );
+    return( self );
 }
 
 - ( void )setServer: ( id )serverObject

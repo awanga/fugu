@@ -202,9 +202,13 @@ permcmp( id ob1, id ob2, void *context )
 
 - ( id )init
 {
+    if ( !( self = [ super init ] )) {
+        return( nil );
+    }
+
     uploadQueue = [[ NSMutableArray alloc ] init ];
     downloadQueue = [[ NSMutableArray alloc ] init ];
- 
+
     [ self establishDOConnection ];
     [ NSApp setDelegate: self ];
     
@@ -239,7 +243,7 @@ permcmp( id ob1, id ob2, void *context )
 	    forEventClass: kODBEditorSuite andEventID: kAEClosedFile ];
 #endif notdef
                                             
-    return (( self = [ super init ] ) ? self : nil );
+    return( self );
 }
 
 - ( void )setServer: ( id )serverObject
@@ -4785,11 +4789,11 @@ INVALID_CONNECTION_SETTINGS:
     int			    i;
     
     if ( ! [ plists isKindOfClass: [ NSArray class ]] ) {
-	NSLog( @"%@: unsupported data class", [ plist class ] );
+	NSLog( @"%@: unsupported data class", [ plists class ] );
 	return( nil );
     }
     if ( [ plists count ] == 0 ) {
-	NSLog( @"%@: no contents", plist );
+	NSLog( @"%@: no contents", plists );
 	return( nil );
     }
     
