@@ -379,22 +379,13 @@ int		master = 0;
             fncolumn = 8;
         }
     }
-    if ( fncolumn == -1 || fncolumn > tac ) {
+    if ( fncolumn == -1 || fncolumn >= tac ) {
         return( nil );			/* invalid output */
     }
 
     for ( j = ( fncolumn - 1 ); j >= 0; j-- ) {
-        if ( isalpha( *targv[ j ] )) { 	/* we've found the column containing the month */
+        if ( targv[ j ] != NULL && isalpha( *targv[ j ] )) {
             datecolumn = j;
-            if ( datecolumn != 5 ) {
-                int             ind = 0;
-                
-                NSLog( @"datecolumn: %d\tdate: %s", datecolumn, targv[ j ] );
-                for ( ind = 0; ind < tac; ind++ ) {
-                    NSLog( @"targv[ %d ]: %s", ind, targv[ ind ] );
-                }
-                NSLog( @"line: %s", object );
-            }
             break;
         }
     }
@@ -438,13 +429,16 @@ int		master = 0;
                 exit( 2 );
             }
             strlcpy( filename, targv[ fncolumn ], len );
-            
-            for ( j = fncolumn + 1; j < tac; j++ ) {
-                if ( strcmp( targv[ j ], "->" ) == 0 ) {
-                    break;
+
+            {
+                int islink = ( *targv[ 0 ] == 'l' );
+                for ( j = fncolumn + 1; j < tac; j++ ) {
+                    if ( islink && strcmp( targv[ j ], "->" ) == 0 ) {
+                        break;
+                    }
+                    strlcat( filename, " ", len );
+                    strlcat( filename, targv[ j ], len );
                 }
-                strlcat( filename, " ", len );
-                strlcat( filename, targv[ j ], len );
             }
             
             nameAsRawBytes = [ NSData dataWithBytes: filename length: strlen( filename ) ];
