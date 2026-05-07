@@ -25,6 +25,9 @@ Icon
 *.md
 docs/
 
+# Test binaries
+tests/run_parser_tests
+
 # Editor backups
 *.orig
 *~
