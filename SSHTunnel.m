@@ -277,7 +277,7 @@ WRITE_ERR:
 
 - ( void )connectionError: ( NSString * )errmsg
 {
-    NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ), errmsg,
+    NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ), @"%@", errmsg,
                     NSLocalizedString( @"OK", @"OK" ), @"", @"" );
     [ sshtunnelSheet close ];
 }
@@ -318,6 +318,7 @@ NSLog( @"%d", sshpid );
     rc = NSRunAlertPanel( NSLocalizedStringFromTable(
                             @"Are you sure you want to close this tunnel?", @"SSHTunnel",
                             @"Are you sure you want to close this tunnel?" ),
+            @"%@",
             [ NSString stringWithFormat: NSLocalizedStringFromTable(
                             @"The tunnel to port %@ of host %@ will be destroyed.", @"SSHTunnel",
                             @"The tunnel to port %@ of host %@ will be destroyed." ),

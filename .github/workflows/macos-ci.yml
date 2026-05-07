@@ -16,12 +16,12 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
-      - name: Build (Debug, unsigned)
+      - name: Build (Development, unsigned)
         run: |
           xcodebuild \
             -project Fugu.xcodeproj \
             -scheme Fugu \
-            -configuration Debug \
+            -configuration Development \
             -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO \
             clean build
@@ -31,7 +31,7 @@ jobs:
           xcodebuild \
             -project Fugu.xcodeproj \
             -scheme Fugu \
-            -configuration Debug \
+            -configuration Development \
             -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO \
             analyze

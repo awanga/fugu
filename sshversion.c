@@ -104,7 +104,7 @@ sshversion()
     }
     
     line[ rr ] = '\0';
-    syslog( LOG_INFO, line );
+    syslog( LOG_INFO, "%s", line );
     
     wait( &estatus );
 

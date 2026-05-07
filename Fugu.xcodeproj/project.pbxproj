@@ -1283,6 +1283,7 @@
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
+					"-Wformat-security",
 				);
 				WRAPPER_EXTENSION = app;
 			};
@@ -1291,6 +1292,7 @@
 		091C74A4088611AF00C88B43 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "arm64 x86_64";
 				CLANG_ENABLE_OBJC_ARC = NO;
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 116;
@@ -1306,6 +1308,7 @@
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
+					"-Wformat-security",
 				);
 				WRAPPER_EXTENSION = app;
 			};
@@ -1328,6 +1331,7 @@
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
+					"-Wformat-security",
 				);
 				WRAPPER_EXTENSION = app;
 			};

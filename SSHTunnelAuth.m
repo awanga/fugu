@@ -82,7 +82,7 @@ int		mfd = 0;
 	return;
     }
     if ( [ sshBinary length ] >= MAXPATHLEN ) {
-	NSLog( @"%@: path too long" );
+	NSLog( @"%@: path too long", sshBinary );
 	return;
     }
     strcpy( executable, [ sshBinary UTF8String ] );
