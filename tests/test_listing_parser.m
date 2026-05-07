@@ -40,8 +40,9 @@ int main(void) {
     const char *link_line  = "lrwxrwxrwx    1 user group           7 Jan  1 00:00 mylink -> target\n";
     /* SEC-PARSE-5: regular file whose name contains " -> " — must not be truncated */
     const char *arrow_file = "-rw-r--r--    1 user group         123 Jan  1 00:00 arrow -> notlink.txt\n";
-    /* SEC-PARSE-3: filename with embedded spaces (single-space round-trip is correct) */
+    /* SEC-PARSE-3: filenames with embedded whitespace (fixed-column parser) */
     const char *spaces     = "-rw-r--r--    1 user group         123 Jan  1 00:00 file with spaces.txt\n";
+    const char *dbl_space  = "-rw-r--r--    1 user group         123 Jan  1 00:00 file  double  space.txt\n";
     /* sftp prompt line */
     const char *prompt     = "sftp> ";
 
@@ -86,10 +87,15 @@ int main(void) {
     EXPECT_EQ("arrow.name", r[@"name"], @"arrow -> notlink.txt");
     EXPECT_EQ("arrow.type", r[@"type"], @"file");
 
-    /* SEC-PARSE-3: spaces in filename (single-space round-trip) */
+    /* SEC-PARSE-3: single-space filename */
     r = SFTPListingParserParseLine(spaces);
     EXPECT_NOT_NIL("spaces", r);
     EXPECT_EQ("spaces.name", r[@"name"], @"file with spaces.txt");
+
+    /* SEC-PARSE-3: double-space filename (was broken with whitespace tokenizer) */
+    r = SFTPListingParserParseLine(dbl_space);
+    EXPECT_NOT_NIL("dbl_space", r);
+    EXPECT_EQ("dbl_space.name", r[@"name"], @"file  double  space.txt");
 
     [pool drain];
 

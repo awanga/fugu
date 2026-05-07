@@ -125,24 +125,36 @@ SFTPListingParserParseLine( const char *object )
                 goto DOT_OR_DOTDOT;
             }
 
-            for ( j = fncolumn; j < tac; j++ ) {
-                len += ( (int)strlen( targv[ j ] ) + 1 );
-            }
-
-            if (( filename = ( char * )malloc( (size_t)len )) == NULL ) {
-                [ infoDictionary release ];
-                return( nil );
-            }
-            strlcpy( filename, targv[ fncolumn ], (size_t)len );
-
+            /*
+             * Slice the filename from the original unmodified line using the
+             * byte offset of targv[fncolumn] within the working copy.
+             * This preserves all internal whitespace (double spaces etc.) that
+             * the whitespace tokenizer would lose.
+             */
             {
-                int islink = ( *targv[ 0 ] == 'l' );
-                for ( j = fncolumn + 1; j < tac; j++ ) {
-                    if ( islink && strcmp( targv[ j ], "->" ) == 0 ) {
-                        break;
+                ptrdiff_t fn_off = targv[ fncolumn ] - line;
+                const char *fn_start = object + fn_off;
+                size_t fn_len = strlen( fn_start );
+
+                /* trim trailing CR/LF */
+                while ( fn_len > 0 &&
+                        ( fn_start[ fn_len - 1 ] == '\n' ||
+                          fn_start[ fn_len - 1 ] == '\r' ||
+                          fn_start[ fn_len - 1 ] == ' '  ) ) {
+                    fn_len--;
+                }
+
+                /* for symlinks, stop at first " -> " (link separator) */
+                if ( *targv[ 0 ] == 'l' ) {
+                    const char *arrow = strstr( fn_start, " -> " );
+                    if ( arrow != NULL ) {
+                        fn_len = (size_t)( arrow - fn_start );
                     }
-                    strlcat( filename, " ", (size_t)len );
-                    strlcat( filename, targv[ j ], (size_t)len );
+                }
+
+                if (( filename = strndup( fn_start, fn_len )) == NULL ) {
+                    [ infoDictionary release ];
+                    return( nil );
                 }
             }
 
