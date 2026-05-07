@@ -1345,7 +1345,6 @@ NSLog( @"setting home directory" );
 - ( void )showRemoteFiles
 {
     char		*cdcmd, *dpath;
-    char		*quote = "\"";
     
     [ remoteBox setContentView: nil ];
     [ remoteBox setContentView: remoteView ];
@@ -1356,21 +1355,18 @@ NSLog( @"setting home directory" );
         dpath = ".";
     }
     
-    if ( strchr(( char * )dpath, '"' ) != NULL ) {
-        quote = NULL;
-        quote = "\'";
-    } else if ( strchr(( char * )dpath, '\'' ) != NULL ) {
-        quote = NULL;
-        quote = "\"";
+    {
+        NSString *dir = ( strlen( dpath ) > 0 )
+            ? [[ NSString stringWithUTF8String: dpath ] sftpQuotedPath ]
+            : @".";
+        NSString *cdNS = [ NSString stringWithFormat: @"cd \"%@\"", dir ];
+        cdcmd = ( char * )[ cdNS UTF8String ];
     }
-    
-    cdcmd = ( char * )[[ NSString stringWithFormat:
-                        @"cd %s%s%s", quote, dpath, quote ] UTF8String ];
-    
+
     [ commandButton setEnabled: YES ];
     connecting = 0;
     connected = 1;
-    
+
     [[ remoteBrowser window ] makeFirstResponder: remoteBrowser ];
     [ localBrowser setNextKeyView: remoteBrowser ];
     [ self writeCommand: cdcmd ];
@@ -1517,8 +1513,8 @@ WRITE_ERR:
         return;
     }
     
-    if ( snprintf( cdcmd, MAXPATHLEN, "cd \"%s\"", [ remotePath UTF8String ] )
-            >= MAXPATHLEN ) {
+    if ( snprintf( cdcmd, MAXPATHLEN, "cd \"%s\"",
+                   [[ remotePath sftpQuotedPath ] UTF8String ] ) >= MAXPATHLEN ) {
         NSBeep();
         NSLog( @"cd \"%@\": too long", remotePath );
         return;
@@ -2215,7 +2211,7 @@ WRITE_ERR:
         item = nil;
         item = [ dict objectForKey: @"name" ];
 
-        deleteCommand = [ NSString stringWithFormat: @"%s \"%@\"", delcmd, item ];
+        deleteCommand = [ NSString stringWithFormat: @"%s \"%@\"", delcmd, [ item sftpQuotedPath ] ];
         [ removeQueue addObject: deleteCommand ];
     }
     [ p release ];
@@ -2350,7 +2346,7 @@ WRITE_ERR:
     
     if ( snprintf( cmd, MAXPATHLEN, "chown %s \"%s\"",
                 ( char * )[[ rOwnerField stringValue ] UTF8String ],
-                ( char * )[[ rWhereField stringValue ] UTF8String ] )
+                [[ [ rWhereField stringValue ] sftpQuotedPath ] UTF8String ] )
             > ( MAXPATHLEN - 1 )) {
         NSLog( @"Buffer overflow." );
         return;
@@ -2386,7 +2382,7 @@ CHOWN_ERROR:
     
     if ( snprintf( cmd, MAXPATHLEN, "chgrp %s \"%s\"",
                 ( char * )[[ rGroupField stringValue ] UTF8String ],
-                ( char * )[[ rWhereField stringValue ] UTF8String ] )
+                [[ [ rWhereField stringValue ] sftpQuotedPath ] UTF8String ] )
             > ( MAXPATHLEN - 1 )) {
         NSLog( @"Buffer overflow." );
         return;
@@ -2445,7 +2441,7 @@ CHGRP_ERROR:
     
     if ( snprintf( cmd, MAXPATHLEN, "chmod %s \"%s\"",
                         ( char * )[[ rPermField stringValue ] UTF8String ],
-                        ( char * )[[ rWhereField stringValue ] UTF8String ] )
+                        [[ [ rWhereField stringValue ] sftpQuotedPath ] UTF8String ] )
                 > ( MAXPATHLEN - 1 )) {
         NSLog( @"buffer overflow" );
         return;
@@ -2889,7 +2885,7 @@ NSLog( @"setting springloaded root" );
     int                 isdir = 0;
     
     if ( [ directoryPath length ] > sizeof( dirpath )) {
-        NSLog( @"%@: too long\n" );
+        NSLog( @"%@: too long\n", directoryPath );
         return;
     }
     strcpy( dirpath, [ directoryPath UTF8String ] );
@@ -4401,8 +4397,8 @@ INVALID_CONNECTION_SETTINGS:
         items = ( dotflag ? remoteDirContents : dotlessRDir );
         
         if ( snprintf( renamecmd, MAXPATHLEN, "rename \"%s\" \"%s\"",
-                [[[ items objectAtIndex: row ] objectForKey: @"name" ] UTF8String ],
-                [ newstring UTF8String ] ) > ( MAXPATHLEN - 1 )) {
+                [[[[ items objectAtIndex: row ] objectForKey: @"name" ] sftpQuotedPath ] UTF8String ],
+                [[ newstring sftpQuotedPath ] UTF8String ] ) > ( MAXPATHLEN - 1 )) {
             NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
                 @"snprintf string exceeds bounds.", NSLocalizedString( @"OK", @"OK" ),
                 @"", @"" );
@@ -5366,7 +5362,11 @@ INVALID_CONNECTION_SETTINGS:
     int			i;
     NSArray		*array;
     NSMutableArray	*columnArray = nil;
-    
+
+    if ( sftppid > 0 ) {
+        kill( sftppid, SIGTERM );
+    }
+
     if ( access( C_TMPFUGUDIR, F_OK | W_OK ) == 0 ) {
         if ( [[ NSFileManager defaultManager ]
                 removeFileAtPath: OBJC_TMPFUGUDIR handler: nil ] == NO ) {

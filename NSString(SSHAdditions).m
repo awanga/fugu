@@ -428,8 +428,34 @@
     
     escapedPath = [ NSString stringWithBytesOfUnknownEncoding: esc
                                 length: strlen( esc ) ];
-                                
+
     return( escapedPath );
+}
+
+- ( NSString * )sftpQuotedPath
+{
+    /* Escape backslash and double-quote for use inside sftp "..." quoting.
+     * Other characters, including spaces, are safe inside double quotes. */
+    const char      *src = [ self UTF8String ];
+    char            *esc;
+    size_t          srclen, di, si;
+    NSString        *result;
+
+    if ( src == NULL ) return( self );
+    srclen = strlen( src );
+    esc = ( char * )malloc( srclen * 2 + 1 );
+    if ( esc == NULL ) return( self );
+
+    for ( si = di = 0; si < srclen; si++ ) {
+        unsigned char c = ( unsigned char )src[ si ];
+        if ( c == '\\' || c == '"' ) esc[ di++ ] = '\\';
+        esc[ di++ ] = src[ si ];
+    }
+    esc[ di ] = '\0';
+
+    result = [ NSString stringWithBytesOfUnknownEncoding: esc length: di ];
+    free( esc );
+    return( result ? result : self );
 }
 
 @end

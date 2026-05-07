@@ -23,5 +23,6 @@
 - ( NSString * )stringByExpandingTildeInRemotePathWithHomeSetAs: ( NSString * )remoteHome;
 - ( NSString * )descriptiveSizeString;
 - ( NSString * )escapedPathString;
+- ( NSString * )sftpQuotedPath;
 
 @end

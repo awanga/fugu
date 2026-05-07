@@ -31,6 +31,26 @@ extern char	**environ;
 /* used to set which field contains the filename */
 static int      fncolumn = -1;
 
+/* Escape backslash and double-quote in src for use inside sftp "..." quoting.
+ * Returns 0 on success, -1 if dst is too small. */
+static int
+sftpEscapeBytes( const char *src, size_t srclen, char *dst, size_t dstlen )
+{
+    size_t di = 0, si;
+    for ( si = 0; si < srclen; si++ ) {
+        unsigned char c = ( unsigned char )src[ si ];
+        if ( c == '\\' || c == '"' ) {
+            if ( di >= dstlen ) return( -1 );
+            dst[ di++ ] = '\\';
+        }
+        if ( di >= dstlen ) return( -1 );
+        dst[ di++ ] = src[ si ];
+    }
+    if ( di >= dstlen ) return( -1 );
+    dst[ di ] = '\0';
+    return( 0 );
+}
+
 @implementation SFTPTServer
 
 int		cancelflag = 0;
@@ -616,22 +636,25 @@ DOT_OR_DOTDOT:
                         
                         was_uploading = 1;
                         if ( [[ dict objectForKey: @"isdir" ] intValue ] ) {
-                            if ( fdwrite( master, "mkdir \"%s\"\n", ( void * )[[ dict objectForKey:
-                                                        @"pathfrombase" ] UTF8String ] ) < 0 ) {
+                            NSString *safeRemote = [[ dict objectForKey: @"pathfrombase" ] sftpQuotedPath ];
+                            if ( fdwrite( master, "mkdir \"%s\"\n",
+                                         ( void * )[ safeRemote UTF8String ] ) < 0 ) {
                                 NSLog( @"Failed to send command: %s", strerror( errno ));
                             }
                         } else {
                             char		*p = " ";
-                        
+                            NSString    *safeLocal, *safeRemote;
+
                             if ( [[ NSUserDefaults standardUserDefaults ]
                                             boolForKey: @"RetainFileTimestamp" ] ) {
                                 p = " -P ";
                             }
-                            
+
+                            safeLocal  = [[ dict objectForKey: @"fullpath" ] sftpQuotedPath ];
+                            safeRemote = [[ dict objectForKey: @"pathfrombase" ] sftpQuotedPath ];
                             if ( fdwrite( master, "put%s\"%s\" \"%s\"\n", p,
-                                        ( void * )[[ dict objectForKey: @"fullpath" ] UTF8String ],
-                                        ( void * )[[ dict objectForKey:
-                                            @"pathfrombase" ] UTF8String ] ) < 0 ) {
+                                        ( void * )[ safeLocal UTF8String ],
+                                        ( void * )[ safeRemote UTF8String ] ) < 0 ) {
                                 NSLog( @"Failed to send command: %s", strerror( errno ));
                             }
                         }
@@ -665,11 +688,21 @@ DOT_OR_DOTDOT:
 			    continue;
 			}
 			memcpy( remote, [[ dict objectForKey: @"rpath" ] bytes ], len );
-                        
+
                         was_downloading = 1;
-                        if ( fdwrite( master, "get%s\"%s\" \"%s\"\n", p, remote,
-                                ( void * )[[ dict objectForKey: @"lpath" ] UTF8String ] ) < 0 ) {
-                            NSLog( @"Failed to send command: %s", strerror( errno ));
+                        {
+                            char        esc_remote[ MAXPATHLEN * 2 ];
+                            NSString    *safeLpath;
+                            if ( sftpEscapeBytes( remote, strlen( remote ),
+                                                  esc_remote, sizeof( esc_remote ) ) < 0 ) {
+                                NSLog( @"remote path too long after escaping" );
+                                continue;
+                            }
+                            safeLpath = [[ dict objectForKey: @"lpath" ] sftpQuotedPath ];
+                            if ( fdwrite( master, "get%s\"%s\" \"%s\"\n", p, esc_remote,
+                                    ( void * )[ safeLpath UTF8String ] ) < 0 ) {
+                                NSLog( @"Failed to send command: %s", strerror( errno ));
+                            }
                         }
 
                         transferName = [ NSString stringWithBytesOfUnknownEncoding:
