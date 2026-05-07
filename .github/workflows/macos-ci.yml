@@ -1,0 +1,45 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build (Debug, unsigned)
+        run: |
+          xcodebuild \
+            -project Fugu.xcodeproj \
+            -scheme Fugu \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            clean build
+
+      - name: Analyze
+        run: |
+          xcodebuild \
+            -project Fugu.xcodeproj \
+            -scheme Fugu \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            analyze
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: ~/Library/Developer/Xcode/DerivedData/Fugu-*/Logs/
+          retention-days: 7
