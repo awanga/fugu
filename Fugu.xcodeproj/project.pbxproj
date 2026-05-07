@@ -769,13 +769,11 @@
 				09682FD007C5528A00210847 /* Resources */,
 				09682FFE07C5528A00210847 /* Sources */,
 				0968302807C5528A00210847 /* Frameworks */,
-				09EFC4C5099DA26400A7D599 /* ShellScript */,
 			);
 			buildRules = (
 				0968302F07C5528A00210847 /* PBXBuildRule */,
 			);
 			dependencies = (
-				0968303307C552F200210847 /* PBXTargetDependency */,
 			);
 			name = Fugu;
 			productInstallPath = "$(HOME)/Applications";
@@ -876,7 +874,6 @@
 				09682FF907C5528A00210847 /* trash.png in Resources */,
 				09682FFA07C5528A00210847 /* remotetrash.png in Resources */,
 				09682FFB07C5528A00210847 /* info.png in Resources */,
-				09682FFC07C5528A00210847 /* externaleditor in Resources */,
 				09682FFD07C5528A00210847 /* ODBEditors.plist in Resources */,
 				0962B4D4086663200072CC46 /* OnePaneBrowser.png in Resources */,
 				0962B4D6086663270072CC46 /* TwoPaneBrowser.png in Resources */,
@@ -1193,8 +1190,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1202,7 +1197,6 @@
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
 				INSTALL_PATH = /usr/local/bin;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1211,12 +1205,9 @@
 					ApplicationServices,
 				);
 				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = externaleditor;
 				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost";
-				ZERO_LINK = YES;
 			};
 			name = Development;
 		};
@@ -1224,7 +1215,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
@@ -1238,12 +1228,9 @@
 					ApplicationServices,
 				);
 				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = externaleditor;
 				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost";
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -1263,10 +1250,8 @@
 					ApplicationServices,
 				);
 				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = externaleditor;
 				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost";
 			};
 			name = Default;
@@ -1274,81 +1259,57 @@
 		091C74A3088611AF00C88B43 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CC = /usr/bin/gcc;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				COPY_PHASE_STRIP = NO;
-				CPLUSPLUS = "/usr/bin/g++";
 				CURRENT_PROJECT_VERSION = 116;
-				FRAMEWORK_SEARCH_PATHS = "";
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OPTIMIZATION_CFLAGS = "-O0";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = Fugu;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
 			};
 			name = Development;
 		};
 		091C74A4088611AF00C88B43 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CC = /usr/bin/gcc;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				COPY_PHASE_STRIP = YES;
-				CPLUSPLUS = "/usr/bin/g++";
 				CURRENT_PROJECT_VERSION = 116;
-				FRAMEWORK_SEARCH_PATHS = "";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = Fugu;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
 		091C74A5088611AF00C88B43 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CC = /usr/bin/gcc;
-				CPLUSPLUS = "/usr/bin/g++";
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CURRENT_PROJECT_VERSION = 116;
-				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = Fugu;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
