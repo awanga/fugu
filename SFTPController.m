@@ -5259,60 +5259,49 @@ INVALID_CONNECTION_SETTINGS:
     return( NSDragOperationNone );
 }
 
-- ( BOOL )tableView: ( NSTableView * )tableView writeRows: ( NSArray * )rows
+- ( BOOL )tableView: ( NSTableView * )tableView writeRowsWithIndexes: ( NSIndexSet * )rowIndexes
     toPasteboard: ( NSPasteboard * )pboard
 {
     id			dsrc = nil;
-    int 		i;
-    NSArray 		*anArray = [ NSArray array ];
+    NSArray		*anArray = [ NSArray array ];
     NSString		*path;
-    
+    NSUInteger		idx;
+
     if ( ! connected ) return( NO );
-    
+
     if ( tableView == localBrowser ) {
         if ( !dotflag ) {
             dsrc = [ dotlessLDir copy ];
         } else {
             dsrc = [ localDirContents copy ];
         }
-        
-        for ( i = 0; i < [ rows count ]; i++ ) {
-            path = [[ dsrc objectAtIndex: [[ rows objectAtIndex: i ] intValue ]]
-                            objectForKey: @"name" ];
+
+        for ( idx = [ rowIndexes firstIndex ]; idx != NSNotFound;
+              idx = [ rowIndexes indexGreaterThanIndex: idx ] ) {
+            path = [[ dsrc objectAtIndex: idx ] objectForKey: @"name" ];
             anArray = [ anArray arrayByAddingObject: path ];
         }
         [ pboard declareTypes: [ NSArray arrayWithObject: NSFilenamesPboardType ] owner: self ];
         [ pboard setPropertyList: anArray forType: NSFilenamesPboardType ];
     } else if ( tableView == remoteBrowser ) {
-#ifdef notdef
-        NSRect		imageLocation = [ remoteBrowser frameOfCellAtColumn: 0
-                                            row: [[ rows objectAtIndex: 0 ] intValue ]];
-#endif notdef
-        
         if ( !dotflag ) {
             dsrc = [ dotlessRDir copy ];
         } else {
             dsrc = [ remoteDirContents copy ];
         }
-        
-        for ( i = 0; i < [ rows count ]; i++ ) {
-            anArray = [ anArray arrayByAddingObject:
-                    [ dsrc objectAtIndex: [[ rows objectAtIndex: i ] intValue ]]];
+
+        for ( idx = [ rowIndexes firstIndex ]; idx != NSNotFound;
+              idx = [ rowIndexes indexGreaterThanIndex: idx ] ) {
+            anArray = [ anArray arrayByAddingObject: [ dsrc objectAtIndex: idx ]];
         }
         [ pboard declareTypes: [ NSArray arrayWithObject: NSFileContentsPboardType ]
                     owner: self ];
         [ pboard setPropertyList: anArray forType: NSFileContentsPboardType ];
-	[ remoteBrowser setDragPromisedFiles: YES ];
-#ifdef notdef
-        [ remoteBrowser dragPromisedFilesOfTypes: [ NSArray arrayWithObject: @"'docs'" ]
-		    fromRect: imageLocation source: remoteBrowser slideBack: YES
-                    event: [[ remoteBrowser window ] currentEvent ]];
-        return( NO );
-#endif notdef
+        [ remoteBrowser setDragPromisedFiles: YES ];
     }
-    
+
     [ dsrc release ];
-    
+
     return( YES );
 }
 
