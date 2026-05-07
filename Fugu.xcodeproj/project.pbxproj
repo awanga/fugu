@@ -1276,6 +1276,8 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "";
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "edu.umich.fugu";
 				PRODUCT_NAME = Fugu;
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -1297,6 +1299,8 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "";
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "edu.umich.fugu";
 				PRODUCT_NAME = Fugu;
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -1317,6 +1321,8 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "";
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "edu.umich.fugu";
 				PRODUCT_NAME = Fugu;
 				WARNING_CFLAGS = (
 					"-Wmost",
