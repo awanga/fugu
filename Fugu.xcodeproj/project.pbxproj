@@ -17,6 +17,7 @@
 		09682FAA07C5528A00210847 /* SFTPNode.h in Headers */ = {isa = PBXBuildFile; fileRef = F589A63D01B43A7301D5E771 /* SFTPNode.h */; };
 		09682FAB07C5528A00210847 /* SFTPAboutPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = F54056F701E6402401D5E771 /* SFTPAboutPanel.h */; };
 		09682FAC07C5528A00210847 /* SFTPTServer.h in Headers */ = {isa = PBXBuildFile; fileRef = F5939902021C375F01D5E771 /* SFTPTServer.h */; };
+		AA00000307C5528A00210847 /* SFTPListingParser.h in Headers */ = {isa = PBXBuildFile; fileRef = AA000001021C375F01D5E771 /* SFTPListingParser.h */; };
 		09682FAD07C5528A00210847 /* argcargv.h in Headers */ = {isa = PBXBuildFile; fileRef = F57EF22B023D053C01A8002B /* argcargv.h */; };
 		09682FAE07C5528A00210847 /* typeforchar.h in Headers */ = {isa = PBXBuildFile; fileRef = F585905002D2393A01D5EA79 /* typeforchar.h */; };
 		09682FAF07C5528A00210847 /* SFTPPrefs.h in Headers */ = {isa = PBXBuildFile; fileRef = F57214230307199D01A8002B /* SFTPPrefs.h */; };
@@ -104,6 +105,7 @@
 		0968300307C5528A00210847 /* SFTPNode.m in Sources */ = {isa = PBXBuildFile; fileRef = F589A63C01B43A7301D5E771 /* SFTPNode.m */; };
 		0968300407C5528A00210847 /* SFTPAboutPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = F54056F801E6402401D5E771 /* SFTPAboutPanel.m */; };
 		0968300507C5528A00210847 /* SFTPTServer.m in Sources */ = {isa = PBXBuildFile; fileRef = F5939901021C375F01D5E771 /* SFTPTServer.m */; };
+		AA00000407C5528A00210847 /* SFTPListingParser.m in Sources */ = {isa = PBXBuildFile; fileRef = AA000002021C375F01D5E771 /* SFTPListingParser.m */; };
 		0968300607C5528A00210847 /* argcargv.c in Sources */ = {isa = PBXBuildFile; fileRef = F57EF22A023D053C01A8002B /* argcargv.c */; };
 		0968300707C5528A00210847 /* typeforchar.c in Sources */ = {isa = PBXBuildFile; fileRef = F585904F02D2393A01D5EA79 /* typeforchar.c */; };
 		0968300807C5528A00210847 /* SFTPPrefs.m in Sources */ = {isa = PBXBuildFile; fileRef = F57214240307199D01A8002B /* SFTPPrefs.m */; };
@@ -410,6 +412,8 @@
 		F589A63D01B43A7301D5E771 /* SFTPNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SFTPNode.h; sourceTree = "<group>"; };
 		F5939901021C375F01D5E771 /* SFTPTServer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SFTPTServer.m; sourceTree = "<group>"; };
 		F5939902021C375F01D5E771 /* SFTPTServer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SFTPTServer.h; sourceTree = "<group>"; };
+		AA000002021C375F01D5E771 /* SFTPListingParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFTPListingParser.m; sourceTree = "<group>"; };
+		AA000001021C375F01D5E771 /* SFTPListingParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFTPListingParser.h; sourceTree = "<group>"; };
 		F5B12CC102DF4E6001D5EA79 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/Prefs.nib; sourceTree = "<group>"; };
 		F5D6EBA4031686A101A8002B /* SSHTunnel.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SSHTunnel.h; sourceTree = "<group>"; };
 		F5D6EBA5031686A101A8002B /* SSHTunnel.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SSHTunnel.m; sourceTree = "<group>"; };
@@ -452,6 +456,8 @@
 				F589A63801B43A7301D5E771 /* SFTPController.m */,
 				F5939901021C375F01D5E771 /* SFTPTServer.m */,
 				F5939902021C375F01D5E771 /* SFTPTServer.h */,
+				AA000002021C375F01D5E771 /* SFTPListingParser.m */,
+				AA000001021C375F01D5E771 /* SFTPListingParser.h */,
 				F58418F301B4201501D5E771 /* SFTPMainWindow.m */,
 				F58418F201B4201501D5E771 /* SFTPMainWindow.h */,
 				F589A63A01B43A7301D5E771 /* SFTPErrorHandler.m */,
@@ -716,6 +722,7 @@
 				09682FAA07C5528A00210847 /* SFTPNode.h in Headers */,
 				09682FAB07C5528A00210847 /* SFTPAboutPanel.h in Headers */,
 				09682FAC07C5528A00210847 /* SFTPTServer.h in Headers */,
+				AA00000307C5528A00210847 /* SFTPListingParser.h in Headers */,
 				09682FAD07C5528A00210847 /* argcargv.h in Headers */,
 				09682FAE07C5528A00210847 /* typeforchar.h in Headers */,
 				09682FAF07C5528A00210847 /* SFTPPrefs.h in Headers */,
@@ -927,6 +934,7 @@
 				0968300307C5528A00210847 /* SFTPNode.m in Sources */,
 				0968300407C5528A00210847 /* SFTPAboutPanel.m in Sources */,
 				0968300507C5528A00210847 /* SFTPTServer.m in Sources */,
+				AA00000407C5528A00210847 /* SFTPListingParser.m in Sources */,
 				0968300607C5528A00210847 /* argcargv.c in Sources */,
 				0968300707C5528A00210847 /* typeforchar.c in Sources */,
 				0968300807C5528A00210847 /* SFTPPrefs.m in Sources */,
