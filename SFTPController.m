@@ -2365,14 +2365,12 @@ WRITE_ERR:
 - ( void )makeRDir
 {
     if ( !connected ) return;
-    
+
+    NSString *safeName = [[ newDirNameField stringValue ] sftpQuotedPath ];
     [ self writeCommand: ( char * )[[ NSString
-            stringWithFormat: @"mkdir \"%@\"",
-            [ newDirNameField stringValue ]] UTF8String ]];
-            
-    while ( ![ tServer atSftpPrompt ] ) ;
+            stringWithFormat: @"mkdir \"%@\"", safeName ] UTF8String ]];
     [ self getListing ];
-    
+
     [ self dismissNewDirPanel: nil ];
 }
 

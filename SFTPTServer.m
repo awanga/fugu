@@ -164,8 +164,11 @@ int		master = 0;
                                     "Request for subsystem",
                                     "Cannot download",
                                     "ssh_exchange_identification",
-                                    "Operation timed out"
+                                    "Operation timed out",
                                     "no address associated with",
+                                    "No route to host",
+                                    "Network is unreachable",
+                                    "Host is down",
                                     "REMOTE HOST IDENTIFICATION HAS CHANGED" };
                                     
     if ( buf == NULL ) {
