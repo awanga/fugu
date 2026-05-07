@@ -5,17 +5,6 @@
 
 #import "SFTPImageView.h"
 
-@implementation NSImageCell(DraggableExtensions)
-
-- ( NSImage * )scaledImage
-{
-    return( _scaledImage );
-}
-
-@end
-
-
-
 @implementation SFTPImageView
 
 - ( void )awakeFromNib
@@ -29,7 +18,7 @@
     NSSize		dragOffset = NSMakeSize( 0.0, 0.0 );
     NSPasteboard	*pboard;
     NSImage		*dragImage = nil;
-    NSImage		*scaledImage = [[ self cell ] scaledImage ];
+    NSImage		*scaledImage = [ self image ];
     NSPoint		point;
     NSArray		*paths = nil;
     

@@ -33,6 +33,7 @@
 		09682FBA07C5528A00210847 /* UMFileLauncher.h in Headers */ = {isa = PBXBuildFile; fileRef = 0923B08803E846EE00A8002B /* UMFileLauncher.h */; };
 		09682FBB07C5528A00210847 /* UMVersionCheck.h in Headers */ = {isa = PBXBuildFile; fileRef = 0991811803F0262300A8002B /* UMVersionCheck.h */; };
 		09682FBC07C5528A00210847 /* keychain.h in Headers */ = {isa = PBXBuildFile; fileRef = 0977864F0430BF2000BEE8BF /* keychain.h */; };
+		0A4B8F1C0430BF2000BEE8BF /* UMKeychain.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A4B8F1A0430BF2000BEE8BF /* UMKeychain.h */; };
 		09682FBD07C5528A00210847 /* SFTPScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 09554B1D03CE87CA00D5E7D1 /* SFTPScrollView.h */; };
 		09682FBE07C5528A00210847 /* SFTPItemCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 095C52200442121400A8002B /* SFTPItemCell.h */; };
 		09682FBF07C5528A00210847 /* SFTPPrefTableView.h in Headers */ = {isa = PBXBuildFile; fileRef = 09AE0F7204812A6300A8002B /* SFTPPrefTableView.h */; };
@@ -119,6 +120,7 @@
 		0968301307C5528A00210847 /* UMFileLauncher.m in Sources */ = {isa = PBXBuildFile; fileRef = 0923B08903E846EE00A8002B /* UMFileLauncher.m */; };
 		0968301407C5528A00210847 /* UMVersionCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = 0991811903F0262300A8002B /* UMVersionCheck.m */; };
 		0968301507C5528A00210847 /* keychain.c in Sources */ = {isa = PBXBuildFile; fileRef = 097786500430BF2000BEE8BF /* keychain.c */; };
+		0A4B8F1D0430BF2000BEE8BF /* UMKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B8F1B0430BF2000BEE8BF /* UMKeychain.m */; };
 		0968301607C5528A00210847 /* SFTPScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 09554B1E03CE87CA00D5E7D1 /* SFTPScrollView.m */; };
 		0968301707C5528A00210847 /* SFTPItemCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 095C52210442121400A8002B /* SFTPItemCell.m */; };
 		0968301807C5528A00210847 /* SFTPPrefTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 09AE0F7304812A6300A8002B /* SFTPPrefTableView.m */; };
@@ -203,12 +205,12 @@
 		09338C9903FD98AE00D5EA79 /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = German.lproj/Prefs.nib; sourceTree = "<group>"; };
 		09338C9A03FD98C300D5EA79 /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = German.lproj/SCP.nib; sourceTree = "<group>"; };
 		09338C9B03FD98D800D5EA79 /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = German.lproj/SSHTunnel.nib; sourceTree = "<group>"; };
-		09338C9C03FD98ED00D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/SCP.strings; sourceTree = "<group>"; };
-		09338C9D03FD990300D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/HelpMenu.strings; sourceTree = "<group>"; };
-		09338C9E03FD991500D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; };
-		09338C9F03FD997F00D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/SFTPInfoPanel.strings; sourceTree = "<group>"; };
-		09338CA003FD999600D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/SFTPToolbar.strings; sourceTree = "<group>"; };
-		09338CA103FD99AC00D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
+		09338C9C03FD98ED00D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/SCP.strings; sourceTree = "<group>"; };
+		09338C9D03FD990300D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/HelpMenu.strings; sourceTree = "<group>"; };
+		09338C9E03FD991500D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; };
+		09338C9F03FD997F00D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/SFTPInfoPanel.strings; sourceTree = "<group>"; };
+		09338CA003FD999600D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/SFTPToolbar.strings; sourceTree = "<group>"; };
+		09338CA103FD99AC00D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
 		0934447B0524C5E500D5E7DF /* newfolder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = newfolder.png; sourceTree = "<group>"; };
 		0934447C0524C5E500D5E7DF /* symlink.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = symlink.png; sourceTree = "<group>"; };
 		0934447E0524C5E500D5E7DF /* uparrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = uparrow.png; sourceTree = "<group>"; };
@@ -216,7 +218,7 @@
 		0934448B0524CAB600D5E7DF /* remotetrash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = remotetrash.png; sourceTree = "<group>"; };
 		0936A56005220F8600D5E7DF /* NSMutableArray(Extensions).h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray(Extensions).h"; sourceTree = "<group>"; };
 		0936A56105220F8600D5E7DF /* NSMutableArray(Extensions).m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray(Extensions).m"; sourceTree = "<group>"; };
-		09448C5F03F052C200A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
+		09448C5F03F052C200A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		094AF260054772B6006D53C9 /* info.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = info.png; sourceTree = "<group>"; };
 		094AF26405481FDF006D53C9 /* French */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = French; path = "French.lproj/Fugu README.rtfd"; sourceTree = "<group>"; };
 		09554B1D03CE87CA00D5E7D1 /* SFTPScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFTPScrollView.h; sourceTree = "<group>"; };
@@ -235,8 +237,8 @@
 		095D40E3048E86BC009C52F5 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Spanish; path = Spanish.lproj/SFTPToolbar.strings; sourceTree = "<group>"; };
 		095D40E4048E86BC009C52F5 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Spanish; path = Spanish.lproj/SSHTunnel.nib; sourceTree = "<group>"; };
 		095D40E5048E86BC009C52F5 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Spanish; path = Spanish.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
-		0960E33503F05A2800A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/SFTPToolbar.strings; sourceTree = "<group>"; };
-		0960E33803F063A700A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/HelpMenu.strings; sourceTree = "<group>"; };
+		0960E33503F05A2800A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/SFTPToolbar.strings; sourceTree = "<group>"; };
+		0960E33803F063A700A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/HelpMenu.strings; sourceTree = "<group>"; };
 		0962B4D3086663200072CC46 /* OnePaneBrowser.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OnePaneBrowser.png; sourceTree = "<group>"; };
 		0962B4D5086663270072CC46 /* TwoPaneBrowser.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TwoPaneBrowser.png; sourceTree = "<group>"; };
 		09682E8207C4F07300210847 /* UMTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UMTextField.h; sourceTree = "<group>"; };
@@ -245,18 +247,18 @@
 		09682EE607C5005400210847 /* UMDragDropImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UMDragDropImageView.m; sourceTree = "<group>"; };
 		0968302E07C5528A00210847 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Info.plist; sourceTree = "<group>"; };
 		0968303007C5528A00210847 /* Fugu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fugu.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		096A883C03F1B71700A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/SFTPInfoPanel.strings; sourceTree = "<group>"; };
+		096A883C03F1B71700A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/SFTPInfoPanel.strings; sourceTree = "<group>"; };
 		096C4A850413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/HelpMenu.strings; sourceTree = "<group>"; };
 		096C4A870413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
 		096C4A880413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Japanese; path = Japanese.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		096C4A890413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Japanese; path = Japanese.lproj/Prefs.nib; sourceTree = "<group>"; };
 		096C4A8A0413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Japanese; path = Japanese.lproj/SCP.nib; sourceTree = "<group>"; };
-		096C4A8B0413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/SCP.strings; sourceTree = "<group>"; };
+		096C4A8B0413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/SCP.strings; sourceTree = "<group>"; };
 		096C4A8C0413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/SFTPInfoPanel.strings; sourceTree = "<group>"; };
 		096C4A8D0413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/SFTPToolbar.strings; sourceTree = "<group>"; };
 		096C4A8E0413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Japanese; path = Japanese.lproj/SSHTunnel.nib; sourceTree = "<group>"; };
 		096C4A8F0413F74D003D9332 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
-		0971F3FB03F2DFC700A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/SCP.strings; sourceTree = "<group>"; };
+		0971F3FB03F2DFC700A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/SCP.strings; sourceTree = "<group>"; };
 		0977864F0430BF2000BEE8BF /* keychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keychain.h; sourceTree = "<group>"; };
 		097786500430BF2000BEE8BF /* keychain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = keychain.c; sourceTree = "<group>"; };
 		097EE2D0070BA9ED00305C66 /* externaleditor */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = externaleditor; path = build/externaleditor; sourceTree = "<group>"; };
@@ -288,6 +290,8 @@
 		0985D5CC074A9A2A00B8ED3B /* ODBEditors.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = ODBEditors.plist; sourceTree = "<group>"; };
 		0991811803F0262300A8002B /* UMVersionCheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UMVersionCheck.h; sourceTree = "<group>"; };
 		0991811903F0262300A8002B /* UMVersionCheck.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UMVersionCheck.m; sourceTree = "<group>"; };
+		0A4B8F1A0430BF2000BEE8BF /* UMKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UMKeychain.h; sourceTree = "<group>"; };
+		0A4B8F1B0430BF2000BEE8BF /* UMKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UMKeychain.m; sourceTree = "<group>"; };
 		0994319704C5AEDE0066CB97 /* NSWorkspace(LaunchServices).h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSWorkspace(LaunchServices).h"; sourceTree = "<group>"; };
 		0994319804C5AEDE0066CB97 /* NSWorkspace(LaunchServices).m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSWorkspace(LaunchServices).m"; sourceTree = "<group>"; };
 		099BE67705222CDA0038D787 /* NSCalendarDate(ConvertToSeconds).h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSCalendarDate(ConvertToSeconds).h"; sourceTree = "<group>"; };
@@ -364,7 +368,7 @@
 		09F5CD7303F04CF600A8002B /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/SCP.nib; sourceTree = "<group>"; };
 		09F9EDCE04CC74CB00D5EA79 /* files.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = files.png; sourceTree = "<group>"; };
 		09F9EDD004CC841F00D5EA79 /* transfers.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = transfers.png; sourceTree = "<group>"; };
-		09FFFC6403F992BE00A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
+		09FFFC6403F992BE00A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
 		09FFFC7903FC38BF00A8002B /* history.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = history.png; sourceTree = "<group>"; };
 		09FFFC7B03FC3CA600A8002B /* remotehistory.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = remotehistory.png; sourceTree = "<group>"; };
 		09FFFC7C03FC3CA600A8002B /* remotehome.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = remotehome.png; sourceTree = "<group>"; };
@@ -469,6 +473,8 @@
 				0923B08903E846EE00A8002B /* UMFileLauncher.m */,
 				0991811803F0262300A8002B /* UMVersionCheck.h */,
 				0991811903F0262300A8002B /* UMVersionCheck.m */,
+				0A4B8F1A0430BF2000BEE8BF /* UMKeychain.h */,
+				0A4B8F1B0430BF2000BEE8BF /* UMKeychain.m */,
 			);
 			name = "Misc Classes";
 			sourceTree = "<group>";
@@ -726,6 +732,7 @@
 				09682FBA07C5528A00210847 /* UMFileLauncher.h in Headers */,
 				09682FBB07C5528A00210847 /* UMVersionCheck.h in Headers */,
 				09682FBC07C5528A00210847 /* keychain.h in Headers */,
+				0A4B8F1C0430BF2000BEE8BF /* UMKeychain.h in Headers */,
 				09682FBD07C5528A00210847 /* SFTPScrollView.h in Headers */,
 				09682FBE07C5528A00210847 /* SFTPItemCell.h in Headers */,
 				09682FBF07C5528A00210847 /* SFTPPrefTableView.h in Headers */,
@@ -936,6 +943,7 @@
 				0968301307C5528A00210847 /* UMFileLauncher.m in Sources */,
 				0968301407C5528A00210847 /* UMVersionCheck.m in Sources */,
 				0968301507C5528A00210847 /* keychain.c in Sources */,
+				0A4B8F1D0430BF2000BEE8BF /* UMKeychain.m in Sources */,
 				0968301607C5528A00210847 /* SFTPScrollView.m in Sources */,
 				0968301707C5528A00210847 /* SFTPItemCell.m in Sources */,
 				0968301807C5528A00210847 /* SFTPPrefTableView.m in Sources */,

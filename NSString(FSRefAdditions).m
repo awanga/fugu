@@ -51,17 +51,8 @@
 
 + ( NSString * )stringWithFSSpec: ( FSSpec * )fsspec
 {
-    OSErr		err;
-    FSRef		ref;
-    
-    err = FSpMakeFSRef( fsspec, &ref );
-	
-    if ( err != noErr ) {
-	NSLog( @"FSpMakeFSRef failed: error %d", err );
-	return( nil );
-    }
-    
-    return( [ self stringWithFSRef: &ref ] );
+    /* FSpMakeFSRef removed from macOS 12+ SDK; ODB editor path is disabled */
+    return( nil );
 }
 
 + ( NSString * )stringWithAlias: ( AliasHandle )alias

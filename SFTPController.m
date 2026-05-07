@@ -56,6 +56,10 @@
 #include "keychain.h"
 #include "sshversion.h"
 
+#ifndef typeFSS
+#define typeFSS 'fss '
+#endif
+
 #define C_TMPFUGUDIR	"/private/tmp/Fugu"
 #define OBJC_TMPFUGUDIR	@"/private/tmp/Fugu"
 
@@ -74,7 +78,7 @@ static NSMutableString	*typeAheadString = nil;
 static char		*lsform;
 static float		ssh_version;
 
-    int
+    NSInteger
 namecmp( id ob1, id ob2, void *context )
 {
     unsigned		*sorttype;
@@ -86,7 +90,7 @@ namecmp( id ob1, id ob2, void *context )
                 options: *sorttype ] );
 }
 
-    int
+    NSInteger
 datecmp( id ob1, id ob2, void *context )
 {
     NSComparisonResult	result = NSOrderedSame;
@@ -108,7 +112,7 @@ datecmp( id ob1, id ob2, void *context )
     return( result );
 }
 
-    int
+    NSInteger
 sizecmp( id ob1, id ob2, void *context )
 {
     NSComparisonResult	result = NSOrderedSame;
@@ -130,7 +134,7 @@ sizecmp( id ob1, id ob2, void *context )
     return( result );
 }
 
-    int
+    NSInteger
 ownercmp( id ob1, id ob2, void *context )
 {
     return( [[ ob1 objectForKey: @"owner" ]
@@ -138,7 +142,7 @@ ownercmp( id ob1, id ob2, void *context )
                 options: NSLiteralSearch ] );
 }
 
-    int
+    NSInteger
 groupcmp( id ob1, id ob2, void *context )
 {
     return( [[ ob1 objectForKey: @"group" ]
@@ -146,7 +150,7 @@ groupcmp( id ob1, id ob2, void *context )
                 options: NSLiteralSearch ] );
 }
 
-    int
+    NSInteger
 permcmp( id ob1, id ob2, void *context )
 {
     return( [[ ob1 objectForKey: @"perm" ]
@@ -154,7 +158,7 @@ permcmp( id ob1, id ob2, void *context )
                 options: NSLiteralSearch ] );
 }
 
-    int
+    NSInteger
 ( *sortFunctionForIdentifier( id identifier ))( id, id, void * )
 {
     if ( [ identifier isEqualToString: @"namecolumn" ] ) {
@@ -4865,7 +4869,7 @@ INVALID_CONNECTION_SETTINGS:
 {
     NSArray		*columns = [ table tableColumns ];
     int			i, sortdirection;
-    int			( *sortFunction )( id, id, void * );
+    NSInteger		( *sortFunction )( id, id, void * );
     unsigned		context;
     id			identifier;
     NSImage		*image = nil;
