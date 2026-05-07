@@ -2090,10 +2090,10 @@ WRITE_ERR:
     }
     
     source = ( dotflag ? localDirContents : dotlessLDir );
-    items = [[ NSMutableArray alloc ] init ];
+    items = [ NSMutableArray array ];
     en = [ localBrowser selectedRowEnumerator ];
     p = [[ NSAutoreleasePool alloc ] init ];
-    
+
     while (( tobj = [ en nextObject ] ) != nil ) {
         [ items addObject: [[[ source objectAtIndex:
                 [ tobj intValue ]] objectForKey: @"name" ] lastPathComponent ]];
@@ -2104,7 +2104,6 @@ WRITE_ERR:
 
     switch ( [ items count ] ) {
     case 0:
-        [ items release ];
         return;
     case 1:
         fn = [ items objectAtIndex: 0 ];
@@ -2164,10 +2163,10 @@ WRITE_ERR:
     
     if ( row < 0 || !connected ) return;
     
-    items = [[ NSMutableArray alloc ] init ];
+    items = [ NSMutableArray array ];
     en = [ remoteBrowser selectedRowEnumerator ];
     p = [[ NSAutoreleasePool alloc ] init ];
-    
+
     while (( dobj = [ en nextObject ] ) != nil ) {
         [ items addObject: (( dotflag ) ?
                 [ remoteDirContents objectAtIndex: [ dobj intValue ]] :
@@ -2177,7 +2176,6 @@ WRITE_ERR:
 
     switch ( [ items count ] ) {
     case 0:
-        [ items release ];
         return;
     case 1:
         fn = [[ items objectAtIndex: 0 ] objectForKey: @"name" ];
@@ -2833,27 +2831,25 @@ NSLog( @"setting springloaded root" );
 - ( void )queueSFTPCommand: ( const char * )fmt, ...
 {
     NSData              *commandData = nil;
-    NSMutableArray      *commandQueue = [ self SFTPCommandQueue ];
     va_list             val;
     char                cmd[ LINE_MAX ];
-    
+
     va_start( val, fmt );
     if ( vsnprintf( cmd, LINE_MAX, fmt, val ) >= LINE_MAX ) {
-        /* XXXX better error handling */
         NSLog( @"command too long" );
         return;
     }
-    
-    if ( commandQueue == nil ) {
-        commandQueue = [[ NSMutableArray alloc ] init ];
+
+    if ( _sftpCommandQueue == nil ) {
+        _sftpCommandQueue = [[ NSMutableArray alloc ] init ];
     }
     commandData = [ NSData dataWithBytes: cmd length: strlen( cmd ) ];
-    
+
     NSAssert(( commandData != nil ),
                 @"+dataWithBytes:length: for command returned nil!" );
-    
-     /* emulate a FIFO. next command is retrieved with -lastObject */
-    [ commandQueue insertObject: commandData atIndex: 0 ];
+
+    /* emulate a FIFO. next command is retrieved with -lastObject */
+    [ _sftpCommandQueue insertObject: commandData atIndex: 0 ];
 }
 
 - ( NSMutableArray * )SFTPCommandQueue

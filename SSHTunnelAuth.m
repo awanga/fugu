@@ -121,6 +121,8 @@ int		mfd = 0;
             FD_SET( mfd, &readmask );
             if ( select( mfd + 1, &readmask, NULL, NULL, NULL ) < 0 ) {
                 NSLog( @"select() returned a value less than zero" );
+                [ pool release ];
+                fclose( mfp );
                 return;
             }
             
@@ -177,7 +179,9 @@ int		mfd = 0;
         if ( threestrikes == 3 ) {
             [ controller connectionError: @"Authentication failed." ];
         }
-        
+
+        fclose( mfp );  /* also closes the mfd fd */
+
         wait( &status );
         
         NSLog( @"exited with %d", WEXITSTATUS( status ));

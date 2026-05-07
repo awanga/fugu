@@ -514,6 +514,7 @@ DOT_OR_DOTDOT:
 
     if (( sftpBinary = [ NSString pathForExecutable: @"sftp" ] ) == nil ) {
 	NSLog( @"Couldn't find sftp!" );
+	[ passedInArgs release ];
 	return;
     }
 
@@ -791,7 +792,7 @@ DOT_OR_DOTDOT:
     [ self setCurrentTransferName: nil ];
     [ remoteDirBuf release ];
     connected = 0;
-    ( void )close( master );
+    fclose( mf );   /* also closes the master fd */
 
     [ controller cleanUp ];
     [ controller addToLog: [ NSString stringWithUTF8String: ( void * )buf ]];

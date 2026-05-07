@@ -55,7 +55,7 @@
         }
     }
 
-    return(( NSString * )convertedString );
+    return [( NSString * )convertedString autorelease];
 }
 
 + ( NSString * )stringWithBytesOfUnknownEncoding: ( char * )bytes
@@ -67,13 +67,13 @@
                                                 kCFStringEncodingISOLatin1,
                                                 kCFStringEncodingWindowsLatin1,
                                                 kCFStringEncodingNextStepLatin };
-    
+
     if ( bytes == NULL ) {
         return( nil );
     }
-    
+
     enccount = ( sizeof( encodings ) / sizeof( CFStringEncoding ));
-    
+
     for ( i = 0; i < enccount; i++) {
         if (( convertedString = CFStringCreateWithBytes( kCFAllocatorDefault,
                         ( UInt8 * )bytes, len, encodings[ i ], false )) != NULL ) {
@@ -82,15 +82,10 @@
     }
 
     if ( convertedString == NULL ) {
-        convertedString = ( CFStringRef )[ NSString stringWithBytesOfUnknownExternalEncoding: bytes
-                                            length: len ];
+        return [ NSString stringWithBytesOfUnknownExternalEncoding: bytes length: len ];
     }
-    
-    if ( convertedString != NULL ) {
-        [ ( NSString * )convertedString autorelease ];
-    }
-                                    
-    return(( NSString * )convertedString );
+
+    return [( NSString * )convertedString autorelease];
 }
 
 @end

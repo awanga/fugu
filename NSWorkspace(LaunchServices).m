@@ -30,13 +30,16 @@
 	if (( arrayref = CFArrayCreate( kCFAllocatorDefault,
 		    ( const void ** )&fileurl, 1, NULL )) == NULL ) {
 	    NSLog( @"CFArrayCreate failed." );
+	    CFRelease( fileurl );
 	    return( NO );
 	}
     }
-    
+
     if ( appref != NULL ) {
 	if (( appurl = CFURLCreateFromFSRef( kCFAllocatorDefault, appref )) == NULL ) {
 	    NSLog( @"CFURLCreateFromFSRef failed." );
+	    if ( arrayref != NULL ) CFRelease( arrayref );
+	    if ( fileurl != NULL ) CFRelease( fileurl );
 	    return( NO );
 	}
     }
