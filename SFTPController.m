@@ -60,9 +60,6 @@
 #define typeFSS 'fss '
 #endif
 
-#define C_TMPFUGUDIR	"/private/tmp/Fugu"
-#define OBJC_TMPFUGUDIR	@"/private/tmp/Fugu"
-
 NSString		*basedir = nil;
 
 extern int		cancelflag;
@@ -233,6 +230,7 @@ permcmp( id ob1, id ob2, void *context )
     scp = nil;
     _springLoadedRootPath = nil;
     _sftpCommandQueue = nil;
+    _tempDirectories = nil;
     
 #ifdef notdef
     [[ NSAppleEventManager sharedAppleEventManager ] setEventHandler: self
@@ -926,7 +924,9 @@ permcmp( id ob1, id ob2, void *context )
     [ self reloadDefaults ];
     
     [ self toolbarSetup ];
-    
+
+    [ self cleanupStaleTempDirectories ];
+
     /* search for rendezvous-enabled ssh servers */
     [ rendezvousPopUp setEnabled: NO ];
     
@@ -1469,10 +1469,68 @@ WRITE_ERR:
     [ localBrowser setNextKeyView: remoteHost ];
 }
 
+- ( void )cleanupTempDirectories
+{
+    NSFileManager   *fm = [ NSFileManager defaultManager ];
+    NSEnumerator    *en;
+    NSString        *dir;
+
+    if ( _tempDirectories == nil ) return;
+    en = [ _tempDirectories objectEnumerator ];
+    while (( dir = [ en nextObject ] ) != nil ) {
+        NSError *err = nil;
+        if ( ![ fm removeItemAtPath: dir error: &err ] && err != nil ) {
+            NSLog( @"Could not remove temp dir %@: %@", dir, [ err localizedDescription ] );
+        }
+    }
+    [ _tempDirectories removeAllObjects ];
+}
+
+- ( void )cleanupStaleTempDirectories
+{
+    NSFileManager       *fm = [ NSFileManager defaultManager ];
+    NSString            *tmpBase = NSTemporaryDirectory();
+    NSError             *err = nil;
+    NSArray             *entries;
+    NSString            *prefix = [ NSString stringWithUTF8String: FUGU_TMPDIR_PREFIX ];
+
+    entries = [ fm contentsOfDirectoryAtPath: tmpBase error: &err ];
+    if ( entries == nil ) return;
+
+    for ( NSString *name in entries ) {
+        if ( ![ name hasPrefix: prefix ] ) continue;
+        NSString *full = [ tmpBase stringByAppendingPathComponent: name ];
+        NSDictionary *attrs = [ fm attributesOfItemAtPath: full error: nil ];
+        if ( attrs == nil ) continue;
+        /* only remove directories we own */
+        if ( [[ attrs objectForKey: NSFileOwnerAccountID ] unsignedLongValue ]
+                != ( unsigned long )getuid() ) continue;
+        if ( [[ attrs objectForKey: NSFileType ] isEqualToString: NSFileTypeDirectory ] ) {
+            if ( ![ fm removeItemAtPath: full error: nil ] ) {
+                NSLog( @"Could not remove stale temp dir %@", full );
+            }
+        }
+    }
+}
+
+- ( NSString * )makeSessionTempDirectory
+{
+    NSString *tmpDir = [[ NSFileManager defaultManager ]
+                            makeTemporaryDirectoryWithMode: 0700 ];
+    if ( tmpDir != nil ) {
+        if ( _tempDirectories == nil ) {
+            _tempDirectories = [[ NSMutableArray alloc ] init ];
+        }
+        [ _tempDirectories addObject: tmpDir ];
+    }
+    return( tmpDir );
+}
+
 - ( void )cleanUp
 {
     int		i;
-    
+
+    [ self cleanupTempDirectories ];
     [ uploadQueue removeAllObjects ];
     if ( [ rPathPopUp numberOfItems ] ) {
         [[ rPathPopUp itemAtIndex: 0 ] setImage: nil ];
@@ -3479,18 +3537,17 @@ NSLog( @"setting springloaded root" );
         return;
     }
     
-    tmppath = [[ NSFileManager defaultManager ]
-                    makeTemporaryDirectoryWithMode: ( mode_t )0700 ];
-                    
+    tmppath = [ self makeSessionTempDirectory ];
+
     if ( tmppath == nil ) {
         NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
             @"mkdir: %s", NSLocalizedString( @"OK", @"OK" ), @"", @"",
             strerror( errno ));
         return;
     }
-    
-    tmppath = [ tmppath stringByAppendingPathComponent: filename ];
-    
+
+    tmppath = [ tmppath stringByAppendingPathComponent: [ filename lastPathComponent ] ];
+
     [ self setPreviewedImage: tmppath ];
     [ self addToCachedPreviews: [ NSDictionary dictionaryWithObjectsAndKeys:
                 filepath, @"RemotePath",
@@ -3674,9 +3731,8 @@ NSLog( @"setting springloaded root" );
     NSString            *objcFilepath = nil;
     char                filepath[ MAXPATHLEN ], name[ MAXPATHLEN ] = { 0 };
     
-    tmppath = [[ NSFileManager defaultManager ]
-                makeTemporaryDirectoryWithMode: ( mode_t )0700 ];
-    
+    tmppath = [ self makeSessionTempDirectory ];
+
     if ( tmppath == nil ) {
         NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
             @"mkdir: %s", NSLocalizedString( @"OK", @"OK" ), @"", @"",
@@ -3685,7 +3741,7 @@ NSLog( @"setting springloaded root" );
     }
 
     memcpy( name, [ data bytes ], [ data length ] );
-    tmppath = [ tmppath stringByAppendingPathComponent: filename ];
+    tmppath = [ tmppath stringByAppendingPathComponent: [ filename lastPathComponent ] ];
     if ( snprintf( filepath, MAXPATHLEN, "%s/%s",
                 [ remoteDirPath UTF8String ], name ) >= MAXPATHLEN ) {
         NSLog( @"%@/%s: path too long", remoteDirPath, name );
@@ -5367,13 +5423,8 @@ INVALID_CONNECTION_SETTINGS:
         kill( sftppid, SIGTERM );
     }
 
-    if ( access( C_TMPFUGUDIR, F_OK | W_OK ) == 0 ) {
-        if ( [[ NSFileManager defaultManager ]
-                removeFileAtPath: OBJC_TMPFUGUDIR handler: nil ] == NO ) {
-            NSLog( @"Couldn't remove %@!", OBJC_TMPFUGUDIR );
-        }
-    }
-    
+    [ self cleanupTempDirectories ];
+
     /* save column settings */
     array = [ localBrowser tableColumns ];
     columnArray = [[ NSMutableArray alloc ] init ];

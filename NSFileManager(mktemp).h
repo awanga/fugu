@@ -5,11 +5,17 @@
 
 #import <AppKit/AppKit.h>
 
-#define C_TMPFUGUDIR		"/private/tmp/Fugu"
-#define OBJC_TMPFUGUDIR 	@"/private/tmp/Fugu"
+#define FUGU_TMPDIR_PREFIX  "com.umich.fugu."
 
 @interface NSFileManager(mktemp)
 
+/*
+ * Create a per-call temporary directory under NSTemporaryDirectory().
+ * Template: NSTemporaryDirectory()/com.umich.fugu.XXXXXX
+ * mkdtemp(3) guarantees mode 0700; the mode parameter is ignored and
+ * retained only for API compatibility.
+ * Returns the created path, or nil on failure.
+ */
 - ( NSString * )makeTemporaryDirectoryWithMode: ( mode_t )mode;
 
 @end

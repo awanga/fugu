@@ -7,28 +7,24 @@
 
 #include <sys/types.h>
 #include <sys/param.h>
-#include <sys/stat.h>
 #include <errno.h>
-#include <unistd.h>
 
 @implementation NSFileManager(mktemp)
 
 - ( NSString * )makeTemporaryDirectoryWithMode: ( mode_t )mode
 {
-    char	template[ MAXPATHLEN ] = "/private/tmp/Fugu/tmp.XXXXXX";
-    
-    if ( mkdir( C_TMPFUGUDIR, mode ) < 0 ) {
-	if ( errno != EEXIST ) {
-	    return( nil );
-	}
+    (void)mode;         /* mkdtemp always creates with 0700 */
+    NSString    *base = NSTemporaryDirectory();
+    char        tmpl[ MAXPATHLEN ];
+
+    if ( snprintf( tmpl, MAXPATHLEN, "%s" FUGU_TMPDIR_PREFIX "XXXXXX",
+                   [ base fileSystemRepresentation ] ) >= MAXPATHLEN ) {
+        return( nil );
     }
-    if ( mkdtemp( template ) == NULL ) {
-	if ( errno != EEXIST ) {
-	    return( nil );
-	}
+    if ( mkdtemp( tmpl ) == NULL ) {
+        return( nil );
     }
-    
-    return( [ NSString stringWithUTF8String: template ] );
+    return( [ NSString stringWithUTF8String: tmpl ] );
 }
 
 @end

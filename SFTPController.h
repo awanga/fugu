@@ -245,6 +245,9 @@
     
     /* command queue */
     NSMutableArray              *_sftpCommandQueue;
+
+    /* temp directories created this session; cleaned up on disconnect and quit */
+    NSMutableArray              *_tempDirectories;
 }
 
 - ( void )showUploadProgress;
