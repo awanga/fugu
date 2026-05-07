@@ -284,7 +284,7 @@ int		master = 0;
 
 - ( NSMutableDictionary * )remoteObjectFromSFTPLine: ( char * )object
 {
-    int			j, tac, len;
+    int			j, tac, len = 0;
     int			datecolumn = -1, ownercolumn = 2;
     char                line[ MAXPATHLEN * 2 ] = { 0 };
     char                *filename = NULL;
@@ -815,6 +815,8 @@ DOT_OR_DOTDOT:
     char                buf[ MAXPATHLEN * 2 ] = { 0 };
     char                tmp1[ MAXPATHLEN * 2 ], tmp2[ MAXPATHLEN * 2 ];
     int                 len, incomplete_line = 0;
+
+    fncolumn = -1;
     fd_set              readmask;
     NSMutableDictionary *object = nil;
     NSMutableArray      *items = nil;
