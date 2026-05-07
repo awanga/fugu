@@ -1,0 +1,30 @@
+# Xcode build artifacts
+build/
+DerivedData/
+*.xcarchive
+*.xcresult
+*.dSYM/
+*.hmap
+*.ipa
+*.xcuserstate
+xcuserdata/
+*.moved-aside
+*.xccheckout
+
+# Object files and static libs
+*.o
+*.a
+
+# macOS finder state
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Agent context and planning docs (local only, not for distribution)
+*.md
+docs/
+
+# Editor backups
+*.orig
+*~
