@@ -56,12 +56,14 @@ int		connecting = 0;
 int		connected = 0;
 int		master = 0;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 + ( void )connectWithPorts: ( NSArray * )ports
 {
     NSAutoreleasePool		*pool = [[ NSAutoreleasePool alloc ] init ];
     NSConnection		*cnctnToController;
     SFTPTServer			*serverObject;
-    
+
     cnctnToController = [ NSConnection connectionWithReceivePort:
                             [ ports objectAtIndex: 0 ]
                             sendPort: [ ports objectAtIndex: 1 ]];
@@ -70,9 +72,10 @@ int		master = 0;
     [ (( SFTPController * )[ cnctnToController rootProxy ] ) setServer: serverObject ];
     [ serverObject release ];
     
-    [[ NSRunLoop currentRunLoop ] run ];  
+    [[ NSRunLoop currentRunLoop ] run ];
     [ pool release ];
 }
+#pragma clang diagnostic pop
 
 - ( id )init
 {
@@ -313,7 +316,7 @@ int		master = 0;
     fd_set		readmask;
     struct winsize	win_size = { 24, 512, 0, 0 };
     FILE		*mf = NULL;
-    int			rc, status, pwsent = 0, validpw = 0, showrb = 0, threestrikes = 0;
+    int			rc, status, validpw = 0, threestrikes = 0;
     int			was_uploading = 0, was_downloading = 0, was_changing = 0, sethomedir = 0;
     int			was_removing = 0, was_renaming = 0, was_listing = 0;
     int			suppress_auth_log = 0;
@@ -407,18 +410,15 @@ int		master = 0;
                     [ controller passError ];
                 };
                 if ( connecting ) [ controller requestPasswordWithPrompt: ( char * )buf ];
-                pwsent = 1;
                 suppress_auth_log = 1;
             } else if ( strstr(( char * )buf, "rename \"" ) != NULL ) {
                 was_renaming = 1;
             } else if ( strstr(( char * )buf, "sftp> " ) != NULL ) {
                 atprompt = 1;
                 if ( !connected ) {
-                    pwsent++;	/* for key auth */
                     validpw++;
                     suppress_auth_log = 0;
                     [ controller showRemoteFiles ];
-                    showrb++;
                 } else if ( !sethomedir ) {
                     [ controller getListing ];
                     sethomedir++;
@@ -472,7 +472,7 @@ int		master = 0;
                         NSString        *transferName = nil;
                         char		*p = " ";
 			char		remote[ MAXPATHLEN ] = { 0 };
-			int		len;
+			size_t		len;
                         
                         if ( [[ NSUserDefaults standardUserDefaults ]
                                         boolForKey: @"RetainFileTimestamp" ] ) {
@@ -504,7 +504,7 @@ int		master = 0;
 
                         transferName = [ NSString stringWithBytesOfUnknownEncoding:
                                                 ( char * )[[ dict objectForKey: @"rpath" ] bytes ]
-                                                length: [( NSData * )[ dict objectForKey: @"rpath" ] length ]];
+                                                length: ( unsigned int )[( NSData * )[ dict objectForKey: @"rpath" ] length ]];
                         [ self setCurrentTransferName: [ transferName lastPathComponent ]];
                         [ controller showDownloadProgressWithMessage:
                                 ( char * )[[ transferName lastPathComponent ] UTF8String ]];
@@ -532,7 +532,6 @@ int		master = 0;
                 
                 if ( strncmp(( char * )buf, "Permission denied, ",
                                 strlen( "Permission denied, " )) == 0 ) {
-                    pwsent = 0;
                     suppress_auth_log = 0;
                     threestrikes++;
                 } else if ( [ self bufferContainsError: buf ] ) {
@@ -551,7 +550,6 @@ int		master = 0;
                         }
                     }
                 } else if ( strstr(( char * )buf, "passphrase for key" ) != NULL ) {
-                    pwsent = 0;
                     suppress_auth_log = 1;
                     threestrikes = 0;	/* if pubkey auth fails, password prompt will appear */
                     [ controller requestPasswordWithPrompt: ( char * )buf ];
@@ -598,8 +596,8 @@ int		master = 0;
                 p = strchr( tmp, '/' );
                 
                 [ controller setRemotePathPopUp:
-                    [ NSString stringWithBytesOfUnknownEncoding: p 
-                                            length: strlen( p ) ]];
+                    [ NSString stringWithBytesOfUnknownEncoding: p
+                                            length: ( unsigned int )strlen( p ) ]];
                 free( tmp );
             }
             
@@ -648,7 +646,8 @@ int		master = 0;
 {
     char                buf[ MAXPATHLEN * 2 ] = { 0 };
     char                tmp1[ MAXPATHLEN * 2 ], tmp2[ MAXPATHLEN * 2 ];
-    int                 len, incomplete_line = 0;
+    size_t              len;
+    int                 incomplete_line = 0;
 
     SFTPListingParserReset();
     fd_set              readmask;
@@ -721,7 +720,7 @@ int		master = 0;
             }
             
             [ controller addToLog: [ NSString stringWithBytesOfUnknownEncoding: buf
-                                                length: strlen( buf ) ]];
+                                                length: ( unsigned int )strlen( buf ) ]];
             if ( strstr( buf, "sftp>" ) != NULL ) {
                 memset( buf, '\0', strlen( buf ));
                 [ controller finishedCommand ];

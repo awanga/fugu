@@ -15,7 +15,8 @@ extern int			errno;
 - ( BOOL )openFile: ( NSString * )file withApplication: ( NSString * )app
 {
     if ( app == nil ) {
-        if ( ! [[ NSWorkspace sharedWorkspace ] openFile: file ] ) return( NO );
+        NSURL *fileURL = [ NSURL fileURLWithPath: file ];
+        if ( ! [[ NSWorkspace sharedWorkspace ] openURL: fileURL ] ) return( NO );
         return( YES );
     }
     

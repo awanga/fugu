@@ -673,15 +673,15 @@ permcmp( id ob1, id ob2, void *context )
 - ( void )setMenuOnStateForColumnWithIdentifier: ( id )identifier
 {
     if ( [ identifier isEqualToString: @"datecolumn" ] ) {
-        [ viewModDateMenuItem setState: NSOnState ];
+        [ viewModDateMenuItem setState: NSControlStateValueOn ];
     } else if ( [ identifier isEqualToString: @"groupcolumn" ] ) {
-        [ viewGroupMenuItem setState: NSOnState ];
+        [ viewGroupMenuItem setState: NSControlStateValueOn ];
     } else if ( [ identifier isEqualToString: @"ownercolumn" ] ) {
-        [ viewOwnerMenuItem setState: NSOnState ];
+        [ viewOwnerMenuItem setState: NSControlStateValueOn ];
     } else if ( [ identifier isEqualToString: @"permcolumn" ] ) {
-        [ viewModeMenuItem setState: NSOnState ];
+        [ viewModeMenuItem setState: NSControlStateValueOn ];
     } else if ( [ identifier isEqualToString: @"sizecolumn" ] ) {
-        [ viewSizeMenuItem setState: NSOnState ];
+        [ viewSizeMenuItem setState: NSControlStateValueOn ];
     }
 }
 
@@ -759,7 +759,7 @@ permcmp( id ob1, id ob2, void *context )
     }
     
     [ manualComField registerForDraggedTypes:
-                [ NSArray arrayWithObject: NSFilenamesPboardType ]];
+                [ NSArray arrayWithObject: NSPasteboardTypeFileURL ]];
     
     [ localBrowser setAction: nil ];//@selector( localBrowserSingleClick: ) ];
     [ localBrowser setDoubleAction: @selector( localBrowserDoubleClick: ) ];
@@ -907,7 +907,7 @@ permcmp( id ob1, id ob2, void *context )
                     raReadSwitch, raWriteSwitch, raExecSwitch, nil ];
                     
     [ remoteBrowser registerForDraggedTypes:
-                [ NSArray arrayWithObject: NSFilenamesPboardType ]];
+                [ NSArray arrayWithObject: NSPasteboardTypeFileURL ]];
     [ remoteBrowser setDataSource: self ];
     [ remoteBrowser reloadData ];
     
@@ -963,8 +963,8 @@ permcmp( id ob1, id ob2, void *context )
 {
     int			state = [ sender state ];
     
-    if ( state == NSOnState ) {
-        [ sender setState: NSOffState ];
+    if ( state == NSControlStateValueOn ) {
+        [ sender setState: NSControlStateValueOff ];
         [ localBrowser removeTableColumn:
                 [ localBrowser tableColumnWithIdentifier: @"groupcolumn" ]];
         [ remoteBrowser removeTableColumn:
@@ -982,7 +982,7 @@ permcmp( id ob1, id ob2, void *context )
         [ remoteBrowser moveColumn: ( [ remoteBrowser numberOfColumns ] - 1 )
                         toColumn: 1 ];
                                         
-        [ sender setState: NSOnState ];
+        [ sender setState: NSControlStateValueOn ];
     }
 }
 
@@ -990,8 +990,8 @@ permcmp( id ob1, id ob2, void *context )
 {
     int			state = [ sender state ];
     
-    if ( state == NSOnState ) {
-        [ sender setState: NSOffState ];
+    if ( state == NSControlStateValueOn ) {
+        [ sender setState: NSControlStateValueOff ];
         [ localBrowser removeTableColumn:
                 [ localBrowser tableColumnWithIdentifier: @"datecolumn" ]];
         [ remoteBrowser removeTableColumn:
@@ -1009,7 +1009,7 @@ permcmp( id ob1, id ob2, void *context )
         [ remoteBrowser moveColumn: ( [ remoteBrowser numberOfColumns ] - 1 )
                         toColumn: 1 ];
                                         
-        [ sender setState: NSOnState ];
+        [ sender setState: NSControlStateValueOn ];
     }
 }
 
@@ -1017,8 +1017,8 @@ permcmp( id ob1, id ob2, void *context )
 {
     int			state = [ sender state ];
     
-    if ( state == NSOnState ) {
-        [ sender setState: NSOffState ];
+    if ( state == NSControlStateValueOn ) {
+        [ sender setState: NSControlStateValueOff ];
         [ localBrowser removeTableColumn:
                 [ localBrowser tableColumnWithIdentifier: @"permcolumn" ]];
         [ remoteBrowser removeTableColumn:
@@ -1036,7 +1036,7 @@ permcmp( id ob1, id ob2, void *context )
         [ remoteBrowser moveColumn: ( [ remoteBrowser numberOfColumns ] - 1 )
                         toColumn: 1 ];
                                         
-        [ sender setState: NSOnState ];
+        [ sender setState: NSControlStateValueOn ];
     }
 }
 
@@ -1044,8 +1044,8 @@ permcmp( id ob1, id ob2, void *context )
 {
     int			state = [ sender state ];
     
-    if ( state == NSOnState ) {
-        [ sender setState: NSOffState ];
+    if ( state == NSControlStateValueOn ) {
+        [ sender setState: NSControlStateValueOff ];
         [ localBrowser removeTableColumn:
                 [ localBrowser tableColumnWithIdentifier: @"ownercolumn" ]];
         [ remoteBrowser removeTableColumn:
@@ -1063,7 +1063,7 @@ permcmp( id ob1, id ob2, void *context )
         [ remoteBrowser moveColumn: ( [ remoteBrowser numberOfColumns ] - 1 )
                         toColumn: 1 ];
                                         
-        [ sender setState: NSOnState ];
+        [ sender setState: NSControlStateValueOn ];
     }
 }
 
@@ -1071,8 +1071,8 @@ permcmp( id ob1, id ob2, void *context )
 {
     int			state = [ sender state ];
     
-    if ( state == NSOnState ) {
-        [ sender setState: NSOffState ];
+    if ( state == NSControlStateValueOn ) {
+        [ sender setState: NSControlStateValueOff ];
         [ localBrowser removeTableColumn:
                 [ localBrowser tableColumnWithIdentifier: @"sizecolumn" ]];
         [ remoteBrowser removeTableColumn:
@@ -1090,32 +1090,36 @@ permcmp( id ob1, id ob2, void *context )
         [ remoteBrowser moveColumn: ( [ remoteBrowser numberOfColumns ] - 1 )
                         toColumn: 1 ];
                                         
-        [ sender setState: NSOnState ];
+        [ sender setState: NSControlStateValueOn ];
     }
 }
 
 - ( IBAction )cancelConnection: ( id )sender
 {
-    int			rc;
-    
     if ( [ uploadQueue count ] ) {
-	rc = NSRunAlertPanel( NSLocalizedString( @"Warning: Upload queue not empty.",
-                                    @"Warning: Upload queue not empty." ),
-                        NSLocalizedString( @"There are %d items left in the "
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Warning: Upload queue not empty.",
+                                    @"Warning: Upload queue not empty." )];
+        [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                                    @"There are %d items left in the "
                                     @"upload queue. Cancelling will end this session. Do "
                                     @"you want to disconnect without uploading all of them?",
                                     @"There are %d items left in the "
                                     @"upload queue. Cancelling will end this session. Do "
                                     @"you want to disconnect without uploading all of them?" ),
-                        NSLocalizedString( @"Disconnect", @"Disconnect" ),
-                        NSLocalizedString( @"Cancel", @"Cancel" ), @"", [ uploadQueue count ] );
-        
+                                    [ uploadQueue count ]]];
+        [alert addButtonWithTitle:NSLocalizedString( @"Disconnect", @"Disconnect" )];
+        [alert addButtonWithTitle:NSLocalizedString( @"Cancel", @"Cancel" )];
+        NSModalResponse rc = [alert runModal];
+        [alert release];
+
         switch( rc ) {
-        case NSAlertDefaultReturn:
+        case NSAlertFirstButtonReturn:
             [ uploadQueue removeAllObjects ];
             break;
         default:
-        case NSAlertAlternateReturn:
+        case NSAlertSecondButtonReturn:
             return;
         }
     }
@@ -1133,10 +1137,14 @@ permcmp( id ob1, id ob2, void *context )
     
     if ( [ verifyConnectSheet isVisible ] ) {
         if ( write( master, "no\n", strlen( "no\n" )) != strlen( "no\n" )) {
-            NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                    NSLocalizedString( @"Write failed: Did not write correct number of bytes!",
-                                    @"Write failed: Did not write correct number of bytes!" ),
-                    NSLocalizedString( @"Quit", @"Quit" ), @"", @"" );
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setAlertStyle:NSAlertStyleWarning];
+            [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+            [alert setInformativeText:NSLocalizedString( @"Write failed: Did not write correct number of bytes!",
+                                    @"Write failed: Did not write correct number of bytes!" )];
+            [alert addButtonWithTitle:NSLocalizedString( @"Quit", @"Quit" )];
+            [alert runModal];
+            [alert release];
             exit( 2 );
         }            
         [ verifyConnectSheet orderOut: nil ];
@@ -1418,18 +1426,22 @@ NSLog( @"setting home directory" );
 
 - ( void )writeCommand: ( void * )cmd
 {
-    int		wr;
-    
-    if (( wr = write( master, cmd, strlen( cmd ))) != strlen( cmd )) goto WRITE_ERR;
-    if (( wr = write( master, "\n", strlen( "\n" ))) != strlen( "\n" )) goto WRITE_ERR;
+    if ( write( master, cmd, strlen( cmd )) != strlen( cmd )) goto WRITE_ERR;
+    if ( write( master, "\n", 1 ) != 1 ) goto WRITE_ERR;
     
     return;
     
 WRITE_ERR:
-    NSRunAlertPanel( NSLocalizedString(
+    {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString(
                 @"Write failed: Did not write correct number of bytes!",
-                @"Write failed: Did not write correct number of bytes!" ),
-        @"", @"Exit", @"", @"" );
+                @"Write failed: Did not write correct number of bytes!" )];
+        [alert addButtonWithTitle:@"Exit"];
+        [alert runModal];
+        [alert release];
+    }
     exit( 2 );
 }
 
@@ -1441,28 +1453,30 @@ WRITE_ERR:
 
 - ( IBAction )disconnect: ( id )sender
 {
-    int		rc;
-    
     if ( [[ self editedDocuments ] count ] ) {
-	rc = NSRunAlertPanel(
-		NSLocalizedString( @"Warning: Some remote documents are still being edited.",
-			    @"Warning: Some remote documents are still being edited." ),
-		NSLocalizedString( @"If you disconnect now, "
-			    @"you will lose any unsaved changes. Are you sure you want to disconnect?",
-			    @"If you disconnect now, "
-			    @"you will lose any unsaved changes. Are you sure you want to disconnect?" ),
-		NSLocalizedString( @"Disconnect", @"Disconnect" ),
-		NSLocalizedString( @"Cancel", @"Cancel" ), @"", [[ self editedDocuments ] count ] );
-		
-	switch ( rc ) {
-	case NSAlertDefaultReturn:
-	    [ editedDocuments removeAllObjects ];
-	    break;
-	    
-	case NSAlertAlternateReturn:
-	default:
-	    return;
-	}
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Warning: Some remote documents are still being edited.",
+                    @"Warning: Some remote documents are still being edited." )];
+        [alert setInformativeText:NSLocalizedString(
+                    @"If you disconnect now, "
+                    @"you will lose any unsaved changes. Are you sure you want to disconnect?",
+                    @"If you disconnect now, "
+                    @"you will lose any unsaved changes. Are you sure you want to disconnect?" )];
+        [alert addButtonWithTitle:NSLocalizedString( @"Disconnect", @"Disconnect" )];
+        [alert addButtonWithTitle:NSLocalizedString( @"Cancel", @"Cancel" )];
+        NSModalResponse rc = [alert runModal];
+        [alert release];
+
+        switch ( rc ) {
+        case NSAlertFirstButtonReturn:
+            [ editedDocuments removeAllObjects ];
+            break;
+
+        case NSAlertSecondButtonReturn:
+        default:
+            return;
+        }
     }
     
     if ( [ mainWindow setTitleToLocalHostName ] < 0 ) {
@@ -1571,7 +1585,7 @@ WRITE_ERR:
     remoteHome = nil;
     cancelflag = 0;
     [ self setGotPasswordFromKeychain: NO ];
-    [ addToKeychainSwitch setState: NSOffState ];
+    [ addToKeychainSwitch setState: NSControlStateValueOff ];
     if ( [ infoPanel isVisible ] ) [ infoPanel close ];
 }
 
@@ -1609,11 +1623,15 @@ WRITE_ERR:
     fullpath = [ path stringByExpandingTildeInPath ];
 
     if ( access(( char * )[ fullpath UTF8String ], F_OK | R_OK | X_OK ) < 0 ) {
-        NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                NSLocalizedString( @"Couldn't view %@: %s",
-                        @"Couldn't view %@: %s" ),
-                NSLocalizedString( @"OK", @"OK" ), @"", @"",
-                fullpath, strerror( errno ));
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+        [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                @"Couldn't view %@: %s", @"Couldn't view %@: %s" ),
+                fullpath, strerror( errno )]];
+        [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+        [alert runModal];
+        [alert release];
         return;
     }
     
@@ -1839,25 +1857,30 @@ WRITE_ERR:
         d = [ ( dotflag ? remoteDirContents : dotlessRDir ) objectAtIndex: [ nobj intValue ]];
         
         if ( [[ d objectForKey: @"type" ] isEqualToString: @"directory" ] ) {
-            int			rc;
-
-            rc = NSRunAlertPanel( NSLocalizedString( @"Warning: OpenSSH's sftp client "
-                                                    @"cannot yet download directories.",
-                                                    @"Warning: OpenSSH's sftp client "
-                                                    @"cannot yet download directories." ),
-                NSLocalizedString( @"Would you like to download %@ to %@ with SCP instead?",
+            {
+                NSAlert *alert = [[NSAlert alloc] init];
+                [alert setAlertStyle:NSAlertStyleWarning];
+                [alert setMessageText:NSLocalizedString( @"Warning: OpenSSH's sftp client "
+                                                        @"cannot yet download directories.",
+                                                        @"Warning: OpenSSH's sftp client "
+                                                        @"cannot yet download directories." )];
+                [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                                @"Would you like to download %@ to %@ with SCP instead?",
                                 @"Would you like to download %@ to %@ with SCP instead?" ),
-                NSLocalizedString( @"Download", @"Download" ),
-                NSLocalizedString( @"Cancel", @"Cancel" ), @"",
-                [ d objectForKey: @"name" ], localDirPath );
-            switch ( rc ) {
-            case NSAlertDefaultReturn:
-                [ self scpRemoteItem: [ d objectForKey: @"name" ]
-                        fromHost: [ remoteHost stringValue ]
-                        toLocalPath: localDirPath userName: [ userName stringValue ]];
-            case NSAlertAlternateReturn:
-            default:
-                continue;
+                                [ d objectForKey: @"name" ], localDirPath]];
+                [alert addButtonWithTitle:NSLocalizedString( @"Download", @"Download" )];
+                [alert addButtonWithTitle:NSLocalizedString( @"Cancel", @"Cancel" )];
+                NSModalResponse rc = [alert runModal];
+                [alert release];
+                switch ( rc ) {
+                case NSAlertFirstButtonReturn:
+                    [ self scpRemoteItem: [ d objectForKey: @"name" ]
+                            fromHost: [ remoteHost stringValue ]
+                            toLocalPath: localDirPath userName: [ userName stringValue ]];
+                case NSAlertSecondButtonReturn:
+                default:
+                    continue;
+                }
             }
         }
         [ marray addObject: d ];
@@ -1942,8 +1965,8 @@ WRITE_ERR:
 {
     BOOL                noSafetyNet = NO;
     struct stat         st;
-    int			i, j, rc, skip = 0, clobber = 0;
-    
+    int			i, j, skip = 0, clobber = 0;
+
     if ( ! connected ) return;
 
     noSafetyNet = [[ NSUserDefaults standardUserDefaults ]
@@ -1955,23 +1978,28 @@ WRITE_ERR:
                 if ( [ rpath isEqualToString: @"." ] &&
                         [[[ remoteDirContents objectAtIndex: j ] objectForKey: @"name" ]
                             isEqualToString: [[ lfiles objectAtIndex: i ] lastPathComponent ]] ) {
-                    rc = NSRunAlertPanel( [ NSString stringWithFormat:
-                            NSLocalizedString( @"%@ exists. Overwrite?",
-                                            @"%@ exists. Overwrite?" ),
-                                                [[ lfiles objectAtIndex: i ] lastPathComponent ]],
-                            @"", NSLocalizedString( @"Cancel", @"Cancel" ),
-                                    NSLocalizedString( @"Overwrite", @"Overwrite" ),
-                                    NSLocalizedString( @"Overwrite All", @"Overwrite All" ));
-                    switch ( rc ) {
-                    default:
-                    case NSAlertDefaultReturn:
-                        skip++;
-                        return;
-                    case NSAlertAlternateReturn:
-                        break;
-                    case NSAlertOtherReturn:
-                        clobber++;
-                        break;
+                    {
+                        NSAlert *alert = [[NSAlert alloc] init];
+                        [alert setAlertStyle:NSAlertStyleWarning];
+                        [alert setMessageText:[NSString stringWithFormat:NSLocalizedString(
+                                @"%@ exists. Overwrite?", @"%@ exists. Overwrite?" ),
+                                [[ lfiles objectAtIndex: i ] lastPathComponent ]]];
+                        [alert addButtonWithTitle:NSLocalizedString( @"Cancel", @"Cancel" )];
+                        [alert addButtonWithTitle:NSLocalizedString( @"Overwrite", @"Overwrite" )];
+                        [alert addButtonWithTitle:NSLocalizedString( @"Overwrite All", @"Overwrite All" )];
+                        NSModalResponse rc = [alert runModal];
+                        [alert release];
+                        switch ( rc ) {
+                        default:
+                        case NSAlertFirstButtonReturn:
+                            skip++;
+                            return;
+                        case NSAlertSecondButtonReturn:
+                            break;
+                        case NSAlertThirdButtonReturn:
+                            clobber++;
+                            break;
+                        }
                     }
                 }
             }
@@ -2002,7 +2030,7 @@ WRITE_ERR:
 
 - ( void )downloadFiles: ( NSArray * )rpaths toDirectory: ( NSString * )lpath
 {
-    int		i, j, rc, skip = 0, clobber = 0;
+    int		i, j, skip = 0, clobber = 0;
     NSArray	*lpathContents = nil;
     NSData      *rawdata = nil;
     BOOL        noSafetyNet = NO;
@@ -2019,24 +2047,29 @@ WRITE_ERR:
             for ( j = 0; j < [ lpathContents count ]; j++ ) {
                 if ( [[ lpathContents objectAtIndex: j ] isEqualToString:
                             [[ rpaths objectAtIndex: i ] objectForKey: @"name" ]] && !clobber ) {
-                    rc = NSRunAlertPanel( [ NSString stringWithFormat:
-                            NSLocalizedString( @"%@ exists. Overwrite?",
-                                                @"%@ exists. Overwrite?" ),
-                                [[ rpaths objectAtIndex: i ] objectForKey: @"name" ]],
-                            @"", NSLocalizedString( @"Cancel", @"Cancel" ),
-                                NSLocalizedString( @"Overwrite", @"Overwrite" ),
-                                NSLocalizedString( @"Overwrite All", @"Overwrite All" ));
-                    switch ( rc ) {
-                    case NSAlertDefaultReturn:
-                        skip = 1;
-                        break;
-                        
-                    case NSAlertAlternateReturn:
-                        break;
-                        
-                    case NSAlertOtherReturn:
-                        clobber = 1;
-                        break;
+                    {
+                        NSAlert *alert = [[NSAlert alloc] init];
+                        [alert setAlertStyle:NSAlertStyleWarning];
+                        [alert setMessageText:[NSString stringWithFormat:NSLocalizedString(
+                                @"%@ exists. Overwrite?", @"%@ exists. Overwrite?" ),
+                                [[ rpaths objectAtIndex: i ] objectForKey: @"name" ]]];
+                        [alert addButtonWithTitle:NSLocalizedString( @"Cancel", @"Cancel" )];
+                        [alert addButtonWithTitle:NSLocalizedString( @"Overwrite", @"Overwrite" )];
+                        [alert addButtonWithTitle:NSLocalizedString( @"Overwrite All", @"Overwrite All" )];
+                        NSModalResponse rc = [alert runModal];
+                        [alert release];
+                        switch ( rc ) {
+                        case NSAlertFirstButtonReturn:
+                            skip = 1;
+                            break;
+
+                        case NSAlertSecondButtonReturn:
+                            break;
+
+                        case NSAlertThirdButtonReturn:
+                            clobber = 1;
+                            break;
+                        }
                     }
                     break;
                 }
@@ -2143,7 +2176,7 @@ WRITE_ERR:
 
 - ( IBAction )deleteLocalFile: ( id )sender
 {
-    int				i = 0, rc, optag, row = [ localBrowser selectedRow ];
+    int				i = 0, optag, row = [ localBrowser selectedRow ];
     unsigned long int		numberoflines = [ localBrowser numberOfSelectedRows ];
     unsigned long int		selectedlines[ numberoflines ];
     NSMutableArray		*items, *source;
@@ -2181,20 +2214,26 @@ WRITE_ERR:
     }
     [[ NSUserDefaults standardUserDefaults ] setBool: YES forKey: @"confirmdelete" ];
     [[ NSUserDefaults standardUserDefaults ] synchronize ];
-    rc = NSRunAlertPanel( [ NSString stringWithFormat:
-                NSLocalizedString( @"Do you want to move %@ to the Trash?",
-                        @"Do you want to move %@ to the Trash?" ), fn ],
-            NSLocalizedString( @"You cannot undo this action.",
-                        @"You cannot undo this action." ),
-            NSLocalizedString( @"Delete", @"Delete" ),
-            NSLocalizedString( @"Cancel", @"Cancel" ), @"" );
-            
-    switch ( rc ) {
-    default:
-    case NSAlertDefaultReturn:
-        break;
-    case NSAlertAlternateReturn:
-        return;
+    {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:[NSString stringWithFormat:NSLocalizedString(
+                @"Do you want to move %@ to the Trash?",
+                @"Do you want to move %@ to the Trash?" ), fn]];
+        [alert setInformativeText:NSLocalizedString( @"You cannot undo this action.",
+                    @"You cannot undo this action." )];
+        [alert addButtonWithTitle:NSLocalizedString( @"Cancel", @"Cancel" )];
+        [alert addButtonWithTitle:NSLocalizedString( @"Delete", @"Delete" )];
+        NSModalResponse rc = [alert runModal];
+        [alert release];
+
+        switch ( rc ) {
+        default:
+        case NSAlertFirstButtonReturn:
+            return;
+        case NSAlertSecondButtonReturn:
+            break;
+        }
     }
 
     contents = ( dotflag ? localDirContents : dotlessLDir );
@@ -2205,10 +2244,15 @@ WRITE_ERR:
     if ( [[ NSWorkspace sharedWorkspace ] performFileOperation: NSWorkspaceRecycleOperation
 					source: localDirPath destination: @"/"
 					files: items tag: &optag ] == NO ) {
-	NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                NSLocalizedString( @"Couldn't delete %@.", @"Couldn't delete %@." ),
-		NSLocalizedString( @"OK", @"OK" ), @"", @"", fn );
-	return;
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+        [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                @"Couldn't delete %@.", @"Couldn't delete %@." ), fn]];
+        [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+        [alert runModal];
+        [alert release];
+        return;
     }
 
     [[ NSWorkspace sharedWorkspace ] noteFileSystemChanged: localDirPath ];
@@ -2219,7 +2263,7 @@ WRITE_ERR:
 
 - ( IBAction )deleteRemoteFile: ( id )sender
 {
-    int				rc, i, row = [ remoteBrowser selectedRow ];
+    int				i, row = [ remoteBrowser selectedRow ];
     NSMutableDictionary		*dict;
     NSEnumerator		*en;
     NSMutableArray		*items;
@@ -2252,21 +2296,28 @@ WRITE_ERR:
         break;
     }
     
-    rc = NSRunAlertPanel( [ NSString stringWithFormat:
-            NSLocalizedString( @"Delete %@?", @"Delete %@?" ), fn ],
-            NSLocalizedString( @"%@ will be deleted immediately. "
-                                @"You will not be able to undo this action.",
-                                @"%@ will be deleted immediately. "
-                                @"You will not be able to undo this action." ),
-            NSLocalizedString( @"Delete", @"Delete" ),
-            NSLocalizedString( @"Cancel", @"Cancel" ), @"", fn );
-            
-    switch ( rc ) {
-    default:
-    case NSAlertDefaultReturn:
-        break;
-    case NSAlertAlternateReturn:
-        return;
+    {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:[NSString stringWithFormat:NSLocalizedString(
+                @"Delete %@?", @"Delete %@?" ), fn]];
+        [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                @"%@ will be deleted immediately. "
+                @"You will not be able to undo this action.",
+                @"%@ will be deleted immediately. "
+                @"You will not be able to undo this action." ), fn]];
+        [alert addButtonWithTitle:NSLocalizedString( @"Cancel", @"Cancel" )];
+        [alert addButtonWithTitle:NSLocalizedString( @"Delete", @"Delete" )];
+        NSModalResponse rc = [alert runModal];
+        [alert release];
+
+        switch ( rc ) {
+        default:
+        case NSAlertFirstButtonReturn:
+            return;
+        case NSAlertSecondButtonReturn:
+            break;
+        }
     }
     
     if ( removeQueue == nil ) removeQueue = [[ NSMutableArray alloc ] init ];
@@ -2323,9 +2374,9 @@ WRITE_ERR:
 
 - ( IBAction )toggleDirCreationButtons: ( id )sender
 {
-    [ localDirCreateButton setState: NSOffState ];
-    [ remoteDirCreateButton setState: NSOffState ];
-    [ sender setState: NSOnState ];
+    [ localDirCreateButton setState: NSControlStateValueOff ];
+    [ remoteDirCreateButton setState: NSControlStateValueOff ];
+    [ sender setState: NSControlStateValueOn ];
     if ( [[ sender title ] isEqualToString:
             NSLocalizedString( @"Locally", @"Locally" ) ] ) {
         [ newDirCreateButton setAction: @selector( makeLDir ) ];
@@ -2342,11 +2393,11 @@ WRITE_ERR:
         activeTableView = [ mainWindow firstResponder ];
         
         if ( [ activeTableView isEqual: localBrowser ] || ! connected ) {
-            [ localDirCreateButton setState: NSOnState ];
-            [ remoteDirCreateButton setState: NSOffState ];
+            [ localDirCreateButton setState: NSControlStateValueOn ];
+            [ remoteDirCreateButton setState: NSControlStateValueOff ];
         } else {
-            [ remoteDirCreateButton setState: NSOnState ];
-            [ localDirCreateButton setState: NSOffState ];
+            [ remoteDirCreateButton setState: NSControlStateValueOn ];
+            [ localDirCreateButton setState: NSControlStateValueOff ];
         }
     }
     
@@ -2382,9 +2433,15 @@ WRITE_ERR:
                                     [ newDirNameField stringValue ]];
                                     
     if ( mkdir(( char * )[ lpath UTF8String ], 0755 ) != 0 ) {
-        NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-            NSLocalizedString( @"Couldn't create %@: %s", @"Couldn't create %@: %s" ),
-            @"OK", @"", @"", lpath, strerror( errno ));
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+        [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                @"Couldn't create %@: %s", @"Couldn't create %@: %s" ),
+                lpath, strerror( errno )]];
+        [alert addButtonWithTitle:@"OK"];
+        [alert runModal];
+        [alert release];
     }
     
     [ self localBrowserReloadForPath: localDirPath ];
@@ -2425,14 +2482,20 @@ WRITE_ERR:
     return;
 
 CHOWN_ERROR:
-    NSBeginAlertSheet( NSLocalizedStringFromTable( @"Invalid owner user identification number.",
+    {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedStringFromTable( @"Invalid owner user identification number.",
                         @"SFTPInfoPanel",
-                        @"Invalid owner user identification number." ),
-                          @"OK", @"", @"", infoPanel,
-                          self, NULL, nil, NULL,
-                        NSLocalizedStringFromTable(
+                        @"Invalid owner user identification number." )];
+        [alert setInformativeText:NSLocalizedStringFromTable(
                             @"You must provide a numeric uid for this action.", @"SFTPInfoPanel",
-                            @"You must provide a numeric uid for this action." ));
+                            @"You must provide a numeric uid for this action." )];
+        [alert addButtonWithTitle:@"OK"];
+        [alert beginSheetModalForWindow:infoPanel
+                     completionHandler:^(NSModalResponse __unused r) {}];
+        [alert release];
+    }
 }
 
 - ( IBAction )changeRGroup: ( id )sender
@@ -2461,15 +2524,21 @@ CHOWN_ERROR:
     return;
 
 CHGRP_ERROR:
-    NSBeginAlertSheet( NSLocalizedStringFromTable( @"Invalid group identification number.",
+    {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedStringFromTable( @"Invalid group identification number.",
                         @"SFTPInfoPanel",
-                        @"Invalid group identification number." ),
-                          @"OK", @"", @"", infoPanel,
-                          self, NULL, nil, NULL,
-                        NSLocalizedStringFromTable(
+                        @"Invalid group identification number." )];
+        [alert setInformativeText:NSLocalizedStringFromTable(
                             @"You must provide a numeric gid for this operation.",
                             @"SFTPInfoPanel",
-                            @"You must provide a numeric gid for this operation." ));
+                            @"You must provide a numeric gid for this operation." )];
+        [alert addButtonWithTitle:@"OK"];
+        [alert beginSheetModalForWindow:infoPanel
+                     completionHandler:^(NSModalResponse __unused r) {}];
+        [alert release];
+    }
 }
 
 - ( IBAction )remotePermissionSwitchClick: ( id )sender
@@ -2477,15 +2546,15 @@ CHGRP_ERROR:
     int			own = 0, grp = 0, oth = 0;
     char		bit;
     
-    if ( [[ rSwitchArray objectAtIndex: 0 ] state ] == NSOnState ) own += 4;
-    if ( [[ rSwitchArray objectAtIndex: 1 ] state ] == NSOnState ) own += 2;
-    if ( [[ rSwitchArray objectAtIndex: 2 ] state ] == NSOnState ) own += 1;
-    if ( [[ rSwitchArray objectAtIndex: 3 ] state ] == NSOnState ) grp += 4;
-    if ( [[ rSwitchArray objectAtIndex: 4 ] state ] == NSOnState ) grp += 2;
-    if ( [[ rSwitchArray objectAtIndex: 5 ] state ] == NSOnState ) grp += 1;
-    if ( [[ rSwitchArray objectAtIndex: 6 ] state ] == NSOnState ) oth += 4;
-    if ( [[ rSwitchArray objectAtIndex: 7 ] state ] == NSOnState ) oth += 2;
-    if ( [[ rSwitchArray objectAtIndex: 8 ] state ] == NSOnState ) oth += 1;
+    if ( [[ rSwitchArray objectAtIndex: 0 ] state ] == NSControlStateValueOn ) own += 4;
+    if ( [[ rSwitchArray objectAtIndex: 1 ] state ] == NSControlStateValueOn ) own += 2;
+    if ( [[ rSwitchArray objectAtIndex: 2 ] state ] == NSControlStateValueOn ) own += 1;
+    if ( [[ rSwitchArray objectAtIndex: 3 ] state ] == NSControlStateValueOn ) grp += 4;
+    if ( [[ rSwitchArray objectAtIndex: 4 ] state ] == NSControlStateValueOn ) grp += 2;
+    if ( [[ rSwitchArray objectAtIndex: 5 ] state ] == NSControlStateValueOn ) grp += 1;
+    if ( [[ rSwitchArray objectAtIndex: 6 ] state ] == NSControlStateValueOn ) oth += 4;
+    if ( [[ rSwitchArray objectAtIndex: 7 ] state ] == NSControlStateValueOn ) oth += 2;
+    if ( [[ rSwitchArray objectAtIndex: 8 ] state ] == NSControlStateValueOn ) oth += 1;
     
     if ( ![[ rPermField stringValue ] length ] ) bit = '0';
     else bit = [[ rPermField stringValue ] characterAtIndex: 0 ];
@@ -2520,14 +2589,20 @@ CHGRP_ERROR:
     return;
     
 CHMOD_ERROR:
-    NSBeginAlertSheet( NSLocalizedStringFromTable( @"Invalid octal permissions set.",
-                        @"SFTPInfoPanel", @"Invalid octal permissions set." ),
-                          @"OK", @"", @"", infoPanel,
-                          self, NULL, nil, NULL,
-                        NSLocalizedStringFromTable(
+    {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedStringFromTable( @"Invalid octal permissions set.",
+                        @"SFTPInfoPanel", @"Invalid octal permissions set." )];
+        [alert setInformativeText:NSLocalizedStringFromTable(
                         @"You must provide a four-digit octal permissions set for this operation.",
                             @"SFTPInfoPanel",
-                        @"You must provide a four-digit octal permissions set for this operation." ));
+                        @"You must provide a four-digit octal permissions set for this operation." )];
+        [alert addButtonWithTitle:@"OK"];
+        [alert beginSheetModalForWindow:infoPanel
+                     completionHandler:^(NSModalResponse __unused r) {}];
+        [alert release];
+    }
 }
 
 - ( IBAction )changeLOwnerAndGroup: ( id )sender
@@ -2545,12 +2620,16 @@ CHMOD_ERROR:
     if ( getuid() != 0 && u != getuid()) u = getuid();
     
     if ( chown(( char * )[[ whereField stringValue ] UTF8String ], u, g ) < 0 ) {
-        NSBeginAlertSheet( NSLocalizedStringFromTable( @"Error changing owner.", @"SFTPInfoPanel",
-                            @"Error changing owner." ),
-                          @"OK", @"", @"", infoPanel,
-                          self, NULL, nil, NULL,
-                          @"chown %@: %s", [ whereField stringValue ],
-                            strerror( errno ));
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedStringFromTable( @"Error changing owner.", @"SFTPInfoPanel",
+                            @"Error changing owner." )];
+        [alert setInformativeText:[NSString stringWithFormat:@"chown %@: %s",
+                [ whereField stringValue ], strerror( errno )]];
+        [alert addButtonWithTitle:@"OK"];
+        [alert beginSheetModalForWindow:infoPanel
+                     completionHandler:^(NSModalResponse __unused r) {}];
+        [alert release];
         return;
     }
 }
@@ -2567,12 +2646,16 @@ CHMOD_ERROR:
         return;
     }
     if ( chmod(( char * )[[ whereField stringValue ] UTF8String ], mode ) < 0 ) {
-        NSBeginAlertSheet( NSLocalizedStringFromTable( @"Error changing permissions.",
-                            @"SFTPInfoPanel", @"Error changing permissions." ),
-                          @"OK", @"", @"", infoPanel,
-                          self, NULL, nil, NULL,
-                          @"chmod %@: %s", [ infoPathField stringValue ],
-                            strerror( errno ));
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedStringFromTable( @"Error changing permissions.",
+                            @"SFTPInfoPanel", @"Error changing permissions." )];
+        [alert setInformativeText:[NSString stringWithFormat:@"chmod %@: %s",
+                [ infoPathField stringValue ], strerror( errno )]];
+        [alert addButtonWithTitle:@"OK"];
+        [alert beginSheetModalForWindow:infoPanel
+                     completionHandler:^(NSModalResponse __unused r) {}];
+        [alert release];
         return;
     }
     [ self localBrowserReloadForPath: localDirPath ];
@@ -2583,17 +2666,17 @@ CHMOD_ERROR:
     int			own = 0, grp = 0, oth = 0;
     char		bit;
     
-    if ( [ loReadSwitch state ] == NSOnState ) own += 4;
-    if ( [ loWriteSwitch state ] == NSOnState ) own += 2;
-    if ( [ loExecSwitch state ] == NSOnState ) own += 1;
+    if ( [ loReadSwitch state ] == NSControlStateValueOn ) own += 4;
+    if ( [ loWriteSwitch state ] == NSControlStateValueOn ) own += 2;
+    if ( [ loExecSwitch state ] == NSControlStateValueOn ) own += 1;
 
-    if ( [ lgReadSwitch state ] == NSOnState ) grp += 4;
-    if ( [ lgWriteSwitch state ] == NSOnState ) grp += 2;
-    if ( [ lgExecSwitch state ] == NSOnState ) grp += 1;
+    if ( [ lgReadSwitch state ] == NSControlStateValueOn ) grp += 4;
+    if ( [ lgWriteSwitch state ] == NSControlStateValueOn ) grp += 2;
+    if ( [ lgExecSwitch state ] == NSControlStateValueOn ) grp += 1;
 
-    if ( [ laReadSwitch state ] == NSOnState ) oth += 4;
-    if ( [ laWriteSwitch state ] == NSOnState ) oth += 2;
-    if ( [ laExecSwitch state ] == NSOnState ) oth += 1;
+    if ( [ laReadSwitch state ] == NSControlStateValueOn ) oth += 4;
+    if ( [ laWriteSwitch state ] == NSControlStateValueOn ) oth += 2;
+    if ( [ laExecSwitch state ] == NSControlStateValueOn ) oth += 1;
     
     if ( ![[ permField stringValue ] length ] ) bit = '0';
     else bit = [[ permField stringValue ] characterAtIndex: 0 ];
@@ -2606,9 +2689,9 @@ CHMOD_ERROR:
 
 - ( IBAction )toggleGoToButtons: ( id )sender
 {
-    [ localGotoButton setState: NSOffState ];
-    [ remoteGotoButton setState: NSOffState ];
-    [ sender setState: NSOnState ];
+    [ localGotoButton setState: NSControlStateValueOff ];
+    [ remoteGotoButton setState: NSControlStateValueOff ];
+    [ sender setState: NSControlStateValueOn ];
     if ( [[ sender title ] isEqualToString:
             NSLocalizedString( @"Locally",
                     @"Locally" ) ] ) {
@@ -2626,11 +2709,11 @@ CHMOD_ERROR:
         activeTableView = [ mainWindow firstResponder ];
         
         if ( [ activeTableView isEqual: localBrowser ] || ! connected ) {
-            [ remoteGotoButton setState: NSOffState ];
-            [ localGotoButton setState: NSOnState ];
+            [ remoteGotoButton setState: NSControlStateValueOff ];
+            [ localGotoButton setState: NSControlStateValueOn ];
         } else {
-            [ remoteGotoButton setState: NSOnState ];
-            [ localGotoButton setState: NSOffState ];
+            [ remoteGotoButton setState: NSControlStateValueOn ];
+            [ localGotoButton setState: NSControlStateValueOff ];
         }
     }
     
@@ -3162,17 +3245,22 @@ NSLog( @"setting springloaded root" );
 
 - ( void )connectionError: ( NSString * )errmsg
 {
-    if ( strstr(( char * )[ errmsg UTF8String ], "WARNING" ) != NULL ) {
-        NSRunAlertPanel( errmsg,
-        @"", @"OK", @"", @"" );
-    } else {
-        NSRunAlertPanel( errmsg, @"", @"OK", @"", @"" );
-    }
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSAlertStyleWarning];
+    [alert setMessageText:errmsg];
+    [alert addButtonWithTitle:@"OK"];
+    [alert runModal];
+    [alert release];
 }
 
 - ( void )sessionError: ( NSString * )errmsg
 {
-    NSRunAlertPanel( errmsg, @"", NSLocalizedString( @"OK", @"OK" ), @"", @"" );
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSAlertStyleWarning];
+    [alert setMessageText:errmsg];
+    [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+    [alert runModal];
+    [alert release];
 }
 
 - ( IBAction )showConnectingInterface: ( id )sender
@@ -3224,35 +3312,50 @@ NSLog( @"setting springloaded root" );
      *  from the keychain, the password is wrong. Let the user know.
      */
     if ( ! [ self firstPasswordPrompt ] && [ self gotPasswordFromKeychain ] ) {
-        int			rc;
 	NSURL			*url;
-        
-        rc = NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                NSLocalizedString( @"The password for this server in your "
-                                @"keychain does not seem to be correct. Would "
-                                @"you like to open Keychain Access to edit it?",
-                                @"The password for this server in your "
-                                @"keychain does not seem to be correct. Would "
-                                @"you like to open Keychain Access to edit it?" ),
-                NSLocalizedString( @"Open Keychain Access", @"Open Keychain Access" ),
-                NSLocalizedString( @"Cancel", @"Cancel" ), @"" );
-                
-        switch ( rc ) {
-        case NSAlertDefaultReturn:
-	    if ( ! [[ NSWorkspace sharedWorkspace ]
-			launchServicesFindApplicationWithBundleID: ( CFStringRef )@"com.apple.keychainaccess"
-			foundAppURL: ( CFURLRef * )&url ] ) {
-		NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                    @"Couldn't open Keychain Access", NSLocalizedString( @"OK", @"OK" ), @"", @"" );
-	    }
-		
-            if ( ! [[ NSWorkspace sharedWorkspace ] openURL: url ] ) {
-                NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                    @"Couldn't open Keychain Access", NSLocalizedString( @"OK", @"OK" ), @"", @"" );
+
+        {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setAlertStyle:NSAlertStyleWarning];
+            [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+            [alert setInformativeText:NSLocalizedString( @"The password for this server in your "
+                                    @"keychain does not seem to be correct. Would "
+                                    @"you like to open Keychain Access to edit it?",
+                                    @"The password for this server in your "
+                                    @"keychain does not seem to be correct. Would "
+                                    @"you like to open Keychain Access to edit it?" )];
+            [alert addButtonWithTitle:NSLocalizedString( @"Open Keychain Access", @"Open Keychain Access" )];
+            [alert addButtonWithTitle:NSLocalizedString( @"Cancel", @"Cancel" )];
+            NSModalResponse rc = [alert runModal];
+            [alert release];
+
+            switch ( rc ) {
+            case NSAlertFirstButtonReturn:
+                if ( ! [[ NSWorkspace sharedWorkspace ]
+                        launchServicesFindApplicationWithBundleID: ( CFStringRef )@"com.apple.keychainaccess"
+                        foundAppURL: ( CFURLRef * )&url ] ) {
+                    NSAlert *errAlert = [[NSAlert alloc] init];
+                    [errAlert setAlertStyle:NSAlertStyleWarning];
+                    [errAlert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+                    [errAlert setInformativeText:@"Couldn't open Keychain Access"];
+                    [errAlert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+                    [errAlert runModal];
+                    [errAlert release];
+                }
+
+                if ( ! [[ NSWorkspace sharedWorkspace ] openURL: url ] ) {
+                    NSAlert *errAlert = [[NSAlert alloc] init];
+                    [errAlert setAlertStyle:NSAlertStyleWarning];
+                    [errAlert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+                    [errAlert setInformativeText:@"Couldn't open Keychain Access"];
+                    [errAlert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+                    [errAlert runModal];
+                    [errAlert release];
+                }
+                break;
+            default:
+                break;
             }
-            break;
-        default:
-            break;
         }
     }
     
@@ -3310,14 +3413,18 @@ NSLog( @"setting springloaded root" );
     char	pass[ ( _PASSWORD_LEN + 1 ) ] = { 0 };
     
     if ( [[ passWord stringValue ] length ] > _PASSWORD_LEN ) {
-	NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-		NSLocalizedString( @"Password is too long.", @"Password is too long." ),
-		NSLocalizedString( @"OK", @"OK" ), @"", @"" );
-	[ passWord setStringValue: @"" ];
-	return;
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+        [alert setInformativeText:NSLocalizedString( @"Password is too long.", @"Password is too long." )];
+        [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+        [alert runModal];
+        [alert release];
+        [ passWord setStringValue: @"" ];
+        return;
     }
     
-    _pendingKeychainSave = ( [ addToKeychainSwitch state ] == NSOnState );
+    _pendingKeychainSave = ( [ addToKeychainSwitch state ] == NSControlStateValueOn );
 
     [ passErrorField setStringValue: @"" ];
     [ passView addSubview: authProgBar ];
@@ -3340,7 +3447,7 @@ NSLog( @"setting springloaded root" );
             NSLocalizedString( @"Permission denied. Try again.",
                             @"Permission denied. Try again." ) ];
     [ self setFirstPasswordPrompt: NO ];
-    [ addToKeychainSwitch setState: NSOffState ];
+    [ addToKeychainSwitch setState: NSControlStateValueOff ];
     _pendingKeychainSave = NO;
 }
 
@@ -3551,9 +3658,13 @@ NSLog( @"setting springloaded root" );
     tmppath = [ self makeSessionTempDirectory ];
 
     if ( tmppath == nil ) {
-        NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-            @"mkdir: %s", NSLocalizedString( @"OK", @"OK" ), @"", @"",
-            strerror( errno ));
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+        [alert setInformativeText:[NSString stringWithFormat:@"mkdir: %s", strerror( errno )]];
+        [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+        [alert runModal];
+        [alert release];
         return;
     }
 
@@ -3620,11 +3731,15 @@ NSLog( @"setting springloaded root" );
         image = [[ NSImage alloc ] initWithContentsOfFile: [ self previewedImage ]];
         
         if ( image == nil ) {
-            NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                    NSLocalizedString( @"Couldn't create preview of %@",
-                                        @"Couldn't create preview of %@" ),
-                    NSLocalizedString( @"OK", @"OK" ), @"", @"",
-                    [[ self previewedImage ] lastPathComponent ] );
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setAlertStyle:NSAlertStyleWarning];
+            [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+            [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                    @"Couldn't create preview of %@", @"Couldn't create preview of %@" ),
+                    [[ self previewedImage ] lastPathComponent ]]];
+            [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+            [alert runModal];
+            [alert release];
             return;
         }
         path = [ self previewedImage ];
@@ -3710,11 +3825,15 @@ NSLog( @"setting springloaded root" );
         if ( [[ NSWorkspace sharedWorkspace ]
                 launchServicesFindApplicationWithCreatorType: creator
                 foundAppRef: &editorref  ] == NO ) {
-            NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                    NSLocalizedString( @"Couldn't find %@ to launch %@.",
-                                        @"Couldn't find %@ to launch %@." ),
-                    NSLocalizedString( @"OK", @"OK" ), @"", @"",
-                                        editor, [ filepath lastPathComponent ] );
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setAlertStyle:NSAlertStyleWarning];
+            [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+            [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                    @"Couldn't find %@ to launch %@.", @"Couldn't find %@ to launch %@." ),
+                    editor, [ filepath lastPathComponent ]]];
+            [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+            [alert runModal];
+            [alert release];
             return;
         }
     }
@@ -3724,12 +3843,26 @@ NSLog( @"setting springloaded root" );
 	return;
     }
     
-    if ( [[ NSWorkspace sharedWorkspace ] openFile: filepath
-		    withApplication: editorpath andDeactivate: YES ] == NO ) {
-	NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-		@"Couldn't open %@ in %@", NSLocalizedString( @"OK", @"OK" ),
-		@"", @"", [ filepath lastPathComponent ], [ editorpath lastPathComponent ] );
-	return;
+    {
+        NSURL *fileURL = [NSURL fileURLWithPath:filepath];
+        NSURL *editorURL = [NSURL fileURLWithPath:editorpath];
+        [[NSWorkspace sharedWorkspace] openURL:fileURL
+                            withApplicationAtURL:editorURL
+                                   configuration:[NSWorkspaceOpenConfiguration configuration]
+                               completionHandler:^(NSRunningApplication *app __unused, NSError *openErr) {
+            if (openErr) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSAlert *errAlert = [[NSAlert alloc] init];
+                    [errAlert setAlertStyle:NSAlertStyleWarning];
+                    [errAlert setMessageText:NSLocalizedString(@"Error", @"Error")];
+                    [errAlert setInformativeText:[NSString stringWithFormat:@"Couldn't open %@ in %@",
+                            [filepath lastPathComponent], [editorpath lastPathComponent]]];
+                    [errAlert addButtonWithTitle:NSLocalizedString(@"OK", @"OK")];
+                    [errAlert runModal];
+                    [errAlert release];
+                });
+            }
+        }];
     }
 }
 
@@ -3745,9 +3878,13 @@ NSLog( @"setting springloaded root" );
     tmppath = [ self makeSessionTempDirectory ];
 
     if ( tmppath == nil ) {
-        NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-            @"mkdir: %s", NSLocalizedString( @"OK", @"OK" ), @"", @"",
-            strerror( errno ));
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+        [alert setInformativeText:[NSString stringWithFormat:@"mkdir: %s", strerror( errno )]];
+        [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+        [alert runModal];
+        [alert release];
         return;
     }
 
@@ -3835,10 +3972,15 @@ NSLog( @"setting springloaded root" );
     }
 	
     if ( [ filepath makeFSRefRepresentation: &fileref ] != noErr ) {
-	NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-		@"Failed to create FSRef from %@: error %d",
-		NSLocalizedString( @"OK", @"OK" ), @"", @"", filepath, err );
-	return;
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+        [alert setInformativeText:[NSString stringWithFormat:@"Failed to create FSRef from %@: error %d",
+                filepath, err]];
+        [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+        [alert runModal];
+        [alert release];
+        return;
     }
      
     if ( ! [[ NSWorkspace sharedWorkspace ]
@@ -3848,11 +3990,15 @@ NSLog( @"setting springloaded root" );
         if ( [[ NSWorkspace sharedWorkspace ]
                         launchServicesFindApplicationWithCreatorType: creator
                         foundAppRef: &editorref  ] == NO ) {
-            NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                        NSLocalizedString( @"Couldn't find %@ to launch %@.",
-                                            @"Couldn't find %@ to launch %@." ),
-                        NSLocalizedString( @"OK", @"OK" ), @"", @"",
-                                            appname, [ filepath lastPathComponent ] );
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setAlertStyle:NSAlertStyleWarning];
+            [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+            [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                        @"Couldn't find %@ to launch %@.", @"Couldn't find %@ to launch %@." ),
+                        appname, [ filepath lastPathComponent ]]];
+            [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+            [alert runModal];
+            [alert release];
             return;
         }
     }
@@ -3910,18 +4056,31 @@ NSLog( @"setting springloaded root" );
     return;
     
 AECallErr:
-    NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-		@"%@ failed: error %d", NSLocalizedString( @"OK", @"OK" ),
-		@"", @"", failedCall, err );
+    {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+        [alert setInformativeText:[NSString stringWithFormat:@"%@ failed: error %d", failedCall, err]];
+        [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+        [alert runModal];
+        [alert release];
+    }
     if ( rec.dataHandle != NULL ) {
 	( void )AEDisposeDesc( &rec );
     }
     return;
-    
+
 LaunchFailed:
-    NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-		@"Failed to open %@ with %@.", NSLocalizedString( @"OK", @"OK" ),
-		@"", @"", [ filepath lastPathComponent ], appname );
+    {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+        [alert setInformativeText:[NSString stringWithFormat:@"Failed to open %@ with %@.",
+                [ filepath lastPathComponent ], appname]];
+        [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+        [alert runModal];
+        [alert release];
+    }
     return;
 }
 
@@ -4191,40 +4350,40 @@ LaunchFailed:
     int			ow, own, gr, grp, ot, oth;
     
     /* switch all off first */
-    [ loReadSwitch setState: NSOffState ];
-    [ loWriteSwitch setState: NSOffState ];
-    [ loExecSwitch setState: NSOffState ];
-    [ lgReadSwitch setState: NSOffState ];
-    [ lgWriteSwitch setState: NSOffState ];
-    [ lgExecSwitch setState: NSOffState ];
-    [ laReadSwitch setState: NSOffState ];
-    [ laWriteSwitch setState: NSOffState ];
-    [ laExecSwitch setState: NSOffState ];
+    [ loReadSwitch setState: NSControlStateValueOff ];
+    [ loWriteSwitch setState: NSControlStateValueOff ];
+    [ loExecSwitch setState: NSControlStateValueOff ];
+    [ lgReadSwitch setState: NSControlStateValueOff ];
+    [ lgWriteSwitch setState: NSControlStateValueOff ];
+    [ lgExecSwitch setState: NSControlStateValueOff ];
+    [ laReadSwitch setState: NSControlStateValueOff ];
+    [ laWriteSwitch setState: NSControlStateValueOff ];
+    [ laExecSwitch setState: NSControlStateValueOff ];
     
     ow = own = ( [ octalmode characterAtIndex: 1 ] - '0' );
     gr = grp = ( [ octalmode characterAtIndex: 2 ] - '0' );
     ot = oth = ( [ octalmode characterAtIndex: 3 ] - '0' );
     
     if (( own = ( own - 4 )) >= 0 )
-                    [ loReadSwitch setState: NSOnState ];
+                    [ loReadSwitch setState: NSControlStateValueOn ];
     if (( own = ( own - 2 )) >= 0 || ( own == -2 && ow == 2 ) || ( own == -3 && ow == 3 ))
-                    [ loWriteSwitch setState: NSOnState ];
+                    [ loWriteSwitch setState: NSControlStateValueOn ];
     if (( own = ( own - 1 )) >= 0 || own == -2 || own == -4 || own == -6 )
-                    [ loExecSwitch setState: NSOnState ];
+                    [ loExecSwitch setState: NSControlStateValueOn ];
     
     if (( grp = ( grp - 4 )) >= 0 )
-                    [ lgReadSwitch setState: NSOnState ];
+                    [ lgReadSwitch setState: NSControlStateValueOn ];
     if (( grp = ( grp - 2 )) >= 0 || ( grp == -2 && gr == 2 ) || ( grp == -3 && gr == 3 ))
-                    [ lgWriteSwitch setState: NSOnState ];
+                    [ lgWriteSwitch setState: NSControlStateValueOn ];
     if (( grp = ( grp - 1 )) >= 0 || grp == -2 || grp == -4 || grp == -6 )
-                    [ lgExecSwitch setState: NSOnState ];
+                    [ lgExecSwitch setState: NSControlStateValueOn ];
     
     if (( oth = ( oth - 4 )) >= 0 )
-                    [ laReadSwitch setState: NSOnState ];
+                    [ laReadSwitch setState: NSControlStateValueOn ];
     if (( oth = ( oth - 2 )) >= 0 || ( oth == -2 && ot == 2 ) || ( oth == -3 && ot == 3 ))
-                    [ laWriteSwitch setState: NSOnState ];
+                    [ laWriteSwitch setState: NSControlStateValueOn ];
     if (( oth = ( oth - 1 )) >= 0 || oth == -2 || oth == -4 || oth == -6 )
-                    [ laExecSwitch setState: NSOnState ];
+                    [ laExecSwitch setState: NSControlStateValueOn ];
 }
 
 - ( void )remoteCheckSetup: ( NSString * )permissions
@@ -4232,20 +4391,20 @@ LaunchFailed:
     int			i;
     
     for ( i = 0; i < [ rSwitchArray count ]; i++ ) {
-        [[ rSwitchArray objectAtIndex: i ] setState: NSOffState ];
+        [[ rSwitchArray objectAtIndex: i ] setState: NSControlStateValueOff ];
     }
     
     for ( i = 1; i < 4; i++ ) {
         switch( [ permissions characterAtIndex: i ] ) {
         case 'r':
-            [ roReadSwitch setState: NSOnState ];
+            [ roReadSwitch setState: NSControlStateValueOn ];
             break;
         case 'w':
-            [ roWriteSwitch setState: NSOnState ];
+            [ roWriteSwitch setState: NSControlStateValueOn ];
             break;
         case 'x':
         case 's':
-            [ roExecSwitch setState: NSOnState ];
+            [ roExecSwitch setState: NSControlStateValueOn ];
             break;
         }
     }
@@ -4253,14 +4412,14 @@ LaunchFailed:
     for ( i = 4; i < 7; i++ ) {
         switch( [ permissions characterAtIndex: i ] ) {
         case 'r':
-            [ rgReadSwitch setState: NSOnState ];
+            [ rgReadSwitch setState: NSControlStateValueOn ];
             break;
         case 'w':
-            [ rgWriteSwitch setState: NSOnState ];
+            [ rgWriteSwitch setState: NSControlStateValueOn ];
             break;
         case 'x':
         case 's':
-            [ rgExecSwitch setState: NSOnState ];
+            [ rgExecSwitch setState: NSControlStateValueOn ];
             break;
         }
     }
@@ -4268,14 +4427,14 @@ LaunchFailed:
     for ( i = 7; i < 10; i++ ) {
         switch( [ permissions characterAtIndex: i ] ) {
         case 'r':
-            [ raReadSwitch setState: NSOnState ];
+            [ raReadSwitch setState: NSControlStateValueOn ];
             break;
         case 'w':
-            [ raWriteSwitch setState: NSOnState ];
+            [ raWriteSwitch setState: NSControlStateValueOn ];
             break;
         case 'x':
         case 't':
-            [ raExecSwitch setState: NSOnState ];
+            [ raExecSwitch setState: NSControlStateValueOn ];
             break;
         }
     }
@@ -4313,9 +4472,13 @@ LaunchFailed:
     if ( len ) {
         port = [ portString intValue ];
         if ( port == 0 ) {
-            NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                    NSLocalizedString( @"Invalid port number.", @"Invalid port number." ),
-                    NSLocalizedString( @"OK", @"OK" ), @"", @"" );
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setAlertStyle:NSAlertStyleWarning];
+            [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+            [alert setInformativeText:NSLocalizedString( @"Invalid port number.", @"Invalid port number." )];
+            [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+            [alert runModal];
+            [alert release];
             goto INVALID_CONNECTION_SETTINGS;
         }
     }
@@ -4326,16 +4489,20 @@ LaunchFailed:
                     [ userName stringValue ], @"user",
                     [ remoteHost stringValue ], @"rhost", nil ];
     } else {
-        NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-            NSLocalizedString( @"You must provide a username and server address to continue.",
-                @"You must provide a username and server address to continue." ),
-            NSLocalizedString( @"OK", @"OK" ), @"", @"" );
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSAlertStyleWarning];
+        [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+        [alert setInformativeText:NSLocalizedString( @"You must provide a username and server address to continue.",
+                @"You must provide a username and server address to continue." )];
+        [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+        [alert runModal];
+        [alert release];
         goto INVALID_CONNECTION_SETTINGS;
     }
     
     params = [ NSArray array ];
     
-    if ( [ advForceSSH1Switch state ] == NSOnState ) {
+    if ( [ advForceSSH1Switch state ] == NSControlStateValueOn ) {
         NSArray		*tmp = [ NSArray array ];
         
         tmp = [ tmp arrayByAddingObjectsFromArray: params ];
@@ -4344,7 +4511,7 @@ LaunchFailed:
         params = [ params arrayByAddingObjectsFromArray: tmp ];
     }
     
-    if ( [ advEnableCompressionSwitch state ] == NSOnState ) {
+    if ( [ advEnableCompressionSwitch state ] == NSControlStateValueOn ) {
 	NSArray		*tmp = [ NSArray array ];
 	
 	tmp = [ tmp arrayByAddingObjectsFromArray: params ];
@@ -4370,9 +4537,15 @@ LaunchFailed:
     switch ( sshversion()) {
     case SFTP_VERSION_UNSUPPORTED:
         /* Let's not pretend we support SSH.com's sftp client */
-        NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                @"Unsupported version of sftp.",
-                NSLocalizedString( @"OK", @"OK" ), @"", @"" );
+        {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setAlertStyle:NSAlertStyleWarning];
+            [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+            [alert setInformativeText:@"Unsupported version of sftp."];
+            [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+            [alert runModal];
+            [alert release];
+        }
         goto INVALID_CONNECTION_SETTINGS;
         break;
         
@@ -4446,11 +4619,15 @@ INVALID_CONNECTION_SETTINGS:
         
         if ( rename( [[ dict objectForKey: @"name" ] UTF8String ],
                         [ newpath UTF8String ] ) < 0 ) {
-            NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                NSLocalizedString( @"rename %@ to %@: %s", @"rename %@ to %@: %s" ),
-                NSLocalizedString( @"OK", @"OK" ), @"", @"",
-                [ dict objectForKey: @"name" ],
-                newpath, strerror( errno ));
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setAlertStyle:NSAlertStyleWarning];
+            [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+            [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                    @"rename %@ to %@: %s", @"rename %@ to %@: %s" ),
+                    [ dict objectForKey: @"name" ], newpath, strerror( errno )]];
+            [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+            [alert runModal];
+            [alert release];
             return( NO );
         }
         dict = [[ SFTPNode sharedInstance ]
@@ -4466,9 +4643,13 @@ INVALID_CONNECTION_SETTINGS:
         if ( snprintf( renamecmd, MAXPATHLEN, "rename \"%s\" \"%s\"",
                 [[[[ items objectAtIndex: row ] objectForKey: @"name" ] sftpQuotedPath ] UTF8String ],
                 [[ newstring sftpQuotedPath ] UTF8String ] ) > ( MAXPATHLEN - 1 )) {
-            NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                @"snprintf string exceeds bounds.", NSLocalizedString( @"OK", @"OK" ),
-                @"", @"" );
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setAlertStyle:NSAlertStyleWarning];
+            [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+            [alert setInformativeText:@"snprintf string exceeds bounds."];
+            [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+            [alert runModal];
+            [alert release];
             return( NO );
         }
         [ self writeCommand: renamecmd ];
@@ -4637,17 +4818,27 @@ INVALID_CONNECTION_SETTINGS:
 	if ( [ localpath isEqualToString: docpath ] ) {
 	    if ( unlink( [ localpath UTF8String ] ) < 0 ) {
 		if ( errno != ENOENT ) {
-		    NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-			@"unlink %@: %s", NSLocalizedString( @"OK", @"OK" ), @"", @"",
-			localpath, strerror( errno ));
+                    NSAlert *alert = [[NSAlert alloc] init];
+                    [alert setAlertStyle:NSAlertStyleWarning];
+                    [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+                    [alert setInformativeText:[NSString stringWithFormat:@"unlink %@: %s",
+                            localpath, strerror( errno )]];
+                    [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+                    [alert runModal];
+                    [alert release];
 		    return;
 		}
 	    }
 	    if ( rmdir( [[ localpath stringByDeletingLastPathComponent ] UTF8String ] ) < 0 ) {
 		if ( errno != ENOENT ) {
-		    NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-			@"unlink %@: %s", NSLocalizedString( @"OK", @"OK" ), @"", @"",
-			localpath, strerror( errno ));
+                    NSAlert *alert = [[NSAlert alloc] init];
+                    [alert setAlertStyle:NSAlertStyleWarning];
+                    [alert setMessageText:NSLocalizedString( @"Error", @"Error" )];
+                    [alert setInformativeText:[NSString stringWithFormat:@"unlink %@: %s",
+                            localpath, strerror( errno )]];
+                    [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+                    [alert runModal];
+                    [alert release];
 		    return;
 		}
 	    }
@@ -5234,25 +5425,30 @@ INVALID_CONNECTION_SETTINGS:
         if ( [ dragData count ] == 1 &&
                 [[[ dragData objectAtIndex: 0 ] objectForKey: @"type" ]
                 isEqualToString: @"directory" ] ) {
-            int			rc;
-
-            rc = NSRunAlertPanel(
-                NSLocalizedString( @"Warning: OpenSSH's sftp client cannot yet download directories.",
-                                @"Warning: OpenSSH's sftp client cannot yet download directories." ),
-                NSLocalizedString( @"Would you like to download %@ to %@ with SCP instead?",
-                                @"Would you like to download %@ to %@ with SCP instead?" ),
-                NSLocalizedString( @"Download", @"Download" ),
-                NSLocalizedString( @"Cancel", @"Cancel" ), @"",
-                [[ dragData objectAtIndex: 0 ] objectForKey: @"name" ], lpath );
-            switch ( rc ) {
-            case NSAlertDefaultReturn:
-                [ self scpRemoteItem:
-                        [[ dragData objectAtIndex: 0 ] objectForKey: @"name" ]
-                        fromHost: [ remoteHost stringValue ]
-                        toLocalPath: lpath userName: [ userName stringValue ]];
-            case NSAlertAlternateReturn:
-            default:
-                return( YES );
+            {
+                NSAlert *alert = [[NSAlert alloc] init];
+                [alert setAlertStyle:NSAlertStyleWarning];
+                [alert setMessageText:NSLocalizedString(
+                        @"Warning: OpenSSH's sftp client cannot yet download directories.",
+                        @"Warning: OpenSSH's sftp client cannot yet download directories." )];
+                [alert setInformativeText:[NSString stringWithFormat:NSLocalizedString(
+                        @"Would you like to download %@ to %@ with SCP instead?",
+                        @"Would you like to download %@ to %@ with SCP instead?" ),
+                        [[ dragData objectAtIndex: 0 ] objectForKey: @"name" ], lpath]];
+                [alert addButtonWithTitle:NSLocalizedString( @"Download", @"Download" )];
+                [alert addButtonWithTitle:NSLocalizedString( @"Cancel", @"Cancel" )];
+                NSModalResponse rc = [alert runModal];
+                [alert release];
+                switch ( rc ) {
+                case NSAlertFirstButtonReturn:
+                    [ self scpRemoteItem:
+                            [[ dragData objectAtIndex: 0 ] objectForKey: @"name" ]
+                            fromHost: [ remoteHost stringValue ]
+                            toLocalPath: lpath userName: [ userName stringValue ]];
+                case NSAlertSecondButtonReturn:
+                default:
+                    return( YES );
+                }
             }
         }
 
@@ -5267,10 +5463,17 @@ INVALID_CONNECTION_SETTINGS:
                                                                         objectForKey: @"name" ];
         }
 
-        dragData = [ pb propertyListForType:
-                [ pb availableTypeFromArray:
-                    [ NSArray arrayWithObject: NSFilenamesPboardType ]]];
-        
+        dragData = [ pb readObjectsForClasses: [ NSArray arrayWithObject: [ NSURL class ]]
+                options: [ NSDictionary dictionaryWithObject: [ NSNumber numberWithBool: YES ]
+                        forKey: NSPasteboardURLReadingFileURLsOnlyKey ]];
+        if ( dragData != nil ) {
+            NSMutableArray *paths = [ NSMutableArray arrayWithCapacity: [ dragData count ]];
+            for ( NSURL *u in dragData ) {
+                [ paths addObject: [ u path ]];
+            }
+            dragData = paths;
+        }
+
         [ self uploadFiles: dragData toDirectory: rpath ];        
         return( YES );
     }
@@ -5340,8 +5543,14 @@ INVALID_CONNECTION_SETTINGS:
             path = [[ dsrc objectAtIndex: idx ] objectForKey: @"name" ];
             anArray = [ anArray arrayByAddingObject: path ];
         }
-        [ pboard declareTypes: [ NSArray arrayWithObject: NSFilenamesPboardType ] owner: self ];
-        [ pboard setPropertyList: anArray forType: NSFilenamesPboardType ];
+        {
+            NSMutableArray *urlArray = [ NSMutableArray arrayWithCapacity: [ anArray count ]];
+            for ( NSString *p in anArray ) {
+                [ urlArray addObject: [ NSURL fileURLWithPath: p ]];
+            }
+            [ pboard declareTypes: [ NSArray arrayWithObject: NSPasteboardTypeFileURL ] owner: self ];
+            [ pboard writeObjects: urlArray ];
+        }
     } else if ( tableView == remoteBrowser ) {
         if ( !dotflag ) {
             dsrc = [ dotlessRDir copy ];
@@ -5577,13 +5786,24 @@ INVALID_CONNECTION_SETTINGS:
     NSArray		*filenames;
     NSArray		*types = [ pboard types ];
     
-    if ( ![ types containsObject: NSFilenamesPboardType ] ) {
+    if ( ![ types containsObject: NSPasteboardTypeFileURL ] ) {
         *error = @"Pasteboard doesn't contain any filenames";
         return;
     }
-    filenames = [ pboard propertyListForType:
-                    [ pboard availableTypeFromArray:
-                            [ NSArray arrayWithObject: NSFilenamesPboardType ]]];
+    {
+        NSArray *urls = [ pboard readObjectsForClasses: [ NSArray arrayWithObject: [ NSURL class ]]
+                options: [ NSDictionary dictionaryWithObject: [ NSNumber numberWithBool: YES ]
+                        forKey: NSPasteboardURLReadingFileURLsOnlyKey ]];
+        if ( urls == nil || [ urls count ] == 0 ) {
+            *error = @"Couldn't extract filename from pasteboard.";
+            return;
+        }
+        NSMutableArray *paths = [ NSMutableArray arrayWithCapacity: [ urls count ]];
+        for ( NSURL *u in urls ) {
+            [ paths addObject: [ u path ]];
+        }
+        filenames = paths;
+    }
     if ( filenames == nil ) {
         *error = @"Couldn't extract filename from pasteboard.";
         return;

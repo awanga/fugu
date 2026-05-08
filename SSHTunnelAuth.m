@@ -29,12 +29,14 @@ extern char	**environ;
 int		sshconnecting = 0;
 int		mfd = 0;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 + ( void )connectWithPorts: ( NSArray * )ports
 {
     NSAutoreleasePool		*pool = [[ NSAutoreleasePool alloc ] init ];
     NSConnection		*cnctnToController;
     SSHTunnelAuth		*serverObject;
-    
+
     cnctnToController = [ NSConnection connectionWithReceivePort:
                             [ ports objectAtIndex: 0 ]
                             sendPort: [ ports objectAtIndex: 1 ]];
@@ -45,9 +47,10 @@ int		mfd = 0;
     [ serverObject release ];
     
     [[ NSRunLoop currentRunLoop ] run ];
-    
+
     [ pool release ];
 }
+#pragma clang diagnostic pop
 
 - ( id )init
 {
@@ -71,7 +74,7 @@ int		mfd = 0;
 {
     fd_set		readmask;
     FILE		*mfp;
-    int			status, pwsent = 0, validpw = 0, threestrikes = 0;
+    int			status, validpw = 0, threestrikes = 0;
     char		*unknownmsg;
     char		ttyname[ MAXPATHLEN ], buf[ MAXPATHLEN ], tportarg[ MAXPATHLEN ];
     char		executable[ MAXPATHLEN], portarg[ MAXPATHLEN ], *execargs[ 7 ];
@@ -134,14 +137,11 @@ int		mfd = 0;
                         || strstr( buf, "passphrase" ) != NULL )
                         && !validpw ) {
                     if ( sshconnecting ) [ controller authenticateWithPrompt: buf ];
-                    pwsent = 1;
                 } else {
                     if ( strncmp( buf, "Permission denied, ", strlen( "Permission denied, " )) == 0 ) {
                         [ controller passError ];
-                        pwsent = 0;
                         threestrikes++;
                     } else if ( strstr( buf, "passphrase for key" ) != NULL ) {
-                        pwsent = 0;
                         threestrikes = 0;	/* if pubkey auth fails, password prompt will appear */
                     } else if ( strncmp( buf, "The auth", strlen( "The auth" )) == 0 ) {
                         unknownmsg = strdup( buf );

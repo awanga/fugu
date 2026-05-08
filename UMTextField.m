@@ -30,22 +30,22 @@
 - ( void )awakeFromNib
 {
     [ self registerForDraggedTypes: [ NSArray arrayWithObjects:
-		    NSFilenamesPboardType, NSURLPboardType, nil ]];
+	    NSPasteboardTypeFileURL, NSPasteboardTypeURL, nil ]];
 }
 
 - ( NSDragOperation )draggingEntered: ( id <NSDraggingInfo> )sender
 {
     NSPasteboard	*pb = [ sender draggingPasteboard ];
-    
-    if ( ! [[ pb types ] containsObject: NSFilenamesPboardType ] &&
-	    ! [[ pb types ] containsObject: NSURLPboardType ] ) {
+
+    if ( [ pb availableTypeFromArray: [ NSArray arrayWithObjects:
+	    NSPasteboardTypeFileURL, NSPasteboardTypeURL, nil ]] == nil ) {
 	return( NSDragOperationNone );
     }
-	
+
     [ self setBackgroundColor: [ NSColor lightGrayColor ]];
     [ self setEditable: NO ];
     [ self setNeedsDisplay: YES ];
-    
+
     return( NSDragOperationCopy );
 }
 
@@ -60,27 +60,23 @@
 {
     NSPasteboard	*pb = [ sender draggingPasteboard ];
     NSString		*path = nil;
-    
-    if ( [[ pb types ] containsObject: NSFilenamesPboardType ] ) {
-	NSArray		*files;
-	
-	files = [ pb propertyListForType: NSFilenamesPboardType ];
-	
-	/* first item wins */
-	path = [ files objectAtIndex: 0 ];
-    } else if ( [[ pb types ] containsObject: NSURLPboardType ] ) {
-	path = [ pb stringForType: NSURLPboardType ];
+
+    NSArray *urls = [ pb readObjectsForClasses: [ NSArray arrayWithObject: [ NSURL class ]]
+                                       options: nil ];
+    if ( urls && [ urls count ] > 0 ) {
+	NSURL *url = [ urls objectAtIndex: 0 ];
+	path = [ url isFileURL ] ? [ url path ] : [ url absoluteString ];
     }
-    
+
     if ( path == nil ) {
 	return( NO );
     }
-    
+
     [ self setStringValue: path ];
     [ self setEditable: YES ];
     [ self setBackgroundColor: [ NSColor controlBackgroundColor ]];
     [ self setNeedsDisplay: YES ];
-    
+
     if ( [[ self delegate ] respondsToSelector:
 	    @selector( umTextFieldContentsChanged: ) ] ) {
 	[[ self delegate ] umTextFieldContentsChanged:
@@ -88,7 +84,7 @@
 		self, @"UMTextField",
 		path, @"UMTextFieldString", nil ]];
     }
-    
+
     return( YES );
 }
 
