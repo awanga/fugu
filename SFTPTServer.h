@@ -9,13 +9,14 @@
 
 @protocol SFTPTServerInterface
 
-- ( oneway void )connectToServerWithParams: ( NSArray * )params
+- ( void )connectToServerWithParams: ( NSArray * )params
                     fromController: ( SFTPController * )controller;
 
 - ( void )collectListingFromMaster: ( int )master fileStream: ( FILE * )mf
             forController: ( SFTPController * )controller;
 - ( int )atSftpPrompt;
 - ( pid_t )getSftpPid;
+- ( void )resetPromptState;
 
 @end
 
@@ -27,7 +28,6 @@
     NSString            *_sftpRemoteObjectList;
 }
 
-+ ( void )connectWithPorts: ( NSArray * )ports;
 - ( id )init;
 - ( NSString * )retrieveUnknownHostKeyFromStream: ( FILE * )stream;
 - ( NSMutableDictionary * )remoteObjectFromSFTPLine: ( char * )line;

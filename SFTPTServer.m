@@ -56,27 +56,6 @@ int		connecting = 0;
 int		connected = 0;
 int		master = 0;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-+ ( void )connectWithPorts: ( NSArray * )ports
-{
-    NSAutoreleasePool		*pool = [[ NSAutoreleasePool alloc ] init ];
-    NSConnection		*cnctnToController;
-    SFTPTServer			*serverObject;
-
-    cnctnToController = [ NSConnection connectionWithReceivePort:
-                            [ ports objectAtIndex: 0 ]
-                            sendPort: [ ports objectAtIndex: 1 ]];
-                            
-    serverObject = [[ self alloc ] init ];
-    [ (( SFTPController * )[ cnctnToController rootProxy ] ) setServer: serverObject ];
-    [ serverObject release ];
-    
-    [[ NSRunLoop currentRunLoop ] run ];
-    [ pool release ];
-}
-#pragma clang diagnostic pop
-
 - ( id )init
 {
     _currentTransferName = nil;
@@ -266,15 +245,27 @@ int		master = 0;
     }
     
     if ( uploading ) {
-	[ controller updateUploadProgressBarWithValue: strtod( tav[ pc_index ], NULL )
-		    amountTransfered: [ NSString stringWithUTF8String: t_amount ]
-		    transferRate: [ NSString stringWithUTF8String: t_rate ]
-		    ETA: [ NSString stringWithFormat: @"%s ETA", t_eta ]];
+	double _val = strtod( tav[ pc_index ], NULL );
+	NSString *_amount = [ NSString stringWithUTF8String: t_amount ];
+	NSString *_rate   = [ NSString stringWithUTF8String: t_rate ];
+	NSString *_eta    = [ NSString stringWithFormat: @"%s ETA", t_eta ];
+	dispatch_async( dispatch_get_main_queue(), ^{
+	    [ controller updateUploadProgressBarWithValue: _val
+			amountTransfered: _amount
+			transferRate: _rate
+			ETA: _eta ];
+	} );
     } else {
-	[ controller updateDownloadProgressBarWithValue: strtod( tav[ pc_index ], NULL )
-		    amountTransfered: [ NSString stringWithUTF8String: t_amount ]
-		    transferRate: [ NSString stringWithUTF8String: t_rate ]
-		    ETA: [ NSString stringWithFormat: @"%s ETA", t_eta ]];
+	double _val = strtod( tav[ pc_index ], NULL );
+	NSString *_amount = [ NSString stringWithUTF8String: t_amount ];
+	NSString *_rate   = [ NSString stringWithUTF8String: t_rate ];
+	NSString *_eta    = [ NSString stringWithFormat: @"%s ETA", t_eta ];
+	dispatch_async( dispatch_get_main_queue(), ^{
+	    [ controller updateDownloadProgressBarWithValue: _val
+			amountTransfered: _amount
+			transferRate: _rate
+			ETA: _eta ];
+	} );
     }
     
     free( tmp );
@@ -289,6 +280,11 @@ int		master = 0;
 - ( int )atSftpPrompt
 {
     return( atprompt );
+}
+
+- ( void )resetPromptState
+{
+    atprompt = 0;
 }
 
 - ( NSString * )retrieveUnknownHostKeyFromStream: ( FILE * )stream
@@ -310,25 +306,25 @@ int		master = 0;
     return( (NSMutableDictionary *)SFTPListingParserParseLine( object ) );
 }
 
-- ( oneway void )connectToServerWithParams: ( NSArray * )params
+- ( void )connectToServerWithParams: ( NSArray * )params
                 fromController: ( SFTPController * )controller
 {
     fd_set		readmask;
     struct winsize	win_size = { 24, 512, 0, 0 };
     FILE		*mf = NULL;
     int			rc, status, validpw = 0, threestrikes = 0;
-    int			was_uploading = 0, was_downloading = 0, was_changing = 0, sethomedir = 0;
-    int			was_removing = 0, was_renaming = 0, was_listing = 0;
+    __block int		was_uploading = 0, was_downloading = 0, was_changing = 0, sethomedir = 0;
+    __block int		was_removing = 0, was_renaming = 0, was_listing = 0;
     int			suppress_auth_log = 0;
     char		ttyname[ MAXPATHLEN ], **execargs;
     char		buf[ MAXPATHLEN * 2 ];
-    NSArray		*argv = nil, *passedInArgs = [ params copy ];    
+    NSArray		*argv = nil, *passedInArgs = [ params copy ];
     NSString    	*sftpBinary;
-    
+
     atprompt = 0;
     remoteDirBuf = [[ NSString alloc ] init ];
 
-    [ controller clearLog ]; 
+    dispatch_async( dispatch_get_main_queue(), ^{ [ controller clearLog ]; } );
 
     if (( sftpBinary = [ NSString pathForExecutable: @"sftp" ] ) == nil ) {
 	NSLog( @"Couldn't find sftp!" );
@@ -337,66 +333,73 @@ int		master = 0;
     }
 
     argv = [ NSArray arrayWithObject: sftpBinary ];
-    
+
     argv = [ argv arrayByAddingObjectsFromArray: passedInArgs ];
     rc = [ argv createArgv: &execargs ];
 
     [ passedInArgs release ];
 
     connecting = 1;
-    [ controller addToLog: [ NSString stringWithFormat: @"sftp launch path is %s.\n", execargs[ 0 ]]];
-    
-    [ controller updateHostList ];	/* adds new host to pop-up list */
-    [ controller setConnectedWindowTitle ];
-    
+    {
+        NSString *_log = [ NSString stringWithFormat: @"sftp launch path is %s.\n", execargs[ 0 ]];
+        dispatch_async( dispatch_get_main_queue(), ^{ [ controller addToLog: _log ]; } );
+    }
+
+    dispatch_async( dispatch_get_main_queue(), ^{ [ controller updateHostList ]; } );	/* adds new host to pop-up list */
+    dispatch_async( dispatch_get_main_queue(), ^{ [ controller setConnectedWindowTitle ]; } );
+
     switch (( sftppid = forkpty( &master, ttyname, NULL, &win_size ))) {
     case 0:
         execve( execargs[ 0 ], ( char ** )execargs, environ );
         NSLog( @"Couldn't launch sftp: %s", strerror( errno ));
         _exit( 2 );						/* shouldn't get here */
-        
+
     case -1:
         NSLog( @"forkpty failed: %s", strerror( errno ));
         exit( 2 );
-        
+
     default:
         break;
     }
-    
+
     if ( fcntl( master, F_SETFL, O_NONBLOCK ) < 0 ) {	/* prevent master from blocking */
         NSLog( @"fcntl non-block failed: %s", strerror( errno ));
     }
-    
+
     if (( mf = fdopen( master, "r+" )) == NULL ) {
         NSLog( @"failed to open file stream with fdopen: %s\n", strerror( errno ));
         return;
     }
     setvbuf( mf, NULL, _IONBF, 0 );
-    
-    [ controller addToLog: [ NSString stringWithFormat: @"Slave terminal device is %s.\n",
-                            ttyname ]];
-    [ controller addToLog: [ NSString stringWithFormat: @"Master fd is %d.\n",
-                            master ]];
-    
+
+    {
+        NSString *_log = [ NSString stringWithFormat: @"Slave terminal device is %s.\n", ttyname ];
+        dispatch_async( dispatch_get_main_queue(), ^{ [ controller addToLog: _log ]; } );
+    }
+    {
+        NSString *_log = [ NSString stringWithFormat: @"Master fd is %d.\n", master ];
+        dispatch_async( dispatch_get_main_queue(), ^{ [ controller addToLog: _log ]; } );
+    }
+
     for ( ;; ) {
         NSAutoreleasePool		*p = [[ NSAutoreleasePool alloc ] init ];
         remoteDirBuf = @"";
-            
+
         FD_ZERO( &readmask );
         FD_SET( master, &readmask );
-        
+
         switch( select( master + 1, &readmask, NULL, NULL, NULL )) {
         case -1:
             NSLog( @"select: %s", strerror( errno ));
             break;
-            
+
         case 0:	/* timeout */
             continue;
-        
+
         default:
             break;
         }
-        
+
         if ( FD_ISSET( master, &readmask )) {
             if ( fgets(( char * )buf, MAXPATHLEN, mf ) == NULL ) {
                 break;
@@ -404,12 +407,17 @@ int		master = 0;
 #ifdef DEBUG
             NSLog( @"buf: %s", ( char * )buf );
 #endif /* DEBUG */
-            
+
             if ( [ self checkForPasswordPromptInBuffer: buf ] && !validpw ) {
                 if ( threestrikes > 0 ) {
-                    [ controller passError ];
+                    dispatch_async( dispatch_get_main_queue(), ^{ [ controller passError ]; } );
                 };
-                if ( connecting ) [ controller requestPasswordWithPrompt: ( char * )buf ];
+                if ( connecting ) {
+                    NSString *_prompt = [ NSString stringWithUTF8String: ( char * )buf ];
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [ controller requestPasswordWithPrompt: ( char * )[ _prompt UTF8String ]];
+                    } );
+                }
                 suppress_auth_log = 1;
             } else if ( strstr(( char * )buf, "rename \"" ) != NULL ) {
                 was_renaming = 1;
@@ -418,124 +426,127 @@ int		master = 0;
                 if ( !connected ) {
                     validpw++;
                     suppress_auth_log = 0;
-                    [ controller showRemoteFiles ];
+                    dispatch_async( dispatch_get_main_queue(), ^{ [ controller showRemoteFiles ]; } );
                 } else if ( !sethomedir ) {
-                    [ controller getListing ];
+                    dispatch_async( dispatch_get_main_queue(), ^{ [ controller getListing ]; } );
                     sethomedir++;
                 } else if ( was_changing || was_renaming ) {
-                    [ controller getListing ];
+                    dispatch_async( dispatch_get_main_queue(), ^{ [ controller getListing ]; } );
                     was_changing = 0;
                     was_renaming = 0;
                 } else {
-                    /* check to see if there's anything waiting to be uploaded */
-                    if ( [[ controller uploadQ ] count ] ) {
-                        NSDictionary	*dict = [[ controller uploadQ ] objectAtIndex: 0 ];
-                        
-                        was_uploading = 1;
-                        if ( [[ dict objectForKey: @"isdir" ] intValue ] ) {
-                            NSString *safeRemote = [[ dict objectForKey: @"pathfrombase" ] sftpQuotedPath ];
-                            if ( fdwrite( master, "mkdir \"%s\"\n",
-                                         ( void * )[ safeRemote UTF8String ] ) < 0 ) {
-                                NSLog( @"Failed to send command: %s", strerror( errno ));
+                    dispatch_sync( dispatch_get_main_queue(), ^{
+                        /* check to see if there's anything waiting to be uploaded */
+                        if ( [[ controller uploadQ ] count ] ) {
+                            NSDictionary	*dict = [[ controller uploadQ ] objectAtIndex: 0 ];
+
+                            was_uploading = 1;
+                            if ( [[ dict objectForKey: @"isdir" ] intValue ] ) {
+                                NSString *safeRemote = [[ dict objectForKey: @"pathfrombase" ] sftpQuotedPath ];
+                                if ( fdwrite( master, "mkdir \"%s\"\n",
+                                             ( void * )[ safeRemote UTF8String ] ) < 0 ) {
+                                    NSLog( @"Failed to send command: %s", strerror( errno ));
+                                }
+                            } else {
+                                char		*p = " ";
+                                NSString    *safeLocal, *safeRemote;
+
+                                if ( [[ NSUserDefaults standardUserDefaults ]
+                                                boolForKey: @"RetainFileTimestamp" ] ) {
+                                    p = " -P ";
+                                }
+
+                                safeLocal  = [[ dict objectForKey: @"fullpath" ] sftpQuotedPath ];
+                                safeRemote = [[ dict objectForKey: @"pathfrombase" ] sftpQuotedPath ];
+                                if ( fdwrite( master, "put%s\"%s\" \"%s\"\n", p,
+                                            ( void * )[ safeLocal UTF8String ],
+                                            ( void * )[ safeRemote UTF8String ] ) < 0 ) {
+                                    NSLog( @"Failed to send command: %s", strerror( errno ));
+                                }
                             }
-                        } else {
+
+                            [ self setCurrentTransferName: [[[[ controller uploadQ ] objectAtIndex: 0 ]
+                                        objectForKey: @"fullpath" ] lastPathComponent ]];
+                            [ controller showUploadProgress ];
+                            [ controller updateUploadProgress: 0 ];
+                        } else if ( was_uploading ) {
+                            was_uploading = 0;
+                            [ self setCurrentTransferName: nil ];
+                            [ controller updateUploadProgress: 0 ];
+                        }
+
+                        /* check download queue */
+                        if ( [[ controller downloadQ ] count ] ) {
+                            NSDictionary	*dict = [[ controller downloadQ ] objectAtIndex: 0 ];
+                            NSString        *transferName = nil;
                             char		*p = " ";
-                            NSString    *safeLocal, *safeRemote;
+                            char		remote[ MAXPATHLEN ] = { 0 };
+                            size_t		len;
 
                             if ( [[ NSUserDefaults standardUserDefaults ]
                                             boolForKey: @"RetainFileTimestamp" ] ) {
                                 p = " -P ";
                             }
 
-                            safeLocal  = [[ dict objectForKey: @"fullpath" ] sftpQuotedPath ];
-                            safeRemote = [[ dict objectForKey: @"pathfrombase" ] sftpQuotedPath ];
-                            if ( fdwrite( master, "put%s\"%s\" \"%s\"\n", p,
-                                        ( void * )[ safeLocal UTF8String ],
-                                        ( void * )[ safeRemote UTF8String ] ) < 0 ) {
-                                NSLog( @"Failed to send command: %s", strerror( errno ));
+                            if (( len = [(NSData*)[ dict objectForKey: @"rpath" ] length ] ) >= MAXPATHLEN ) {
+                                /* XXX throw visible error */
+                                NSLog( @"remote path too long" );
+                                return;
                             }
-                        }
-                        
-                        [ self setCurrentTransferName: [[[[ controller uploadQ ] objectAtIndex: 0 ]
-                                    objectForKey: @"fullpath" ] lastPathComponent ]];
-                        [ controller showUploadProgress ];
-                        [ controller updateUploadProgress: 0 ];
-                    } else if ( was_uploading ) {
-                        was_uploading = 0;
-                        [ self setCurrentTransferName: nil ];
-                        [ controller updateUploadProgress: 0 ];
-                    }
-                    
-                    /* check download queue */
-                    if ( [[ controller downloadQ ] count ] ) {
-                        NSDictionary	*dict = [[ controller downloadQ ] objectAtIndex: 0 ];
-                        NSString        *transferName = nil;
-                        char		*p = " ";
-			char		remote[ MAXPATHLEN ] = { 0 };
-			size_t		len;
-                        
-                        if ( [[ NSUserDefaults standardUserDefaults ]
-                                        boolForKey: @"RetainFileTimestamp" ] ) {
-                            p = " -P ";
-                        }
-			
-			if (( len = [(NSData*)[ dict objectForKey: @"rpath" ] length ] ) >= MAXPATHLEN ) {
-			    /* XXX throw visible error */
-			    NSLog( @"remote path too long" );
-			    continue;
-			}
-			memcpy( remote, [[ dict objectForKey: @"rpath" ] bytes ], len );
+                            memcpy( remote, [[ dict objectForKey: @"rpath" ] bytes ], len );
 
-                        was_downloading = 1;
-                        {
-                            char        esc_remote[ MAXPATHLEN * 2 ];
-                            NSString    *safeLpath;
-                            if ( sftpEscapeBytes( remote, strlen( remote ),
-                                                  esc_remote, sizeof( esc_remote ) ) < 0 ) {
-                                NSLog( @"remote path too long after escaping" );
-                                continue;
+                            was_downloading = 1;
+                            {
+                                char        esc_remote[ MAXPATHLEN * 2 ];
+                                NSString    *safeLpath;
+                                if ( sftpEscapeBytes( remote, strlen( remote ),
+                                                      esc_remote, sizeof( esc_remote ) ) < 0 ) {
+                                    NSLog( @"remote path too long after escaping" );
+                                    return;
+                                }
+                                safeLpath = [[ dict objectForKey: @"lpath" ] sftpQuotedPath ];
+                                if ( fdwrite( master, "get%s\"%s\" \"%s\"\n", p, esc_remote,
+                                        ( void * )[ safeLpath UTF8String ] ) < 0 ) {
+                                    NSLog( @"Failed to send command: %s", strerror( errno ));
+                                }
                             }
-                            safeLpath = [[ dict objectForKey: @"lpath" ] sftpQuotedPath ];
-                            if ( fdwrite( master, "get%s\"%s\" \"%s\"\n", p, esc_remote,
-                                    ( void * )[ safeLpath UTF8String ] ) < 0 ) {
-                                NSLog( @"Failed to send command: %s", strerror( errno ));
-                            }
+
+                            transferName = [ NSString stringWithBytesOfUnknownEncoding:
+                                                    ( char * )[[ dict objectForKey: @"rpath" ] bytes ]
+                                                    length: ( unsigned int )[( NSData * )[ dict objectForKey: @"rpath" ] length ]];
+                            [ self setCurrentTransferName: [ transferName lastPathComponent ]];
+                            NSString *_dlmsg = [ transferName lastPathComponent ];
+                            [ controller showDownloadProgressWithMessage: ( char * )[ _dlmsg UTF8String ]];
+                            [ controller removeFirstItemFromDownloadQ ];
+                        } else if ( was_downloading ) {
+                            was_downloading = 0;
+                            [ controller finishedDownload ];
+                            [ self setCurrentTransferName: nil ];
                         }
 
-                        transferName = [ NSString stringWithBytesOfUnknownEncoding:
-                                                ( char * )[[ dict objectForKey: @"rpath" ] bytes ]
-                                                length: ( unsigned int )[( NSData * )[ dict objectForKey: @"rpath" ] length ]];
-                        [ self setCurrentTransferName: [ transferName lastPathComponent ]];
-                        [ controller showDownloadProgressWithMessage:
-                                ( char * )[[ transferName lastPathComponent ] UTF8String ]];
-                        [ controller removeFirstItemFromDownloadQ ];
-                    } else if ( was_downloading ) {
-                        was_downloading = 0;
-                        [ controller finishedDownload ];
-                        [ self setCurrentTransferName: nil ];
-                    }
-                    
-                    /* check remove queue */
-                    if ( [[ controller removeQ ] count ] ) {
-                        was_removing = 1;
-                        [ controller deleteFirstItemFromRemoveQueue ];
-                    } else if ( was_removing ) {
-                        was_removing = 0;
-                        [ controller getListing ];
-                    } else if ( was_listing ) {
-                        was_listing = 0;
-                        [ controller finishedCommand ];
-                    }
+                        /* check remove queue */
+                        if ( [[ controller removeQ ] count ] ) {
+                            was_removing = 1;
+                            [ controller deleteFirstItemFromRemoveQueue ];
+                        } else if ( was_removing ) {
+                            was_removing = 0;
+                            [ controller getListing ];
+                        } else if ( was_listing ) {
+                            was_listing = 0;
+                            [ controller finishedCommand ];
+                        }
+                    } );
                 }
             } else {
                 atprompt = 0;
-                
+
                 if ( strncmp(( char * )buf, "Permission denied, ",
                                 strlen( "Permission denied, " )) == 0 ) {
                     suppress_auth_log = 0;
                     threestrikes++;
                 } else if ( [ self bufferContainsError: buf ] ) {
-                    [ controller connectionError: [ NSString stringWithUTF8String: buf ]];
+                    NSString *_err = [ NSString stringWithUTF8String: buf ];
+                    dispatch_async( dispatch_get_main_queue(), ^{ [ controller connectionError: _err ]; } );
                 } else if ( [ self currentTransferName ] != nil ) {
                     if ( strstr(( char * )buf, [[ self currentTransferName ] UTF8String ] ) != NULL
                                 && strrchr(( char * )buf, '%' ) != NULL ) {
@@ -552,61 +563,81 @@ int		master = 0;
                 } else if ( strstr(( char * )buf, "passphrase for key" ) != NULL ) {
                     suppress_auth_log = 1;
                     threestrikes = 0;	/* if pubkey auth fails, password prompt will appear */
-                    [ controller requestPasswordWithPrompt: ( char * )buf ];
+                    NSString *_prompt = [ NSString stringWithUTF8String: ( char * )buf ];
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [ controller requestPasswordWithPrompt: ( char * )[ _prompt UTF8String ]];
+                    } );
                 } else if ( strstr(( char * )buf, "Changing owner on" ) != NULL
                         || strstr(( char * )buf, "Changing group on" )
                         || strstr(( char * )buf, "Changing mode on" )) {
-                    [ controller setBusyStatusWithMessage: [ NSString stringWithUTF8String:
-                                                                                ( void * )buf ]];
+                    NSString *_busymsg = [ NSString stringWithUTF8String: ( void * )buf ];
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [ controller setBusyStatusWithMessage: _busymsg ];
+                    } );
                     was_changing = 1;
                     if ( strstr(( char * )buf, "Couldn't " ) != NULL ) {
-                        [ controller sessionError: [ NSString stringWithUTF8String: ( void * )buf ]];
+                        NSString *_sesserr = [ NSString stringWithUTF8String: ( void * )buf ];
+                        dispatch_async( dispatch_get_main_queue(), ^{
+                            [ controller sessionError: _sesserr ];
+                        } );
                     }
                 } else if ( [ self unknownHostKeyPromptInBuffer: buf ] ) {
                     NSMutableDictionary    *hostInfo = nil;
-                    
+
                     hostInfo = [ NSMutableDictionary dictionaryWithObjectsAndKeys:
                                 [ NSString stringWithUTF8String: buf ], @"msg",
                                 [ self retrieveUnknownHostKeyFromStream: mf ], @"key", nil ];
-                    
-                    [ controller getContinueQueryForUnknownHost: ( NSDictionary * )hostInfo ];
+
+                    NSDictionary *_hostInfo = hostInfo;
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [ controller getContinueQueryForUnknownHost: _hostInfo ];
+                    } );
                 } else if ( strstr(( char * )buf, "Removing " ) != NULL ) {
-                    [ controller setBusyStatusWithMessage:
-                        [ NSString stringWithUTF8String: ( char * )buf ]];
+                    NSString *_busymsg = [ NSString stringWithUTF8String: ( char * )buf ];
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [ controller setBusyStatusWithMessage: _busymsg ];
+                    } );
                 }
             }
 
             /* moved to separate if block: sometimes ls and sftp> occur in same buffer */
             if ( [ self hasDirectoryListingFormInBuffer: buf ] && connected ) {
-                [ controller addToLog: [ NSString stringWithUTF8String: ( char * )buf ]];
+                NSString *_log = [ NSString stringWithUTF8String: ( char * )buf ];
+                dispatch_async( dispatch_get_main_queue(), ^{ [ controller addToLog: _log ]; } );
                 was_listing = 1;
                 [ self collectListingFromMaster: master fileStream: mf forController: controller ];
                 memset( buf, '\0', strlen(( char * )buf ));
-                [ controller loadRemoteBrowserWithItems: [ self remoteObjectList ]];
+                id _items = [ self remoteObjectList ];
+                dispatch_async( dispatch_get_main_queue(), ^{
+                    [ controller loadRemoteBrowserWithItems: _items ];
+                } );
                 remoteDirBuf = @"";
             }
-            
+
             if ( strstr(( char * )buf, "Remote working" ) != NULL ) {
                 char		*p, *q, *tmp;
-            
+
                 tmp = strdup(( char * )buf );
 
                 if (( q = strrchr( tmp, '\r' )) != NULL ) *q = '\0';
-                
+
                 p = strchr( tmp, '/' );
-                
-                [ controller setRemotePathPopUp:
-                    [ NSString stringWithBytesOfUnknownEncoding: p
-                                            length: ( unsigned int )strlen( p ) ]];
+
+                NSString *_pwd = [ NSString stringWithBytesOfUnknownEncoding: p
+                                                length: ( unsigned int )strlen( p ) ];
+                dispatch_async( dispatch_get_main_queue(), ^{
+                    [ controller setRemotePathPopUp: _pwd ];
+                } );
                 free( tmp );
             }
-            
+
             if ( threestrikes >= 3 ) {
-                [ controller cancelConnection: nil ];
+                dispatch_async( dispatch_get_main_queue(), ^{ [ controller cancelConnection: nil ]; } );
             }
-            
+
             if ( buf[ 0 ] != '\0' && !suppress_auth_log ) {
-                [ controller addToLog: [ NSString stringWithUTF8String: ( void * )buf ]];
+                NSString *_log = [ NSString stringWithUTF8String: ( void * )buf ];
+                dispatch_async( dispatch_get_main_queue(), ^{ [ controller addToLog: _log ]; } );
                 memset( buf, '\0', strlen(( char * )buf ));
             } else if ( suppress_auth_log ) {
                 memset( buf, '\0', strlen(( char * )buf ));
@@ -617,27 +648,36 @@ int		master = 0;
         p = nil;
         if ( cancelflag ) break;
     }
-    
+
     sftppid = wait( &status );
-    
+
     free( execargs );
     [ self setCurrentTransferName: nil ];
     [ remoteDirBuf release ];
     connected = 0;
     fclose( mf );   /* also closes the master fd */
 
-    [ controller cleanUp ];
-    [ controller addToLog: [ NSString stringWithUTF8String: ( void * )buf ]];
-    [ controller addToLog: [ NSString stringWithFormat: @"\nsftp task with pid %d ended.\n", sftppid ]];
+    {
+        NSString *_log = [ NSString stringWithUTF8String: ( void * )buf ];
+        NSString *_logpid = [ NSString stringWithFormat: @"\nsftp task with pid %d ended.\n", sftppid ];
+        dispatch_async( dispatch_get_main_queue(), ^{
+            [ controller cleanUp ];
+            [ controller addToLog: _log ];
+            [ controller addToLog: _logpid ];
+        } );
+    }
     sftppid = 0;
 
     if ( WIFEXITED( status )) {
-        [ controller addToLog: @"Normal exit\n" ];
+        dispatch_async( dispatch_get_main_queue(), ^{ [ controller addToLog: @"Normal exit\n" ]; } );
     } else if ( WIFSIGNALED( status )) {
-        [ controller addToLog: @"WIFSIGNALED: " ];
-        [ controller addToLog: [ NSString stringWithFormat: @"signal = %d\n", status ]];
+        NSString *_siglog = [ NSString stringWithFormat: @"signal = %d\n", status ];
+        dispatch_async( dispatch_get_main_queue(), ^{
+            [ controller addToLog: @"WIFSIGNALED: " ];
+            [ controller addToLog: _siglog ];
+        } );
     } else if ( WIFSTOPPED( status )) {
-        [ controller addToLog: @"WIFSTOPPED\n" ];
+        dispatch_async( dispatch_get_main_queue(), ^{ [ controller addToLog: @"WIFSTOPPED\n" ]; } );
     }
 }
 
@@ -671,7 +711,8 @@ int		master = 0;
             }
 
             if ( [ self bufferContainsError: buf ] ) {
-                [ controller sessionError: [ NSString stringWithUTF8String: buf ]];
+                NSString *_err = [ NSString stringWithUTF8String: buf ];
+                dispatch_async( dispatch_get_main_queue(), ^{ [ controller sessionError: _err ]; } );
                 continue;
             }
 #ifdef SSH_COM_SUPPORT
@@ -719,12 +760,15 @@ int		master = 0;
                 [ items addObject: object ];
             }
             
-            [ controller addToLog: [ NSString stringWithBytesOfUnknownEncoding: buf
-                                                length: ( unsigned int )strlen( buf ) ]];
+            {
+                NSString *_log = [ NSString stringWithBytesOfUnknownEncoding: buf
+                                                    length: ( unsigned int )strlen( buf ) ];
+                dispatch_async( dispatch_get_main_queue(), ^{ [ controller addToLog: _log ]; } );
+            }
             if ( strstr( buf, "sftp>" ) != NULL ) {
                 memset( buf, '\0', strlen( buf ));
-                [ controller finishedCommand ];
                 [ self setRemoteObjectList: items ];
+                dispatch_async( dispatch_get_main_queue(), ^{ [ controller finishedCommand ]; } );
                 return;
             }
         

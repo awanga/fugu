@@ -24,39 +24,16 @@ extern int		mfd;
 
 @implementation SSHTunnel
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - ( id )init
 {
-    NSPort		*recPort;
-    NSPort		*sendPort;
-    NSArray		*portArray;
-
     if ( !( self = [ super init ] )) {
         return( nil );
     }
 
-    /* prepare distributed objects for scp task thread, but don't establish connection yet */
-    recPort = [ NSPort port ];
-    sendPort = [ NSPort port ];
-    connectionToTServer = [[ NSConnection alloc ] initWithReceivePort: recPort
-                                                sendPort: sendPort ];
-    [ connectionToTServer setRootObject: self ];
-    ssh = nil;
-    portArray = [ NSArray arrayWithObjects: sendPort, recPort, nil ];
-    [ NSThread detachNewThreadSelector: @selector( connectWithPorts: )
-                                        toTarget: [ SSHTunnelAuth class ]
-                                        withObject: portArray ];
+    _serverQueue = dispatch_queue_create( "com.umich.fugu.ssh-server",
+                                          DISPATCH_QUEUE_SERIAL );
+    ssh = [[ SSHTunnelAuth alloc ] init ];
     return( self );
-}
-#pragma clang diagnostic pop
-
-- ( void )setServer: ( id )serverObject
-{
-    [ serverObject setProtocolForProxy: @protocol( SSHTunnelAuthInterface ) ];
-    [ serverObject retain ];
-    
-    ssh = ( SSHTunnelAuth <SSHTunnelAuthInterface> * )serverObject;
 }
 
 - ( void )displayWindow//ForLocalPort: ( int )port
@@ -442,14 +419,23 @@ WRITE_ERR:
         localport = ( char * )[[ localPortField stringValue ] UTF8String ];
     }
     
-    [ ssh sshTunnelLocalPort: localport
-            remoteHost: ( char * )[[ remoteHostField stringValue ] UTF8String ]
-            remotePort: portstring
-            tunnelUserAndHost: ( char * )[[ NSString stringWithFormat: @"%@@%@",
-                                            [ usernameField stringValue ],
-                                            [ tunnelHostField stringValue ]] UTF8String ]
-            tunnelPort: tport
-            fromController: self ];
+    NSString *_lport    = [ NSString stringWithUTF8String: localport ];
+    NSString *_rhost    = [ remoteHostField stringValue ];
+    NSString *_rport    = [ NSString stringWithUTF8String: portstring ];
+    NSString *_uathost  = [ NSString stringWithFormat: @"%@@%@",
+                            [ usernameField stringValue ],
+                            [ tunnelHostField stringValue ]];
+    NSString *_tport    = [ NSString stringWithUTF8String: tport ];
+    SSHTunnelAuth *_auth = ssh;
+    SSHTunnel *_controller = self;
+    dispatch_async( _serverQueue, ^{
+        [ _auth sshTunnelLocalPort: ( char * )[ _lport UTF8String ]
+                       remoteHost: ( char * )[ _rhost UTF8String ]
+                       remotePort: ( char * )[ _rport UTF8String ]
+             tunnelUserAndHost: ( char * )[ _uathost UTF8String ]
+                       tunnelPort: ( char * )[ _tport UTF8String ]
+                   fromController: _controller ];
+    } );
     [ self addTunneledHostToDefaults: [ remoteHostField stringValue ]];
 }
 

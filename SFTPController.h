@@ -195,7 +195,7 @@
     
     int				dotflag;
 
-    NSConnection		*connectionToTServer;
+    dispatch_queue_t		_serverQueue;
     SFTPTServer			*tServer;
     
     SFTPPrefs			*prefs;
@@ -363,8 +363,6 @@
 - ( void )finishedCommand;
 - ( void )writeCommand: ( void * )cmd;
 - ( IBAction )sendManualCommand: ( id )sender;
-
-- ( void )setServer: ( id )serverObject;
 
 - ( IBAction )showLogPanel: ( id )sender;
 - ( void )clearLog;

@@ -42,14 +42,13 @@
     IBOutlet NSTextField	*connectMsg;
     
 @private
-    NSConnection		*connectionToTServer;
+    dispatch_queue_t	_serverQueue;
     SSHTunnelAuth		*ssh;
     BOOL			_firstPasswordPrompt;
     BOOL			_gotPasswordFromKeychain;
     pid_t			sshpid;
 }
 
-- ( void )setServer: ( id )serverObject;
 - ( void )write: ( char * )buf;
 - ( void )authenticateWithPrompt: ( char * )prompt;
 - ( void )getContinueQueryWithString: ( NSString * )string;

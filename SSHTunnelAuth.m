@@ -29,29 +29,6 @@ extern char	**environ;
 int		sshconnecting = 0;
 int		mfd = 0;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-+ ( void )connectWithPorts: ( NSArray * )ports
-{
-    NSAutoreleasePool		*pool = [[ NSAutoreleasePool alloc ] init ];
-    NSConnection		*cnctnToController;
-    SSHTunnelAuth		*serverObject;
-
-    cnctnToController = [ NSConnection connectionWithReceivePort:
-                            [ ports objectAtIndex: 0 ]
-                            sendPort: [ ports objectAtIndex: 1 ]];
-                            
-    serverObject = [[ self alloc ] init ];
-    
-    [ (( SSHTunnel * )[ cnctnToController rootProxy ] ) setServer: serverObject ];
-    [ serverObject release ];
-    
-    [[ NSRunLoop currentRunLoop ] run ];
-
-    [ pool release ];
-}
-#pragma clang diagnostic pop
-
 - ( id )init
 {
     sshpid = 0;
@@ -67,7 +44,7 @@ int		mfd = 0;
     return( 0 );
 }
 
-- ( oneway void )sshTunnelLocalPort: ( char * )lport remoteHost: ( char * )rhost
+- ( void )sshTunnelLocalPort: ( char * )lport remoteHost: ( char * )rhost
                 remotePort: ( char * )rport tunnelUserAndHost: ( char * )userathost
                 tunnelPort:  ( char * )tport
                 fromController: ( SSHTunnel * )controller
@@ -110,7 +87,7 @@ int		mfd = 0;
         if ( fcntl( mfd, F_SETFL, O_NONBLOCK ) < 0 ) {	/* prevent master from blocking */
         }
         
-        [ controller setSSHPID: sshpid ];
+        dispatch_async( dispatch_get_main_queue(), ^{ [ controller setSSHPID: sshpid ]; } );
                                     
         FD_ZERO( &readmask );
         if (( mfp = fdopen( mfd, "r" )) == NULL ) {
@@ -136,28 +113,38 @@ int		mfd = 0;
                         || strstr( buf, "password:" ) != NULL
                         || strstr( buf, "passphrase" ) != NULL )
                         && !validpw ) {
-                    if ( sshconnecting ) [ controller authenticateWithPrompt: buf ];
+                    if ( sshconnecting ) {
+                        NSString *_prompt = [ NSString stringWithUTF8String: buf ];
+                        dispatch_async( dispatch_get_main_queue(), ^{
+                            [ controller authenticateWithPrompt: ( char * )[ _prompt UTF8String ]];
+                        } );
+                    }
                 } else {
                     if ( strncmp( buf, "Permission denied, ", strlen( "Permission denied, " )) == 0 ) {
-                        [ controller passError ];
+                        dispatch_async( dispatch_get_main_queue(), ^{ [ controller passError ]; } );
                         threestrikes++;
                     } else if ( strstr( buf, "passphrase for key" ) != NULL ) {
                         threestrikes = 0;	/* if pubkey auth fails, password prompt will appear */
                     } else if ( strncmp( buf, "The auth", strlen( "The auth" )) == 0 ) {
                         unknownmsg = strdup( buf );
                         fgets( buf, MAXPATHLEN, mfp );
-                        [ controller getContinueQueryWithString:
-                                [ NSString stringWithFormat: @"%s%s", unknownmsg, buf ]];
+                        NSString *_query = [ NSString stringWithFormat: @"%s%s", unknownmsg, buf ];
+                        dispatch_async( dispatch_get_main_queue(), ^{
+                            [ controller getContinueQueryWithString: _query ];
+                        } );
                         free( unknownmsg );
                     } else if ( strncmp( buf, "Secure ", strlen( "Secure" )) == 0 ) {
-                        [ controller connectionError: [ NSString stringWithUTF8String: buf ]];
+                        NSString *_errMsg = [ NSString stringWithUTF8String: buf ];
+                        dispatch_async( dispatch_get_main_queue(), ^{
+                            [ controller connectionError: _errMsg ];
+                        } );
                     } else if ( strstr( buf, "successful: method" ) != NULL ) {
                         if ( strstr( buf, "debug" ) != NULL ) {
-                            [ controller tunnelCreated ];
+                            dispatch_async( dispatch_get_main_queue(), ^{ [ controller tunnelCreated ]; } );
                         }
                     } else if ( strstr( buf, "Authentication succeeded" ) != NULL ) {
                         if ( strstr( buf, "debug" ) != NULL ) {
-                            [ controller tunnelCreated ];
+                            dispatch_async( dispatch_get_main_queue(), ^{ [ controller tunnelCreated ]; } );
                         }
                     }
                 }
@@ -165,10 +152,12 @@ int		mfd = 0;
                 if ( strstr( buf, "Operation timed out" ) != NULL
                         || strstr( buf, "REMOTE HOST IDENTIFICATION HAS CHANGED" ) != NULL ) {
                     char		*p = strdup( buf ), *q;
-                    
+
                     if (( q = strrchr( p, '\r' )) != NULL ) *q = '\0';
-                    [ controller connectionError:
-                        [ NSString stringWithUTF8String: p ]];
+                    NSString *_connErr = [ NSString stringWithUTF8String: p ];
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [ controller connectionError: _connErr ];
+                    } );
                     free( p );
                 }
 
@@ -177,7 +166,9 @@ int		mfd = 0;
             [ pool release ];
         }
         if ( threestrikes == 3 ) {
-            [ controller connectionError: @"Authentication failed." ];
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [ controller connectionError: @"Authentication failed." ];
+            } );
         }
 
         fclose( mfp );  /* also closes the mfd fd */

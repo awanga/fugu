@@ -183,24 +183,11 @@ permcmp( id ob1, id ob2, void *context )
 
 @implementation SFTPController
 
-- ( void )establishDOConnection
+- ( void )establishServerConnection
 {
-    NSPort		*recPort;
-    NSPort		*sendPort;
-    NSArray		*portArray;
-    
-    /* prepare distributed objects for sftp task thread, but don't establish connection yet */
-    recPort = [ NSPort port ];
-    sendPort = [ NSPort port ];
-    connectionToTServer = [[ NSConnection alloc ] initWithReceivePort: recPort
-                                                sendPort: sendPort ];
-    [ connectionToTServer setRootObject: self ];
-    tServer = nil;
-    portArray = [ NSArray arrayWithObjects: sendPort, recPort, nil ];
-    
-    [ NSThread detachNewThreadSelector: @selector( connectWithPorts: )
-                                        toTarget: [ SFTPTServer class ]
-                                        withObject: portArray ];
+    _serverQueue = dispatch_queue_create( "com.umich.fugu.sftp-server",
+                                          DISPATCH_QUEUE_SERIAL );
+    tServer = [[ SFTPTServer alloc ] init ];
 }
 
 - ( id )init
@@ -212,7 +199,7 @@ permcmp( id ob1, id ob2, void *context )
     uploadQueue = [[ NSMutableArray alloc ] init ];
     downloadQueue = [[ NSMutableArray alloc ] init ];
 
-    [ self establishDOConnection ];
+    [ self establishServerConnection ];
     [ NSApp setDelegate: self ];
     
     /* watch for important notifications */
@@ -249,14 +236,6 @@ permcmp( id ob1, id ob2, void *context )
 #endif notdef
                                             
     return( self );
-}
-
-- ( void )setServer: ( id )serverObject
-{
-    [ serverObject setProtocolForProxy: @protocol( SFTPTServerInterface ) ];
-    [ serverObject retain ];
-    
-    tServer = ( SFTPTServer <SFTPTServerInterface> * )serverObject;
 }
 
 - ( BOOL )validateMenuItem: ( NSMenuItem * )anItem
@@ -1426,6 +1405,7 @@ NSLog( @"setting home directory" );
 
 - ( void )writeCommand: ( void * )cmd
 {
+    [ tServer resetPromptState ];
     if ( write( master, cmd, strlen( cmd )) != strlen( cmd )) goto WRITE_ERR;
     if ( write( master, "\n", 1 ) != 1 ) goto WRITE_ERR;
     
@@ -1606,7 +1586,10 @@ WRITE_ERR:
     }
 
     [ self writeCommand: cdcmd ];
-    while ( ! [ tServer atSftpPrompt ] ) ;
+    while ( ! [ tServer atSftpPrompt ] ) {
+        [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
+                                   beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
+    }
     [ self writeCommand: lsform ];
 }
 
@@ -1925,7 +1908,10 @@ WRITE_ERR:
         [ self writeCommand: cmdline ];
         
         /* wait till we're at the prompt before continuing */
-        while ( ![ tServer atSftpPrompt ] ) ;
+        while ( ![ tServer atSftpPrompt ] ) {
+            [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
+                                       beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
+        }
         [ self getListing ];
     } else {
         [ self downloadFiles: [ NSArray arrayWithObject: remoteItem ]
@@ -2757,7 +2743,10 @@ CHMOD_ERROR:
     
     [ self writeCommand: ( char * )[ dircmd UTF8String ]];
     [ self dismissGotoDirPanel: nil ];
-    while( ![ tServer atSftpPrompt ] ) ;
+    while ( ![ tServer atSftpPrompt ] ) {
+        [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
+                                   beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
+    }
     [ self getListing ];
     [ gotoDirNameField insertItemWithObjectValue: [ gotoDirNameField stringValue ] atIndex: 0 ];
 }
@@ -2774,8 +2763,11 @@ CHMOD_ERROR:
     
     [ self writeCommand:
                 ( char * )[[ NSString stringWithFormat: @"cd %@", remoteHome ] UTF8String ]];
-                
-    while ( ![ tServer atSftpPrompt ] ) ;
+
+    while ( ![ tServer atSftpPrompt ] ) {
+        [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
+                                   beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
+    }
     [ self getListing ];
 }
 
@@ -2793,9 +2785,12 @@ CHMOD_ERROR:
     if ( !connected ) return;
     
     [ self writeCommand: "cd .." ];
-                
+
     /* wait till we're at the prompt before continuing */
-    while ( ![ tServer atSftpPrompt ] ) ;
+    while ( ![ tServer atSftpPrompt ] ) {
+        [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
+                                   beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
+    }
     [ self getListing ];
 }
 
@@ -2814,7 +2809,10 @@ CHMOD_ERROR:
     
     dircmd = [ NSString stringWithFormat: @"cd \"%@\"", [ sender title ]];
     [ self writeCommand: ( char * )[ dircmd UTF8String ]];
-    while( ![ tServer atSftpPrompt ] ) ;
+    while ( ![ tServer atSftpPrompt ] ) {
+        [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
+                                   beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
+    }
     [ self getListing ];
 }
 
@@ -2866,7 +2864,10 @@ CHMOD_ERROR:
     
     if ( [ component isEqualToString: @"/" ] ) {
         [ self writeCommand: "cd /" ];
-        while( ! [ tServer atSftpPrompt ] ) ;
+        while ( ! [ tServer atSftpPrompt ] ) {
+            [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
+                                       beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
+        }
         [ self getListing ];
         return;
     }
@@ -2887,7 +2888,10 @@ CHMOD_ERROR:
     
     dircmd = [ NSString stringWithFormat: @"cd \"%@\"", path ];
     [ self writeCommand: ( char * )[ dircmd UTF8String ]];
-    while( ![ tServer atSftpPrompt ] ) ;
+    while ( ![ tServer atSftpPrompt ] ) {
+        [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
+                                   beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
+    }
     [ self getListing ];
 }
 
@@ -2929,7 +2933,10 @@ CHMOD_ERROR:
                 isEqualToString: NSLocalizedString( @"directory", @"directory" ) ] ) {
             snprintf( cmd, MAXPATHLEN, "cd \"%s\"", [ path UTF8String ] );
             [ self writeCommand: cmd ];
-            while ( ! [ tServer atSftpPrompt ] ) ;
+            while ( ! [ tServer atSftpPrompt ] ) {
+        [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
+                                   beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
+    }
             [ self getListing ];
         }
     }
@@ -4568,7 +4575,14 @@ LaunchFailed:
     remoteDirContents = [[ NSMutableArray alloc ] init ];
     dotlessRDir	= [[ NSMutableArray alloc ] init ];
     remoteDirPath = [[ NSString alloc ] init ];
-    [ tServer connectToServerWithParams: params fromController: self ];
+    {
+        SFTPTServer *_server = tServer;
+        SFTPController *_controller = self;
+        NSArray *_params = params;
+        dispatch_async( _serverQueue, ^{
+            [ _server connectToServerWithParams: _params fromController: _controller ];
+        } );
+    }
     [ self showConnectingInterface: nil ];
     
     recent = [ remoteHost objectValues ];
