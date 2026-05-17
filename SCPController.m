@@ -39,28 +39,14 @@ static int		SCPTYPE = 0;
 
 - ( id )init
 {
-    NSPort		*recPort;
-    NSPort		*sendPort;
-    NSArray		*portArray;
-
     if ( !( self = [ super init ] )) {
         return( nil );
     }
 
-    /* prepare distributed objects for scp task thread, but don't establish connection yet */
-    recPort = [ NSPort port ];
-    sendPort = [ NSPort port ];
-    connectionToTServer = [[ NSConnection alloc ] initWithReceivePort: recPort
-                                                sendPort: sendPort ];
-    [ connectionToTServer setRootObject: self ];
-    scp = nil;
+    _serverQueue = dispatch_queue_create( "com.umich.fugu.scp-server", DISPATCH_QUEUE_SERIAL );
+    scp = [[ SCPTransfer alloc ] init ];
     scppid = 0;
-    portArray = [ NSArray arrayWithObjects: sendPort, recPort, nil ];
     bytescopied = 0.0;
-
-    [ NSThread detachNewThreadSelector: @selector( connectWithPorts: )
-                                        toTarget: [ SCPTransfer class ]
-                                        withObject: portArray ];
     return( self );
 }
 
@@ -68,14 +54,6 @@ static int		SCPTYPE = 0;
 {
     [ localFileImageView setDelegate: self ];
     [ localFileField setDelegate: self ];
-}
-
-- ( void )setServer: ( id )serverObject
-{
-    [ serverObject setProtocolForProxy: @protocol( SCPTransferInterface ) ];
-    [ serverObject retain ];
-    
-    scp = ( SCPTransfer <SCPTransferInterface> * )serverObject;
 }
 
 - ( id )delegate
@@ -238,18 +216,19 @@ static int		SCPTYPE = 0;
 
 - ( void )write: ( char * )buf
 {
-    int		wr;
-    
-    if (( wr = write( masterfd, buf, strlen( buf ))) != strlen( buf )) goto WRITE_ERR;
-    if (( wr = write( masterfd, "\n", strlen( "\n" ))) != strlen( "\n" )) goto WRITE_ERR;
-    
+    if ( write( masterfd, buf, strlen( buf )) != strlen( buf )) goto WRITE_ERR;
+    if ( write( masterfd, "\n", 1 ) != 1 ) goto WRITE_ERR;
     return;
-    
-WRITE_ERR:
-    NSRunAlertPanel( NSLocalizedString(
-                        @"Write failed: Did not write correct number of bytes!",
-                        @"Write failed: Did not write correct number of bytes!" ),
-        @"", NSLocalizedString( @"Exit", @"Exit" ), @"", @"" );
+
+WRITE_ERR: ;
+    NSAlert *wAlert = [[ NSAlert alloc ] init ];
+    [ wAlert setMessageText: NSLocalizedString(
+                @"Write failed: Did not write correct number of bytes!",
+                @"Write failed: Did not write correct number of bytes!" ) ];
+    [ wAlert setAlertStyle: NSAlertStyleCritical ];
+    [ wAlert addButtonWithTitle: NSLocalizedString( @"Exit", @"Exit" ) ];
+    [ wAlert runModal ];
+    [ wAlert release ];
     exit( 2 );
 }
 
@@ -283,8 +262,7 @@ WRITE_ERR:
 	    [ self setFirstPasswordPrompt: YES ];
 	}
 	break;
-	break;
-	
+
     default:
 	/* XXX report error */
 	break;
@@ -304,7 +282,7 @@ WRITE_ERR:
 
     bcopy( [[ passwordField stringValue ] UTF8String ], pass,
             strlen( [[ passwordField stringValue ] UTF8String ] ));
-    if ( [ addToKeychainSwitch state ] == NSOnState ) {
+    if ( [ addToKeychainSwitch state ] == NSControlStateValueOn ) {
         [ self addPasswordToKeychain ];
     }
     [ self write: pass ];
@@ -324,13 +302,18 @@ WRITE_ERR:
     }
     
     [ self setFirstPasswordPrompt: NO ];
-    [ addToKeychainSwitch setState: NSOffState ];
+    [ addToKeychainSwitch setState: NSControlStateValueOff ];
 }
 
 - ( void )sessionError: ( NSString * )err
 {
-    NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ), err,
-                    NSLocalizedString( @"OK", @"OK" ), @"", @"" );
+    NSAlert *alert = [[ NSAlert alloc ] init ];
+    [ alert setMessageText: NSLocalizedString( @"Error", @"Error" ) ];
+    [ alert setInformativeText: err ];
+    [ alert setAlertStyle: NSAlertStyleWarning ];
+    [ alert addButtonWithTitle: NSLocalizedString( @"OK", @"OK" ) ];
+    [ alert runModal ];
+    [ alert release ];
 }
 
 - ( IBAction )beginSCP: ( id )sender
@@ -339,18 +322,22 @@ WRITE_ERR:
     char		*port;
     NSUserDefaults	*defaults;
     int			no;
-    
+
     scpFileSize = 100.0;
-    
+
     SCPTYPE = [ copyType selectedRow ];
-    
+
     if ( snprintf( userathost, MAXPATHLEN, "%s@%s:",
                 ( char * )[[ destUserNameField stringValue ] UTF8String ],
                 ( char * )[[ destServerField stringValue ] UTF8String ] ) > ( MAXPATHLEN - 1 )) {
-        NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                        NSLocalizedString( @"Parameter length exceeds bounds. Try again.",
-                                @"Parameter length exceeds bounds. Try again." ),
-                        NSLocalizedString( @"OK", @"OK" ), @"", @"" );
+        NSAlert *alert = [[ NSAlert alloc ] init ];
+        [ alert setMessageText: NSLocalizedString( @"Error", @"Error" ) ];
+        [ alert setInformativeText: NSLocalizedString( @"Parameter length exceeds bounds. Try again.",
+                                                        @"Parameter length exceeds bounds. Try again." ) ];
+        [ alert setAlertStyle: NSAlertStyleWarning ];
+        [ alert addButtonWithTitle: NSLocalizedString( @"OK", @"OK" ) ];
+        [ alert runModal ];
+        [ alert release ];
         return;
     }
     if ( [[ destPathField stringValue ] length ] ) {
@@ -359,14 +346,18 @@ WRITE_ERR:
                 ( SCPTYPE == DOWNLOAD ? ( char * )[[ localFileField stringValue ] UTF8String ]
                     : ( char * )[[ destPathField stringValue ] UTF8String ] ))
                     > ( MAXPATHLEN - 1 )) {
-            NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                        NSLocalizedString( @"Parameter length exceeds bounds. Try again.",
-                                @"Parameter length exceeds bounds. Try again." ),
-                        NSLocalizedString( @"OK", @"OK" ), @"", @"" );
+            NSAlert *alert = [[ NSAlert alloc ] init ];
+            [ alert setMessageText: NSLocalizedString( @"Error", @"Error" ) ];
+            [ alert setInformativeText: NSLocalizedString( @"Parameter length exceeds bounds. Try again.",
+                                                            @"Parameter length exceeds bounds. Try again." ) ];
+            [ alert setAlertStyle: NSAlertStyleWarning ];
+            [ alert addButtonWithTitle: NSLocalizedString( @"OK", @"OK" ) ];
+            [ alert runModal ];
+            [ alert release ];
             return;
         }
     }
-    
+
     [ scpSheet setContentView: connectProgView ];
     [ progBar setIndeterminate: YES ];
     [ progBar setUsesThreadedAnimation: YES ];
@@ -374,25 +365,35 @@ WRITE_ERR:
     [ connectProgMsg setStringValue:
         [ NSString stringWithFormat: NSLocalizedString( @"Connecting....", @"Connecting...." ),
                     [ destServerField stringValue ]]];
-    
-    [ NSApp beginSheet: scpSheet
-            modalForWindow: scpWindow
-            modalDelegate: self
-            didEndSelector: NULL
-            contextInfo: nil ];
-            
-    scpFileName = [ localFileField stringValue ];
+
+    [ scpWindow beginSheet: scpSheet completionHandler: ^( NSModalResponse __unused r ) {} ];
+
+    [ scpFileName release ];
+    scpFileName = [[ localFileField stringValue ] copy ];
     port = ( char * )[[ destPortField stringValue ] UTF8String ];
     if ( !strlen( port )) port = "22";
-    [ scp scpConnect: userathost toPort: port
-                                    forItem: ( SCPTYPE == DOWNLOAD ?
-                                                ( char * )[[ destPathField stringValue ] UTF8String ]
-                                                : ( char * )[ scpFileName UTF8String ] )
-                                    scpType: SCPTYPE
-                                    fromController: self ];
-                                                
+
+    {
+        NSString *_userathost = [ NSString stringWithUTF8String: userathost ];
+        NSString *_port       = [ NSString stringWithUTF8String: port ];
+        NSString *_item       = (( SCPTYPE == DOWNLOAD )
+            ? [[ destPathField stringValue ] copy ]
+            : [ scpFileName copy ] );
+        int       _scpType    = SCPTYPE;
+        SCPTransfer    *_scp  = scp;
+        SCPController  *_ctrl = self;
+        dispatch_async( _serverQueue, ^{
+            [ _scp scpConnect: ( char * )[ _userathost UTF8String ]
+                      toPort: ( char * )[ _port UTF8String ]
+                     forItem: ( char * )[ _item UTF8String ]
+                    scpType: _scpType
+            fromController: _ctrl ];
+            [ _item release ];
+        });
+    }
+
     defaults = [ NSUserDefaults standardUserDefaults ];
-    if ( ![[ recentCopiesList itemTitles ] containsObject: scpFileName ] ) { 
+    if ( ![[ recentCopiesList itemTitles ] containsObject: scpFileName ] ) {
         [ recentCopiesList insertItemWithTitle: scpFileName atIndex: 1 ];
     }
     no = [[ defaults objectForKey: @"numrscps" ] intValue ];
@@ -439,41 +440,54 @@ WRITE_ERR:
 
 - ( void )secureCopyFinishedWithStatus: ( int )status
 {
-    int			rc;
+    NSModalResponse	rc;
 
-    [ scpSheet orderOut: nil ];
-    [ NSApp endSheet: scpSheet ];
-    
+    [ scpWindow endSheet: scpSheet ];
+
     if ( [[ self delegate ] respondsToSelector: @selector( scpFinished ) ] ) {
         [[ self delegate ] scpFinished ];
     }
-    
+
     if ( status ) {
-        NSRunAlertPanel( NSLocalizedString( @"Error", @"Error" ),
-                    @"scp exited with abnormal status %d", @"OK", @"", @"", status );
+        NSAlert *alert = [[ NSAlert alloc ] init ];
+        [ alert setMessageText: NSLocalizedString( @"Error", @"Error" ) ];
+        [ alert setInformativeText: [ NSString stringWithFormat:
+                    @"scp exited with abnormal status %d", status ] ];
+        [ alert setAlertStyle: NSAlertStyleWarning ];
+        [ alert addButtonWithTitle: @"OK" ];
+        [ alert runModal ];
+        [ alert release ];
         return;
     }
-    rc = NSRunAlertPanel( [ NSString stringWithFormat: @"%@ copied successfully %@ %@",
-        [ localFileField stringValue ],
-        ( SCPTYPE == DOWNLOAD ? @"from" : @"to" ), [ destServerField stringValue ]],
-        @"",
-        @"Done", @"New Secure Copy", @"" );
+
+    {
+        NSAlert *alert = [[ NSAlert alloc ] init ];
+        [ alert setMessageText: [ NSString stringWithFormat: @"%@ copied successfully %@ %@",
+            [ localFileField stringValue ],
+            ( SCPTYPE == DOWNLOAD ? @"from" : @"to" ), [ destServerField stringValue ]]];
+        [ alert setAlertStyle: NSAlertStyleInformational ];
+        [ alert addButtonWithTitle: @"Done" ];
+        [ alert addButtonWithTitle: @"New Secure Copy" ];
+        rc = [ alert runModal ];
+        [ alert release ];
+    }
+
     [ progBar setIndeterminate: YES ];
     [ progBar stopAnimation: nil ];
     [ percentDoneField setStringValue: @"" ];
     [ etaField setStringValue: @"" ];
     [ bytesCopiedField setStringValue: @"" ];
     [ scpWindow setTitle: @"Secure Copy" ];
-    
+
     switch ( rc ) {
-    case NSAlertDefaultReturn:
+    case NSAlertFirstButtonReturn:
         [ scpWindow close ];
         return;
     default:
-    case NSAlertAlternateReturn:
+    case NSAlertSecondButtonReturn:
         break;
     }
-    
+
     [ self setFirstPasswordPrompt: YES ];
     [ self setGotPasswordFromKeychain: NO ];
 }
@@ -501,27 +515,38 @@ WRITE_ERR:
 
 - ( IBAction )cancelSCP: ( id )sender
 {
-    int			rc;
-    
-    rc = NSRunAlertPanel( @"Cancel SCP:",
-            NSLocalizedString( @"Are you sure you want to cancel this copy?",
-                                @"Are you sure you want to cancel this copy?" ),
-            NSLocalizedString( @"Don't Cancel", @"Don't Cancel" ),
-            NSLocalizedString( @"Cancel", @"Cancel" ), @"" );
-            
-    switch( rc ) {
+    NSModalResponse	rc;
+
+    {
+        NSAlert *alert = [[ NSAlert alloc ] init ];
+        [ alert setMessageText: @"Cancel SCP:" ];
+        [ alert setInformativeText: NSLocalizedString( @"Are you sure you want to cancel this copy?",
+                                                        @"Are you sure you want to cancel this copy?" ) ];
+        [ alert setAlertStyle: NSAlertStyleWarning ];
+        [ alert addButtonWithTitle: NSLocalizedString( @"Don't Cancel", @"Don't Cancel" ) ];
+        [ alert addButtonWithTitle: NSLocalizedString( @"Cancel", @"Cancel" ) ];
+        rc = [ alert runModal ];
+        [ alert release ];
+    }
+
+    switch ( rc ) {
     default:
-    case NSAlertDefaultReturn:
+    case NSAlertFirstButtonReturn:
         return;
-        
-    case NSAlertAlternateReturn:
+
+    case NSAlertSecondButtonReturn:
         break;
     }
-    
+
     if ( kill( scppid, SIGINT ) < 0 ) {
-        NSRunAlertPanel( @"Couldn't kill scp process:",
-            [ NSString stringWithFormat: @"kill %d: %s", scppid, strerror( errno ) ],
-            @"OK", @"", @"" );
+        NSAlert *alert = [[ NSAlert alloc ] init ];
+        [ alert setMessageText: @"Couldn't kill scp process:" ];
+        [ alert setInformativeText: [ NSString stringWithFormat:
+                    @"kill %d: %s", scppid, strerror( errno ) ] ];
+        [ alert setAlertStyle: NSAlertStyleCritical ];
+        [ alert addButtonWithTitle: @"OK" ];
+        [ alert runModal ];
+        [ alert release ];
         return;
     }
 }
@@ -537,36 +562,23 @@ WRITE_ERR:
     NSOpenPanel		*op = [ NSOpenPanel openPanel ];
     NSString		*dir = [[ NSUserDefaults standardUserDefaults ]
                                     objectForKey: @"NSDefaultOpenDirectory" ];
-    
+
     if ( dir == nil ) dir = NSHomeDirectory();
-    
+
     [ op setCanChooseDirectories: YES ];
     [ op setTitle: @"Choose an Item to Secure Copy" ];
     [ op setPrompt: @"Choose" ];
-    [ op beginSheetForDirectory: dir
-            file: nil
-            types: nil
-            modalForWindow: scpWindow
-            modalDelegate: self
-            didEndSelector: @selector( chooseLocalFileOpenPanelDidEnd:returnCode:contextInfo: )
-            contextInfo: nil ];
-}
+    [ op setDirectoryURL: [ NSURL fileURLWithPath: dir ]];
 
-- ( void )chooseLocalFileOpenPanelDidEnd: ( NSOpenPanel * )sheet returnCode: ( int )rc
-    contextInfo: ( void * )contextInfo
-{
-    switch ( rc ) {
-    case NSOKButton:
-        [ localFileField setStringValue: [[ sheet filenames ] objectAtIndex: 0 ]];
+    [ op beginSheetModalForWindow: scpWindow completionHandler: ^( NSModalResponse result ) {
+        if ( result != NSModalResponseOK ) return;
+        NSString *path = [[[ op URLs ] objectAtIndex: 0 ] path ];
+        [ localFileField setStringValue: path ];
         [ localFileImageView setImage:
-            [[ NSWorkspace sharedWorkspace ] iconForFile: [[ sheet filenames ] objectAtIndex: 0 ]]];
-        scpFileName = [[ sheet filenames ] objectAtIndex: 0 ];
-        break;
-        
-    default:
-    case NSCancelButton:
-        return;
-    }
+            [[ NSWorkspace sharedWorkspace ] iconForFile: path ]];
+        [ scpFileName release ];
+        scpFileName = [ path copy ];
+    }];
 }
 
 - ( IBAction )selectFromRecentSCPs: ( id )sender

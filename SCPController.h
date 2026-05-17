@@ -49,7 +49,7 @@
     IBOutlet NSProgressIndicator *authProgBar;
     
 @private
-    NSConnection		*connectionToTServer;
+    dispatch_queue_t		_serverQueue;
     NSString			*scpFileName;
     SCPTransfer			*scp;
     double			bytescopied, scpFileSize;
@@ -61,8 +61,6 @@
     pid_t			scppid;
     int				masterfd;
 }
-
-- ( void )setServer: ( id )serverObject;
 
 - ( void )authenticateWithPrompt: ( char * )prompt;
 - ( IBAction )authenticate: ( id )sender;
