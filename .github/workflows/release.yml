@@ -1,0 +1,101 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+
+jobs:
+  release:
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Import Developer ID certificate
+        env:
+          CERT_BASE64: ${{ secrets.APPLE_DEVELOPER_ID_CERT }}
+          CERT_PASS: ${{ secrets.APPLE_DEVELOPER_ID_CERT_PASS }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain"
+          KEYCHAIN_PASS=$(openssl rand -hex 16)
+          security create-keychain -p "$KEYCHAIN_PASS" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASS" "$KEYCHAIN_PATH"
+          echo "$CERT_BASE64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" \
+            -k "$KEYCHAIN_PATH" -P "$CERT_PASS" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+          security set-key-partition-list \
+            -S apple-tool:,apple: -k "$KEYCHAIN_PASS" "$KEYCHAIN_PATH"
+
+      - name: Build signed app
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcodebuild \
+            -project Fugu.xcodeproj \
+            -scheme Fugu \
+            -configuration Deployment \
+            -destination 'platform=macOS' \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            clean build
+
+      - name: Verify code signature
+        run: |
+          APP=$(find build -name "Fugu.app" -maxdepth 4 | head -1)
+          codesign --verify --deep --strict "$APP"
+          codesign -dv --verbose=4 "$APP" 2>&1 | grep -E 'TeamIdentifier|Authority'
+
+      - name: Create disk image
+        run: |
+          APP=$(find build -name "Fugu.app" -maxdepth 4 | head -1)
+          VERSION=$(defaults read "$(pwd)/Info.plist" CFBundleShortVersionString)
+          DMG="Fugu-${VERSION}.dmg"
+          hdiutil create -volname "Fugu" -srcfolder "$APP" -ov -format UDZO "$DMG"
+          codesign --force --sign "Developer ID Application" \
+            --options runtime --timestamp "$DMG"
+          echo "DMG=$DMG" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Notarize
+        env:
+          NOTARYTOOL_KEY_ID: ${{ secrets.APPLE_NOTARYTOOL_KEY_ID }}
+          NOTARYTOOL_ISSUER: ${{ secrets.APPLE_NOTARYTOOL_ISSUER }}
+          NOTARYTOOL_KEY_BASE64: ${{ secrets.APPLE_NOTARYTOOL_KEY }}
+        run: |
+          echo "$NOTARYTOOL_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/notarytool.p8"
+          xcrun notarytool submit "$DMG" \
+            --key "$RUNNER_TEMP/notarytool.p8" \
+            --key-id "$NOTARYTOOL_KEY_ID" \
+            --issuer "$NOTARYTOOL_ISSUER" \
+            --wait
+
+      - name: Staple
+        run: xcrun stapler staple "$DMG"
+
+      - name: Generate checksum
+        run: |
+          shasum -a 256 "$DMG" > "${DMG}.sha256"
+          cat "${DMG}.sha256"
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: ~/Library/Developer/Xcode/DerivedData/Fugu-*/Logs/
+          retention-days: 7
+
+      - name: Create GitHub Release (draft)
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: |
+            ${{ env.DMG }}
+            ${{ env.DMG }}.sha256
