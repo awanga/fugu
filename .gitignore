@@ -23,6 +23,7 @@ Icon
 
 # Agent context and planning docs (local only, not for distribution)
 *.md
+!README.md
 docs/
 
 # Test binaries
