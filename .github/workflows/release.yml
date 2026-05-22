@@ -42,6 +42,7 @@ jobs:
             -scheme Fugu \
             -configuration Deployment \
             -destination 'platform=macOS' \
+            SYMROOT="$(pwd)/build" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             clean build
 

@@ -24,6 +24,7 @@ cd "$(dirname "$0")/.."
 
 VERSION=$(defaults read "$(pwd)/Info.plist" CFBundleShortVersionString)
 DMG="Fugu-${VERSION}.dmg"
+BUILD_ROOT="$(pwd)/build"
 
 echo "==> Building Fugu ${VERSION} (signed, Deployment config)"
 xcodebuild \
@@ -31,10 +32,11 @@ xcodebuild \
     -scheme Fugu \
     -configuration Deployment \
     -destination 'platform=macOS' \
+    SYMROOT="$BUILD_ROOT" \
     DEVELOPMENT_TEAM="${APPLE_TEAM_ID}" \
     clean build
 
-APP=$(find build -name "Fugu.app" -maxdepth 4 | head -1)
+APP=$(find "$BUILD_ROOT" -name "Fugu.app" -maxdepth 4 | head -1)
 if [ -z "$APP" ]; then
     echo "ERROR: Fugu.app not found after build" >&2
     exit 1
