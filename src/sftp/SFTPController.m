@@ -621,7 +621,6 @@ permcmp( id ob1, id ob2, void *context )
     NSArray	*tmp = [ NSArray arrayWithObjects:
                             SFTPToolbarLocalHomeIdentifier,
                             SFTPToolbarLocalHistoryIdentifier,
-                            NSToolbarSeparatorItemIdentifier,
                             NSToolbarFlexibleSpaceItemIdentifier,
                             SFTPToolbarGotoIdentifier,
                             SFTPToolbarRefreshIdentifier,
@@ -631,7 +630,6 @@ permcmp( id ob1, id ob2, void *context )
                             SFTPToolbarDeleteIdentifier,
                             SFTPToolbarConnectIdentifier,
                             NSToolbarFlexibleSpaceItemIdentifier,
-                            NSToolbarSeparatorItemIdentifier,
                             SFTPToolbarRemoteHomeIdentifier,
                             SFTPToolbarRemoteHistoryIdentifier, nil ];
                             
@@ -643,7 +641,6 @@ permcmp( id ob1, id ob2, void *context )
     NSArray	*tmp = [ NSArray arrayWithObjects:
                             SFTPToolbarLocalHomeIdentifier,
                             SFTPToolbarDeleteIdentifier,
-                            NSToolbarSeparatorItemIdentifier,
                             NSToolbarFlexibleSpaceItemIdentifier,
                             SFTPToolbarRefreshIdentifier,
                             SFTPToolbarNewDirIdentifier,
@@ -727,6 +724,52 @@ permcmp( id ob1, id ob2, void *context )
     [ localView setNeedsDisplay: YES ];
     [ remoteBox setContentView: loginView ];
     [ loginView setNeedsDisplay: YES ];
+
+    /* replace popup path buttons with NSPathControl */
+    {
+        NSView *lSuper = [ lPathPopUp superview ];
+        lPathControl = [[ NSPathControl alloc ] initWithFrame: [ lPathPopUp frame ]];
+        lPathControl.pathStyle = NSPathStyleStandard;
+        lPathControl.target = self;
+        lPathControl.action = @selector( cdFromLPathControl: );
+        lPathControl.autoresizingMask = [ lPathPopUp autoresizingMask ];
+        [ lSuper addSubview: lPathControl ];
+        [ lPathPopUp removeFromSuperview ];
+
+        NSView *rSuper = [ rPathPopUp superview ];
+        rPathControl = [[ NSPathControl alloc ] initWithFrame: [ rPathPopUp frame ]];
+        rPathControl.pathStyle = NSPathStyleStandard;
+        rPathControl.target = self;
+        rPathControl.action = @selector( cdFromRPathControl: );
+        rPathControl.autoresizingMask = [ rPathPopUp autoresizingMask ];
+        [ rSuper addSubview: rPathControl ];
+        [ rPathPopUp removeFromSuperview ];
+    }
+
+    /* wrap split view in NSSplitViewController for modern constraint management */
+    {
+        NSSplitView *sv = ( NSSplitView * )[ localBox superview ];
+        if ( [ sv isKindOfClass: [ NSSplitView class ]] ) {
+            NSViewController *localPaneVC = [[ NSViewController alloc ] initWithNibName: nil bundle: nil ];
+            localPaneVC.view = localBox;
+            NSViewController *remotePaneVC = [[ NSViewController alloc ] initWithNibName: nil bundle: nil ];
+            remotePaneVC.view = remoteBox;
+
+            NSSplitViewItem *localItem = [ NSSplitViewItem splitViewItemWithViewController: localPaneVC ];
+            localItem.minimumThickness = 175.0;
+            NSSplitViewItem *remoteItem = [ NSSplitViewItem splitViewItemWithViewController: remotePaneVC ];
+            remoteItem.minimumThickness = 175.0;
+
+            _splitViewController = [[ NSSplitViewController alloc ] initWithNibName: nil bundle: nil ];
+            _splitViewController.splitView = sv;
+            [ _splitViewController addSplitViewItem: localItem ];
+            [ _splitViewController addSplitViewItem: remoteItem ];
+
+            [ localPaneVC release ];
+            [ remotePaneVC release ];
+        }
+    }
+
     [ logField setEditable: NO ];
     
     if ( [ mainWindow setTitleToLocalHostName ] < 0 ) {
@@ -1285,14 +1328,11 @@ permcmp( id ob1, id ob2, void *context )
 - ( void )setRemotePathPopUp: ( NSString * )pwd
 {
     int			i;
-    NSMutableArray	*rPathComponents = [[ NSMutableArray alloc ] init ];
     NSArray		*tmp = [[ pwd componentsSeparatedByString: @"/" ] copy ];
-    NSImage		*slashImage;
-    NSMenuItem		*item;
 
     [ remoteDirPath release ];
     remoteDirPath = [ pwd copy ];
-    
+
     if ( remoteHome == nil ) {
         char		*p;
 
@@ -1303,37 +1343,38 @@ NSLog( @"setting home directory" );
         }
         if ( p != NULL ) remoteHome = [[ NSString stringWithUTF8String: p ] retain ];
     }
-    
-    for ( i = ([ tmp count ] - 1 ); i > 0; i-- ) {
-        if ( [[ tmp objectAtIndex: i ] isEqualToString: @"" ] ) continue;
-        [ rPathComponents addObject: [ tmp objectAtIndex: i ]];
+
+    /* build NSPathControl items: root first, then each component */
+    {
+        NSMutableArray *items = [[ NSMutableArray alloc ] init ];
+        NSPathControlItem *rootItem = [[ NSPathControlItem alloc ] init ];
+        rootItem.title = @"/";
+        rootItem.image = [[ NSWorkspace sharedWorkspace ] iconForFile: @"/" ];
+        [ rootItem.image setSize: NSMakeSize( 16, 16 ) ];
+        [ items addObject: rootItem ];
+        [ rootItem release ];
+
+        for ( NSString *component in tmp ) {
+            if ( ![ component length ] ) continue;
+            NSPathControlItem *pcItem = [[ NSPathControlItem alloc ] init ];
+            pcItem.title = component;
+            pcItem.image = dirImage;
+            [ items addObject: pcItem ];
+            [ pcItem release ];
+        }
+        rPathControl.pathItems = items;
+        [ items release ];
     }
     [ tmp release ];
-    
-    [ rPathPopUp removeAllItems ];
-    [ rPathComponents addObject: @"/" ];
-    for ( i = 0; i < [ rPathComponents count ]; i++ ) {
-        item = [[ NSMenuItem alloc ] initWithTitle: [ rPathComponents objectAtIndex: i ]
-                                        action: NULL
-                                        keyEquivalent: @"" ];
-        [ item setImage: dirImage ];
-        [[ rPathPopUp menu ] addItem: item ];
-        [ item release ];
-    }
-    slashImage = [[ NSWorkspace sharedWorkspace ] iconForFile: @"/" ];
-    [ slashImage setSize: NSMakeSize( 16, 16 ) ];
-    [[ rPathPopUp lastItem ] setImage: slashImage ];
-    [ rPathPopUp selectItemWithTitle: [ rPathComponents objectAtIndex: 0 ]];
-    [ rPathComponents release ];
     
     /* setup remote history menu; don't add path if we're reloading */
     if ( [ remoteHistoryMenu numberOfItems ] == 0
             || ! [ remoteDirPath isEqualToString: [[ remoteHistoryMenu itemAtIndex: 0 ] title ]] ) {
         NSImage			*img = dirImage;
-        
+
         if ( [ remoteDirPath isEqualToString: @"/" ] ) {
-            img = nil;
-            img = slashImage;
+            img = [[ NSWorkspace sharedWorkspace ] iconForFile: @"/" ];
+            [ img setSize: NSMakeSize( 16, 16 ) ];
         }
         [ remoteHistoryMenu insertItemWithTitle: remoteDirPath
                             action: @selector( cdFromRemoteHistoryMenu: )
@@ -1402,16 +1443,16 @@ NSLog( @"setting home directory" );
     [ remoteMsgField setStringValue: message ];
     /* disable all buttons while waiting for command to finish */
     [ commandButton setEnabled: NO ];
-    [ rPathPopUp setEnabled: NO ];
-    [ lPathPopUp setEnabled: NO ];
+    rPathControl.enabled = NO;
+    lPathControl.enabled = NO;
 }
 
 - ( void )finishedCommand
 {
     /* enable buttons on completion */
     [ commandButton setEnabled: YES ];
-    [ rPathPopUp setEnabled: YES ];
-    [ lPathPopUp setEnabled: YES ];
+    rPathControl.enabled = YES;
+    lPathControl.enabled = YES;
     [ remoteProgBar retain ];
     [ remoteProgBar removeFromSuperview ];
 
@@ -1554,10 +1595,7 @@ WRITE_ERR:
     [ self cleanupTempDirectories ];
     _pendingKeychainSave = NO;
     [ uploadQueue removeAllObjects ];
-    if ( [ rPathPopUp numberOfItems ] ) {
-        [[ rPathPopUp itemAtIndex: 0 ] setImage: nil ];
-    }
-    [ rPathPopUp removeAllItems ];
+    rPathControl.pathItems = @[];
     for ( i = [ remoteHistoryMenu numberOfItems ]; i > 0; i-- ) {
         [ remoteHistoryMenu removeItemAtIndex: 0 ];
     }
@@ -1638,42 +1676,10 @@ WRITE_ERR:
         localDirPath = nil;
     }
     localDirPath = [ fullpath copy ];
-    lpath = [[ NSMutableArray alloc ] init ];
     [ fullpath retain ];
-    
-    /* setup path popup button */
-    bits = [ fullpath componentsSeparatedByString: @"/" ];
-    
-    for ( i = ( [ bits count ] - 1 ); i > 0; i-- ) {
-        if ( ! [ ( NSString * )[ bits objectAtIndex: i ] length ] ) continue;
-        [ lpath addObject: [ bits objectAtIndex: i ]];
-    }
-    
-    [ lpath addObject: @"/" ];
-    [ lPathPopUp removeAllItems ];
-    
-    componentpath = fullpath;
-    
-    for ( i = 0; i < [ lpath count ]; i++ ) {
-        img = [[ NSWorkspace sharedWorkspace ] iconForFile: componentpath ];
-                                    
-        [ img setScalesWhenResized: YES ];
-        [ img setSize: NSMakeSize( 16.0, 16.0 ) ];
-        
-        item = [[ NSMenuItem alloc ] initWithTitle: [ lpath objectAtIndex: i ]
-                                        action: NULL
-                                        keyEquivalent: @"" ];
-        [ item setImage: img ];
-        [[ lPathPopUp menu ] addItem: item ];
-        [ item release ];
-        img = nil;
-        componentpath = [ componentpath stringByDeletingLastPathComponent ];
-    }
-    img = [[ NSWorkspace sharedWorkspace ] iconForFile: @"/" ];
-    [ img setSize: NSMakeSize( 16, 16 ) ];
-    [[ lPathPopUp lastItem ] setImage: img ];
-    [ lPathPopUp selectItemWithTitle: [ lpath objectAtIndex: 0 ]];
-    [ lpath release ];
+
+    /* update local path control */
+    lPathControl.URL = [ NSURL fileURLWithPath: fullpath ];
     
     /* add path to history menu; don't add if we're reloading */
     if ( [ localHistoryMenu numberOfItems ] == 0
@@ -2836,73 +2842,40 @@ CHMOD_ERROR:
     [ self localBrowserReloadForPath: [ sender title ]];
 }
 
-- ( IBAction )cdFromLPathPopUp: ( id )sender
+- ( IBAction )cdFromLPathControl: ( NSPathControl * )sender
 {
-    NSString	*path, *component;
-    int		index, i = 0;
-    
-    path = [ NSString stringWithString: localDirPath ];
-    component = [ lPathPopUp titleOfSelectedItem ];
-    index = [ lPathPopUp indexOfSelectedItem ];
-    
-    if ( [ component isEqualToString: @"/" ] ) {
-        [ self localBrowserReloadForPath: @"/" ];
-        return;
-    }
-    
-    if ( ! [ path containsString: component ] ) {
-        NSLog( @"Screwed up local popup list." );
-        [ self localBrowserReloadForPath: path ];
-        return;
-    }
-    for ( i = 0; i != index; i++ ) {
-        path = [ path stringByDeletingLastPathComponent ];
-    }
-    if ( ! [[ path lastPathComponent ] isEqualToString: component ] ) {
-        NSLog( @"Failed to find %@ in %@", component, localDirPath );
-        return;
-    }
-    
-    [ self localBrowserReloadForPath: path ];
+    NSString *path = sender.clickedPathItem.URL.path;
+    if ( path ) [ self localBrowserReloadForPath: path ];
 }
 
-- ( IBAction )cdFromRPathPopUp: ( id )sender
+- ( IBAction )cdFromRPathControl: ( NSPathControl * )sender
 {
-    NSString	*path, *component, *dircmd;
-    int		index, i;
-    
+    NSString *dircmd;
+
     if ( ! connected ) return;
-    
-    path = [ NSString stringWithString: remoteDirPath ];
-    component = [ rPathPopUp titleOfSelectedItem ];
-    index = [ rPathPopUp indexOfSelectedItem ];
-    
-    if ( [ component isEqualToString: @"/" ] ) {
+
+    NSPathControlItem *clickedItem = sender.clickedPathItem;
+    if ( ! clickedItem ) return;
+
+    NSArray *items = sender.pathItems;
+    NSUInteger idx = [ items indexOfObjectIdenticalTo: clickedItem ];
+    if ( idx == NSNotFound ) return;
+
+    /* build the target path from root (index 0 = "/") to clicked index */
+    NSString *path = @"";
+    for ( NSUInteger k = 0; k <= idx; k++ ) {
+        NSString *title = [( NSPathControlItem * )items[ k ] title ];
+        path = [ title isEqualToString: @"/" ]
+                ? @"/"
+                : [ path stringByAppendingPathComponent: title ];
+    }
+
+    if ( [ path isEqualToString: @"/" ] ) {
         [ self writeCommand: "cd /" ];
-        while ( ! [ tServer atSftpPrompt ] ) {
-            [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
-                                       beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
-        }
-        [ self getListing ];
-        return;
+    } else {
+        dircmd = [ NSString stringWithFormat: @"cd \"%@\"", path ];
+        [ self writeCommand: ( char * )[ dircmd UTF8String ]];
     }
-    
-    if ( ! [ path containsString: component ] ) {
-        NSLog( @"Screwed up remote popup list. Correcting." );
-        [ self writeCommand: "pwd" ];
-        return;
-    }
-    
-    for ( i = 0; i != index; i++ ) {
-        path = [ path stringByDeletingLastPathComponent ];
-    }
-    if ( ! [[ path lastPathComponent ] isEqualToString: component ] ) {
-        NSLog( @"Failed to find %@ in %@", component, remoteDirPath );
-        return;
-    }
-    
-    dircmd = [ NSString stringWithFormat: @"cd \"%@\"", path ];
-    [ self writeCommand: ( char * )[ dircmd UTF8String ]];
     while ( ![ tServer atSftpPrompt ] ) {
         [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
                                    beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
@@ -5031,18 +5004,7 @@ INVALID_CONNECTION_SETTINGS:
     }
 }
 
-/* splitview delegate methods */
-- ( CGFloat )splitView: ( NSSplitView * )splitview constrainMaxCoordinate: ( CGFloat )proposedMax
-            ofSubviewAt: ( NSInteger )offset
-{
-    return( proposedMax - 175 );
-}
-
-- ( CGFloat )splitView: ( NSSplitView * )splitview constrainMinCoordinate: ( CGFloat )proposedMin
-            ofSubviewAt: ( NSInteger )offset
-{
-    return( proposedMin + 175 );
-}
+/* split view constraints are now managed by NSSplitViewItem.minimumThickness */
 
 /* tabview delegate methods */
 - ( BOOL )tabView: ( NSTabView * )tabView shouldSelectTabViewItem: ( NSTabViewItem * )tabViewItem

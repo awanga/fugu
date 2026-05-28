@@ -5,6 +5,7 @@
  
 #import "SCPController.h"
 #import "SCPTransfer.h"
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import "NSString(SSHAdditions).h"
 #import "NSWorkspace(LaunchServices).h"
 #import "UMKeychain.h"
@@ -54,6 +55,17 @@ static int		SCPTYPE = 0;
 {
     [ localFileImageView setDelegate: self ];
     [ localFileField setDelegate: self ];
+
+    /* replace NSMatrix radio buttons with NSSegmentedControl */
+    _copyTypeControl = [[ NSSegmentedControl alloc ] initWithFrame: [ copyType frame ]];
+    [ _copyTypeControl setSegmentCount: 2 ];
+    [ _copyTypeControl setLabel: NSLocalizedString( @"Upload", @"Upload" ) forSegment: 0 ];
+    [ _copyTypeControl setLabel: NSLocalizedString( @"Download", @"Download" ) forSegment: 1 ];
+    _copyTypeControl.segmentStyle = NSSegmentStyleRounded;
+    _copyTypeControl.trackingMode = NSSegmentSwitchTrackingSelectOne;
+    _copyTypeControl.autoresizingMask = [ copyType autoresizingMask ];
+    [ copyType.superview addSubview: _copyTypeControl ];
+    [ copyType removeFromSuperview ];
 }
 
 - ( id )delegate
@@ -123,7 +135,7 @@ static int		SCPTYPE = 0;
     [ destUserNameField setStringValue: user ];
     [ localFileField setStringValue: filename ];
     [ destPathField setStringValue: destPath ];
-    [ copyType selectCellAtRow: scpType column: 0 ];
+    [ _copyTypeControl setSelectedSegment: scpType ];
     scpFileSize = 100.0;
     
     if ( [[ NSFileManager defaultManager ] fileExistsAtPath: filename ] ) {
@@ -133,7 +145,7 @@ static int		SCPTYPE = 0;
     } else {
         [ localFileImageView setImage:
                 [[ NSWorkspace sharedWorkspace ]
-                    iconForFileType: @"'doc '" ]];
+                    iconForContentType: UTTypePlainText ]];
     }
     
     [ scpWindow center ];
@@ -325,7 +337,7 @@ WRITE_ERR: ;
 
     scpFileSize = 100.0;
 
-    SCPTYPE = [ copyType selectedRow ];
+    SCPTYPE = ( int )[ _copyTypeControl selectedSegment ];
 
     if ( snprintf( userathost, MAXPATHLEN, "%s@%s:",
                 ( char * )[[ destUserNameField stringValue ] UTF8String ],

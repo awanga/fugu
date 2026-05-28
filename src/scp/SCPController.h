@@ -21,6 +21,7 @@
     IBOutlet UMDragDropImageView 	*localFileImageView;
     IBOutlet NSPopUpButton	*recentCopiesList;
     IBOutlet NSMatrix		*copyType;
+    NSSegmentedControl		*_copyTypeControl;
     
     IBOutlet NSTextField 	*passPromptField;
     IBOutlet NSView 		*passpromptView;

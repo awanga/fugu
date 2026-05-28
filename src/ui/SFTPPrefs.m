@@ -74,7 +74,7 @@ extern int		errno;
     NSButtonCell	    *protoCell = [[[ NSButtonCell alloc ]
                                             initTextCell: @"" ] autorelease ];
                                             
-    [ protoCell setButtonType: NSSwitchButton ];
+    [ protoCell setButtonType: NSButtonTypeSwitch ];
     [ protoCell setEditable: YES ];
     if ( tableColumn ) {
         [ tableColumn setDataCell: protoCell ];

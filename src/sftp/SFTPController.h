@@ -251,6 +251,13 @@
 
     /* deferred keychain save: set when user opts in, committed after auth succeeds */
     BOOL                        _pendingKeychainSave;
+
+    /* split view controller — manages pane min-width constraints */
+    NSSplitViewController       *_splitViewController;
+
+    /* path controls replace popup buttons from NIB */
+    NSPathControl               *lPathControl;
+    NSPathControl               *rPathControl;
 }
 
 - ( void )showUploadProgress;
@@ -340,8 +347,8 @@
 - ( IBAction )cdLocalHome: ( id )sender;
 - ( IBAction )remoteCdDotDot: ( id )sender;
 - ( IBAction )localCdDotDot: ( id )sender;
-- ( IBAction )cdFromLPathPopUp: ( id )sender;
-- ( IBAction )cdFromRPathPopUp: ( id )sender;
+- ( IBAction )cdFromLPathControl: ( NSPathControl * )sender;
+- ( IBAction )cdFromRPathControl: ( NSPathControl * )sender;
 - ( IBAction )refreshBrowsers: ( id )sender;
 
 - ( void )changeToRemoteDirectory: ( NSString * )remotePath;
