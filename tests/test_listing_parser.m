@@ -6,7 +6,7 @@
 #import <Foundation/Foundation.h>
 #include <string.h>
 #include <sys/param.h>
-#import "../SFTPListingParser.h"
+#import "SFTPListingParser.h"
 
 static int failures = 0;
 

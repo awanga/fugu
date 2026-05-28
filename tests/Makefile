@@ -7,12 +7,14 @@ all: $(BIN)
 
 $(BIN):
 	$(CC) $(CFLAGS) -x objective-c -framework Foundation \
-		-I$(FUGU) \
-		$(FUGU)/argcargv.c \
-		$(FUGU)/typeforchar.c \
-		$(FUGU)/NSString-UnknownEncoding.m \
-		$(FUGU)/NSString\(SSHAdditions\).m \
-		$(FUGU)/SFTPListingParser.m \
+		-I$(FUGU)/src/sftp \
+		-I$(FUGU)/src/extensions \
+		-I$(FUGU)/src/util \
+		$(FUGU)/src/util/argcargv.c \
+		$(FUGU)/src/util/typeforchar.c \
+		$(FUGU)/src/extensions/NSString-UnknownEncoding.m \
+		$(FUGU)/src/extensions/NSString\(SSHAdditions\).m \
+		$(FUGU)/src/sftp/SFTPListingParser.m \
 		test_listing_parser.m \
 		-o $@
 
