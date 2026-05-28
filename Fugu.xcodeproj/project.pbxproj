@@ -277,6 +277,7 @@
 		09830E5E04B4AABA00F63E62 /* Danish */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Danish; path = resources/Danish.lproj/SSHTunnel.nib; sourceTree = "<group>"; };
 		09830E5F04B4AABA00F63E62 /* Danish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Danish; path = resources/Danish.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
 		0984006B05DB103E00EEA2D5 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
+		AF1234560000000000000002 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF1234560000000000000001 /* UniformTypeIdentifiers.framework */; };
 		0984FFE005D9D8F900EEA2D5 /* NSAttributedString-Ellipsis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/extensions/NSAttributedString-Ellipsis.h"; sourceTree = "<group>"; };
 		0984FFE105D9D8F900EEA2D5 /* NSAttributedString-Ellipsis.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/extensions/NSAttributedString-Ellipsis.m"; sourceTree = "<group>"; };
 		09855B2D04CDD14800D5EA79 /* French */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = French; path = resources/French.lproj/HelpMenu.strings; sourceTree = "<group>"; };
@@ -385,6 +386,7 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = "src/main.m"; sourceTree = "<group>"; };
 		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = resources/English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		AF1234560000000000000001 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = /System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		F517810B03083F4A01A8002B /* COPYRIGHT.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = COPYRIGHT.txt; sourceTree = "<group>"; };
 		F517DFAE0312049F01A8002B /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = resources/English.lproj/SSHTunnel.nib; sourceTree = "<group>"; };
@@ -436,6 +438,7 @@
 				0968302B07C5528A00210847 /* Carbon.framework in Frameworks */,
 				0968302C07C5528A00210847 /* CoreServices.framework in Frameworks */,
 				0968302D07C5528A00210847 /* CoreFoundation.framework in Frameworks */,
+				AF1234560000000000000002 /* UniformTypeIdentifiers.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -493,6 +496,7 @@
 				09E8A371042F6F8F009BCCF8 /* Security.framework */,
 				09E0A0F204C06B1600D5EA79 /* Carbon.framework */,
 				09E0A0F304C06B1600D5EA79 /* CoreServices.framework */,
+				AF1234560000000000000001 /* UniformTypeIdentifiers.framework */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";

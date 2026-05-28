@@ -120,7 +120,8 @@ extern int		errno;
         [ preftbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Show General Preferences", @"SFTPPrefToolbar",
                                             @"Show General Preferences" ) ];
-        [ preftbarItem setImage: [ NSImage imageNamed: @"generalprefs.png" ]];
+        [ preftbarItem setImage: [ NSImage imageWithSystemSymbolName: @"gearshape"
+                                         accessibilityDescription: @"General" ]];
         [ preftbarItem setAction: @selector( showGeneralPreferences: ) ];
         [ preftbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPPrefToolbarFavoritesIdentifier ] ) {
@@ -133,7 +134,8 @@ extern int		errno;
         [ preftbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Show Favorites", @"SFTPPrefToolbar",
                                             @"Show Favorites" ) ];
-        [ preftbarItem setImage: [ NSImage imageNamed: @"favoritesprefs.png" ]];
+        [ preftbarItem setImage: [ NSImage imageWithSystemSymbolName: @"star"
+                                         accessibilityDescription: @"Favorites" ]];
         [ preftbarItem setAction: @selector( showFavorites: ) ];
         [ preftbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPPrefToolbarTransfersIdentifier ] ) {
@@ -146,7 +148,8 @@ extern int		errno;
         [ preftbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Show Transfer Preferences", @"SFTPPrefToolbar",
                                             @"Show Transfer Preferences" ) ];
-        [ preftbarItem setImage: [ NSImage imageNamed: @"transfers.png" ]];
+        [ preftbarItem setImage: [ NSImage imageWithSystemSymbolName: @"arrow.left.arrow.right.circle"
+                                         accessibilityDescription: @"Transfers" ]];
         [ preftbarItem setAction: @selector( showTransfersPrefs: ) ];
         [ preftbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPPrefToolbarFilesIdentifier ] ) {
@@ -159,7 +162,8 @@ extern int		errno;
         [ preftbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Show Text File Editing Preferences", @"SFTPPrefToolbar",
                                             @"Show Text File Editing Preferences" ) ];
-        [ preftbarItem setImage: [ NSImage imageNamed: @"files.png" ]];
+        [ preftbarItem setImage: [ NSImage imageWithSystemSymbolName: @"doc.text"
+                                         accessibilityDescription: @"Files" ]];
         [ preftbarItem setAction: @selector( showFilesPrefs: ) ];
         [ preftbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPPrefToolbarKnownHostsIdentifier ] ) {
@@ -172,7 +176,13 @@ extern int		errno;
         [ preftbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Known Host Manager", @"SFTPPrefToolbar",
                                             @"Known Host Manager" ) ];
-        [ preftbarItem setImage: [ NSImage imageNamed: @"knownhosts.png" ]];
+        {
+            NSImage *img = [ NSImage imageWithSystemSymbolName: @"desktopcomputer.badge.checkmark"
+                                         accessibilityDescription: @"Known Hosts" ];
+            if ( !img ) img = [ NSImage imageWithSystemSymbolName: @"desktopcomputer"
+                                         accessibilityDescription: @"Known Hosts" ];
+            [ preftbarItem setImage: img ];
+        }
         [ preftbarItem setAction: @selector( showKnownHosts: ) ];
         [ preftbarItem setTarget: self ];
     }

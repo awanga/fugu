@@ -26,6 +26,7 @@
 #import "NSWorkspace(LaunchServices).h"
 #import "NSWorkspace(SystemVersionNumber).h"
 
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #include <ApplicationServices/ApplicationServices.h>
 #include <Carbon/Carbon.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -344,7 +345,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Go to local home directory.", @"SFTPToolbar",
                                             @"Go to local home directory." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"home.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"house"
+                                         accessibilityDescription: @"Local Home" ]];
         [ sftptbarItem setAction: @selector( cdLocalHome: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarNewDirIdentifier ] ) {
@@ -357,7 +359,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Make new folder.", @"SFTPToolbar",
                                             @"Make new folder." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"newfolder.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"folder.badge.plus"
+                                         accessibilityDescription: @"New Folder" ]];
         [ sftptbarItem setAction: @selector( createNewDirectory: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarDeleteIdentifier ] ) {
@@ -370,8 +373,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Move selected items to trash.", @"SFTPToolbar",
                                             @"Move selected items to trash." ) ];
-        [ sftptbarItem setImage: nil ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"trash.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"trash"
+                                         accessibilityDescription: @"Delete" ]];
         [ sftptbarItem setAction: @selector( delete: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarConnectIdentifier ] ) {
@@ -385,7 +388,8 @@ permcmp( id ob1, id ob2, void *context )
             NSLocalizedStringFromTable( @"Disconnect", @"SFTPToolbar",
                                         @"Disconnect" ) ];
         [ sftptbarItem setAction: @selector( disconnect: ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"disconnect.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"xmark.circle"
+                                         accessibilityDescription: @"Disconnect" ]];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarInfoIdentifier ] ) {
         [ sftptbarItem setLabel:
@@ -397,7 +401,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Get information for the selected item.", 
                             @"SFTPToolbar", @"Get information for the selected item." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"info.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"info.circle"
+                                         accessibilityDescription: @"Info" ]];
         [ sftptbarItem setAction: @selector( getInfo: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarRemoteHomeIdentifier ] ) {
@@ -410,7 +415,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Go to remote home directory.", @"SFTPToolbar",
                                             @"Go to remote home directory." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"remotehome.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"house"
+                                         accessibilityDescription: @"Remote Home" ]];
         [ sftptbarItem setAction: @selector( cdRemoteHome: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarRefreshIdentifier ] ) {
@@ -423,7 +429,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip: 
                 NSLocalizedStringFromTable( @"Reload current item display.", @"SFTPToolbar",
                                             @"Reload current item display." )];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"reload.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"arrow.clockwise"
+                                         accessibilityDescription: @"Reload" ]];
         [ sftptbarItem setAction: @selector( refreshBrowsers: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarUploadIdentifier ] ) {
@@ -436,7 +443,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Upload selected items to server.", @"SFTPToolbar",
                                             @"Upload selected items to server." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"upload.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"arrow.up.circle"
+                                         accessibilityDescription: @"Upload" ]];
         [ sftptbarItem setAction: @selector( uploadButtonClick: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarDownloadIdentifier ] ) {
@@ -449,7 +457,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Download selected items from server.", @"SFTPToolbar",
                                             @"Download selected items from server." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"download.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"arrow.down.circle"
+                                         accessibilityDescription: @"Download" ]];
         [ sftptbarItem setAction: @selector( downloadButtonClick: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarGotoIdentifier ] ) {
@@ -462,7 +471,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Go directly to a directory.", @"SFTPToolbar",
                                             @"Go directly to a directory." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"goto.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"arrowshape.turn.up.right"
+                                         accessibilityDescription: @"Go To" ]];
         [ sftptbarItem setAction: @selector( getGotoDirPanel: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarLocalHistoryIdentifier ] ) {
@@ -475,7 +485,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"List of local directories viewed during this session.",
                             @"SFTPToolbar", @"List of local directories viewed during this session." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"history.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"clock.arrow.circlepath"
+                                         accessibilityDescription: @"History" ]];
         [ sftptbarItem setAction: @selector( showLocalHistoryMenu: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarRemoteHistoryIdentifier ] ) {
@@ -488,7 +499,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"List of remote directories visited during this session.",
                         @"SFTPToolbar", @"List of remote directories visited during this session." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"remotehistory.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"clock.arrow.circlepath"
+                                         accessibilityDescription: @"Remote History" ]];
         [ sftptbarItem setAction: @selector( showRemoteHistoryMenu: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarRemoteItemPreviewIdentifier ] ) {
@@ -501,7 +513,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Preview selected remote item.", @"SFTPToolbar",
                                             @"Preview selected remote item." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"preview.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"photo"
+                                         accessibilityDescription: @"Preview" ]];
         [ sftptbarItem setAction: @selector( previewItem: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarEditDocumentIdentifier ] ) {
@@ -514,7 +527,8 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Edit selected item in external editor.", @"SFTPToolbar",
                                             @"Edit selected item in external editor." ) ];
-        [ sftptbarItem setImage: [ NSImage imageNamed: @"edit.png" ]];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"pencil"
+                                         accessibilityDescription: @"Edit" ]];
         [ sftptbarItem setAction: @selector( editFile: ) ];
         [ sftptbarItem setTarget: self ];
 #ifdef notdef
@@ -545,21 +559,20 @@ permcmp( id ob1, id ob2, void *context )
         return( NO );
     } else if ( [[ tItem itemIdentifier ] isEqualToString: SFTPToolbarDeleteIdentifier ] ) {
         if ( ! connected && ! [[ mainWindow firstResponder ] isEqual: localBrowser ] ) {
-            [ tItem setImage: [ NSImage imageNamed: @"trash.png" ]];
             return( NO );
         } else if ( [[ mainWindow firstResponder ] isEqual: localBrowser ] ) {
             [ tItem setToolTip:
                     NSLocalizedStringFromTable(
                         @"Move selected local items or directories to the trash.", @"SFTPToolbar",
                         @"Move selected local items or directories to the trash." ) ];
-            [ tItem setImage: nil ];
-            [ tItem setImage: [ NSImage imageNamed: @"trash.png" ]];
+            [ tItem setImage: [ NSImage imageWithSystemSymbolName: @"trash"
+                                         accessibilityDescription: @"Delete Local" ]];
         } else if ( [[ mainWindow firstResponder ] isEqual: remoteBrowser ] ) {
             [ tItem setToolTip:
                     NSLocalizedStringFromTable( @"Delete selected item from server.", @"SFTPToolbar",
                                                 @"Delete selected item from server." ) ];
-            [ tItem setImage: nil ];
-            [ tItem setImage: [ NSImage imageNamed: @"remotetrash.png" ]];
+            [ tItem setImage: [ NSImage imageWithSystemSymbolName: @"trash"
+                                         accessibilityDescription: @"Delete Remote" ]];
         }
     } else if ( [[ tItem itemIdentifier ] isEqualToString: SFTPToolbarRemoteHomeIdentifier ]
             && !connected ) {
@@ -703,13 +716,12 @@ permcmp( id ob1, id ob2, void *context )
     int			i, count;
 
     /* get images for display */
-    dirImage = [[[ NSWorkspace sharedWorkspace ] iconForFileType: @"'fldr'" ] retain ];
-    [ dirImage setScalesWhenResized: YES ];
+    dirImage = [[[ NSWorkspace sharedWorkspace ] iconForContentType: UTTypeFolder ] retain ];
     [ dirImage setSize: NSMakeSize( 16.0, 16.0 ) ];
-    fileImage = [[[ NSWorkspace sharedWorkspace ] iconForFileType: @"'doc '" ] retain ];
-    [ fileImage setScalesWhenResized: YES ];
+    fileImage = [[[ NSWorkspace sharedWorkspace ] iconForContentType: UTTypePlainText ] retain ];
     [ fileImage setSize: NSMakeSize( 16.0, 16.0 ) ];
-    linkImage = [[ NSImage imageNamed: @"symlink" ] retain ];
+    linkImage = [[ NSImage imageWithSystemSymbolName: @"link"
+                                accessibilityDescription: @"symbolic link" ] retain ];
     
     [ localBox setContentView: localView ];
     [ localView setNeedsDisplay: YES ];
@@ -852,9 +864,11 @@ permcmp( id ob1, id ob2, void *context )
                                 intValue ];
             
             if ( sortdirection == 0 ) {
-                image = [ NSImage imageNamed: @"NSAscendingSortIndicator" ];
+                image = [ NSImage imageWithSystemSymbolName: @"chevron.up"
+                                    accessibilityDescription: @"Ascending" ];
             } else {
-                image = [ NSImage imageNamed: @"NSDescendingSortIndicator" ];
+                image = [ NSImage imageWithSystemSymbolName: @"chevron.down"
+                                    accessibilityDescription: @"Descending" ];
             }
             [ remoteBrowser setIndicatorImage: image inTableColumn: tc ];
         }
@@ -917,7 +931,8 @@ permcmp( id ob1, id ob2, void *context )
     [ rendezvousPopUp setEnabled: NO ];
     
     if ( [ NSWorkspace systemVersion ] >= 0x00001023 ) {
-        [[ rendezvousPopUp itemAtIndex: 0 ] setImage: [ NSImage imageNamed: @"zeroconf.png" ]];
+        [[ rendezvousPopUp itemAtIndex: 0 ] setImage: [ NSImage imageWithSystemSymbolName: @"bonjour" accessibilityDescription: @"Bonjour" ] ?:
+                [ NSImage imageWithSystemSymbolName: @"network" accessibilityDescription: @"Bonjour" ]];
         [ self scanForSSHServers: nil ];
     } else {
         NSLog( @"system doesn't support rendezvous, disabling." );
@@ -1171,7 +1186,7 @@ permcmp( id ob1, id ob2, void *context )
     [ popUpFavs removeAllItems ];
     favs = [ defaults objectForKey: @"Favorites" ];
     [ popUpFavs addItemWithTitle: @"" ];
-    [[ popUpFavs itemAtIndex: 0 ] setImage: [ NSImage imageNamed: @"favorites.png" ]];
+    [[ popUpFavs itemAtIndex: 0 ] setImage: [ NSImage imageWithSystemSymbolName: @"star.fill" accessibilityDescription: @"Favorites" ]];
     for ( i = 0; i < [ favs count ]; i++ ) {
         fobj = [ favs objectAtIndex: i ];
         if ( [ fobj isKindOfClass: [ NSString class ]] ) {
@@ -1190,7 +1205,7 @@ permcmp( id ob1, id ob2, void *context )
             }
             [ popUpFavs addItemWithTitle: title ];
         }
-        [[ popUpFavs lastItem ] setImage: [ NSImage imageNamed: @"favorites.png" ]];
+        [[ popUpFavs lastItem ] setImage: [ NSImage imageWithSystemSymbolName: @"star.fill" accessibilityDescription: @"Favorites" ]];
     }
 
     /* don't change things if user's entered anything */
@@ -4449,19 +4464,17 @@ LaunchFailed:
 
 - ( IBAction )toggleAdvConnectionView: ( id )sender
 {
-    if ( [ sender isKindOfClass: [ NSButton class ]] ) {
-	if ( [[ sender image ] isEqual: [ NSImage imageNamed: @"righttriangle.png" ]] ) {
-	    [ sender setImage: [ NSImage imageNamed: @"downtriangle.png" ]];
-	} else {
-	    [ sender setImage: [ NSImage imageNamed: @"righttriangle.png" ]];
-	}
-    }
-    
-    if ( ! [[ advConnectionBox contentView ] isEqual: advConnectionView ] ) {
-        [ advConnectionBox setContentView: nil ];
+    BOOL expanding = ! [[ advConnectionBox contentView ] isEqual: advConnectionView ];
+
+    [ advConnectionBox setContentView: nil ];
+    if ( expanding ) {
         [ advConnectionBox setContentView: advConnectionView ];
-    } else {
-        [ advConnectionBox setContentView: nil ];
+    }
+
+    if ( [ sender isKindOfClass: [ NSButton class ]] ) {
+        NSString *symbol = expanding ? @"chevron.down" : @"chevron.right";
+        [( NSButton * )sender setImage:
+            [ NSImage imageWithSystemSymbolName: symbol accessibilityDescription: nil ]];
     }
 }
 
@@ -5004,7 +5017,8 @@ INVALID_CONNECTION_SETTINGS:
 
 	[ rendezvousPopUp removeAllItems ];
         [ rendezvousPopUp addItemWithTitle: @"" ];
-	[[ rendezvousPopUp itemAtIndex: 0 ] setImage: [ NSImage imageNamed: @"zeroconf.png" ]];
+	[[ rendezvousPopUp itemAtIndex: 0 ] setImage: [ NSImage imageWithSystemSymbolName: @"bonjour" accessibilityDescription: @"Bonjour" ] ?:
+                [ NSImage imageWithSystemSymbolName: @"network" accessibilityDescription: @"Bonjour" ]];
 	
         for ( i = 0; i < [ services count ]; i++ ) {
             [[ services objectAtIndex: i ] setDelegate: self ];
@@ -5018,16 +5032,16 @@ INVALID_CONNECTION_SETTINGS:
 }
 
 /* splitview delegate methods */
-- ( float )splitView: ( NSSplitView * )splitview constrainMaxCoordinate: ( float )proposedMax
-            ofSubviewAt: ( int )offset
+- ( CGFloat )splitView: ( NSSplitView * )splitview constrainMaxCoordinate: ( CGFloat )proposedMax
+            ofSubviewAt: ( NSInteger )offset
 {
-    return(( proposedMax - 175 ));
+    return( proposedMax - 175 );
 }
 
-- ( float )splitView: ( NSSplitView * )splitview constrainMinCoordinate: ( float )proposedMax
-            ofSubviewAt: ( int )offset
+- ( CGFloat )splitView: ( NSSplitView * )splitview constrainMinCoordinate: ( CGFloat )proposedMin
+            ofSubviewAt: ( NSInteger )offset
 {
-    return(( proposedMax + 175 ));
+    return( proposedMin + 175 );
 }
 
 /* tabview delegate methods */

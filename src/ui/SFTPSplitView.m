@@ -9,7 +9,7 @@
 
 - ( CGFloat )dividerThickness
 {
-    return( 20.0 );
+    return( 1.0 );
 }
 
 @end

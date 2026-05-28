@@ -2,10 +2,6 @@
 
 #import <AppKit/AppKit.h>
 
-
-@interface SFTPScrollView : NSScrollView {
-    BOOL		shouldDrawFocusRing;
-    NSResponder		*last;
-}
+@interface SFTPScrollView : NSScrollView
 
 @end

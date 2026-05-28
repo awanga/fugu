@@ -54,7 +54,7 @@
     as = [[ NSMutableAttributedString alloc ] init ];
     [ as setAttributedString: [ self attributedStringValue ]];
     while ( NSLocationInRange( i, range )) {
-        font = [ fm convertFont: [ NSFont fontWithName: @"Helvetica" size: 11.0 ]
+        font = [ fm convertFont: [ NSFont systemFontOfSize: 11.0 ]
                     toHaveTrait: NSItalicFontMask ];
         [ as addAttribute: NSFontAttributeName value: font range: range ];
         i = NSMaxRange( range );
@@ -144,22 +144,22 @@
 	[ style setLineBreakMode: NSLineBreakByTruncatingMiddle ];
     }
     
-    color = [ NSColor blackColor ];
-    
+    color = [ NSColor labelColor ];
+
     if ( attributes == nil ) {
 	attributes = [[ NSMutableDictionary dictionaryWithObjectsAndKeys:
 			[ self font ], NSFontAttributeName,
 			style, NSParagraphStyleAttributeName,
 			color, NSForegroundColorAttributeName, nil ] retain ];
     }
-    
-    /* draw the text in white if we're highlighted and 1st responder */
+
+    /* draw the text in selection color if highlighted and 1st responder */
     if ( [ self isHighlighted ] && [ NSApp isActive ] &&
 	    [[[[ self controlView ] window ]
 	    firstResponder ] isEqual: [ self controlView ]] ) {
-	color = [ NSColor whiteColor ];
+	color = [ NSColor alternateSelectedControlTextColor ];
     } else {
-	color = [ NSColor blackColor ];
+	color = [ NSColor labelColor ];
     }
     [ attributes setObject: color forKey: NSForegroundColorAttributeName ];
     
@@ -179,13 +179,10 @@
         imageFrame.size = imageSize;
         
 
-        if ( [ controlView isFlipped ] ) {
-            imageFrame.origin.y += ceil(( NSHeight( cellFrame ) + NSHeight( imageFrame )) / 2 );
-        } else {
-            imageFrame.origin.y += ceil(( NSHeight( cellFrame ) - NSHeight( imageFrame )) / 2 );
-        }
-
-        [ image compositeToPoint: imageFrame.origin operation: NSCompositeSourceOver ];
+        imageFrame.origin.y += ceil(( NSHeight( cellFrame ) - NSHeight( imageFrame )) / 2 );
+        [ image drawInRect: imageFrame fromRect: NSZeroRect
+                 operation: NSCompositingOperationSourceOver
+                  fraction: 1.0 respectFlipped: YES hints: nil ];
     }
     
     [ super drawWithFrame: cellFrame inView: controlView ];
