@@ -301,8 +301,16 @@ permcmp( id ob1, id ob2, void *context )
 		return( NO );
 	    }
 	}
+    } else if ( [[ anItem title ] isEqualToString:
+            NSLocalizedString( @"Delete Directory Tree…",
+                               @"Delete Directory Tree…" ) ] ) {
+        int row = [ remoteBrowser selectedRow ];
+        if ( ! connected || row < 0 ) return( NO );
+        id src = ( dotflag ? remoteDirContents : dotlessRDir );
+        id item = [ src objectAtIndex: row ];
+        return( [[ item objectForKey: @"type" ] isEqualToString: @"directory" ] );
     }
-    
+
     return( YES );
 }
 
@@ -953,6 +961,19 @@ permcmp( id ob1, id ob2, void *context )
     [ self reloadDefaults ];
     
     [ self toolbarSetup ];
+
+    /* add "Delete Directory Tree…" to the remote browser context menu */
+    {
+        NSMenuItem *delTreeItem = [[ NSMenuItem alloc ] initWithTitle:
+            NSLocalizedString( @"Delete Directory Tree…",
+                               @"Delete Directory Tree…" )
+            action: @selector( deleteRemoteDirTree: )
+            keyEquivalent: @"" ];
+        [ delTreeItem setTarget: self ];
+        [ remoteTableMenu addItem: [ NSMenuItem separatorItem ]];
+        [ remoteTableMenu addItem: delTreeItem ];
+        [ delTreeItem release ];
+    }
 
     [ self cleanupStaleTempDirectories ];
 
@@ -2363,6 +2384,48 @@ WRITE_ERR:
 - ( NSMutableArray * )removeQ
 {
     return( removeQueue );
+}
+
+- ( IBAction )deleteRemoteDirTree: ( id )sender
+{
+    int             row = [ remoteBrowser selectedRow ];
+    NSString        *name, *deleteCmd;
+    id              item;
+
+    if ( row < 0 || ! connected ) return;
+
+    item = [( dotflag ? remoteDirContents : dotlessRDir ) objectAtIndex: row ];
+    if ( ! [[ item objectForKey: @"type" ] isEqualToString: @"directory" ] ) return;
+
+    name = [ item objectForKey: @"name" ];
+
+    {
+        NSAlert *alert = [[ NSAlert alloc ] init ];
+        [ alert setAlertStyle: NSAlertStyleWarning ];
+        [ alert setMessageText: [ NSString stringWithFormat:
+                NSLocalizedString( @"Delete \"%@\" and all its contents?",
+                                   @"Delete \"%@\" and all its contents?" ), name ]];
+        [ alert setInformativeText:
+                NSLocalizedString( @"This permanently deletes the directory and everything "
+                                   @"inside it. This action cannot be undone.",
+                                   @"This permanently deletes the directory and everything "
+                                   @"inside it. This action cannot be undone." )];
+        [ alert addButtonWithTitle: NSLocalizedString( @"Cancel", @"Cancel" )];
+        [ alert addButtonWithTitle: NSLocalizedString( @"Delete", @"Delete" )];
+        NSModalResponse rc = [ alert runModal ];
+        [ alert release ];
+        if ( rc != NSAlertSecondButtonReturn ) return;
+    }
+
+    deleteCmd = [ NSString stringWithFormat: @"rm -r \"%@\"", [ name sftpQuotedPath ]];
+    [ self setBusyStatusWithMessage: [ NSString stringWithFormat:
+            NSLocalizedString( @"Deleting %@...", @"Deleting %@..." ), name ]];
+    [ self writeCommand: ( char * )[ deleteCmd UTF8String ]];
+    while ( ![ tServer atSftpPrompt ] ) {
+        [[ NSRunLoop currentRunLoop ] runMode: NSDefaultRunLoopMode
+                                   beforeDate: [ NSDate dateWithTimeIntervalSinceNow: 0.01 ]];
+    }
+    [ self getListing ];
 }
 
 - ( IBAction )toggleDirCreationButtons: ( id )sender

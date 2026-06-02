@@ -327,6 +327,7 @@
 /* methods related to deleting items */
 - ( IBAction )delete: ( id )sender;
 - ( IBAction )deleteLocalFile: ( id )sender;
+- ( IBAction )deleteRemoteDirTree: ( id )sender;
 - ( IBAction )deleteRemoteFile: ( id )sender;
 - ( void )deleteFirstItemFromRemoveQueue;
 - ( NSMutableArray * )removeQ;
