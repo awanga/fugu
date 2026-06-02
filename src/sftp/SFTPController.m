@@ -75,6 +75,8 @@ extern int		connecting;
 extern int		connected;
 extern int		master;
 
+static NSString * const kFuguRemoteFilePboardType = @"edu.umich.fugu.remote-file-plist";
+
 static float		dltime, ultime;
 static int		scp_service = 0;
 static NSTimer		*timer;
@@ -746,28 +748,11 @@ permcmp( id ob1, id ob2, void *context )
         [ rPathPopUp removeFromSuperview ];
     }
 
-    /* wrap split view in NSSplitViewController for modern constraint management */
+    /* persist split-view divider position across sessions */
     {
         NSSplitView *sv = ( NSSplitView * )[ localBox superview ];
-        if ( [ sv isKindOfClass: [ NSSplitView class ]] ) {
-            NSViewController *localPaneVC = [[ NSViewController alloc ] initWithNibName: nil bundle: nil ];
-            localPaneVC.view = localBox;
-            NSViewController *remotePaneVC = [[ NSViewController alloc ] initWithNibName: nil bundle: nil ];
-            remotePaneVC.view = remoteBox;
-
-            NSSplitViewItem *localItem = [ NSSplitViewItem splitViewItemWithViewController: localPaneVC ];
-            localItem.minimumThickness = 175.0;
-            NSSplitViewItem *remoteItem = [ NSSplitViewItem splitViewItemWithViewController: remotePaneVC ];
-            remoteItem.minimumThickness = 175.0;
-
-            _splitViewController = [[ NSSplitViewController alloc ] initWithNibName: nil bundle: nil ];
-            _splitViewController.splitView = sv;
-            [ _splitViewController addSplitViewItem: localItem ];
-            [ _splitViewController addSplitViewItem: remoteItem ];
-
-            [ localPaneVC release ];
-            [ remotePaneVC release ];
-        }
+        if ( [ sv isKindOfClass: [ NSSplitView class ]] )
+            sv.autosaveName = @"SFTPSplitView";
     }
 
     [ logField setEditable: NO ];
@@ -777,6 +762,7 @@ permcmp( id ob1, id ob2, void *context )
     }
     [ mainWindow setFrameUsingName: @"SFTPWindow" ];
     [ mainWindow setFrameAutosaveName: @"SFTPWindow" ];
+    mainWindow.minSize = NSMakeSize( 640.0, 400.0 );
     
     [ imagePreviewPanel setFrameUsingName: @"ImagePreviewPanel" ];
     [ imagePreviewPanel setFrameAutosaveName: @"ImagePreviewPanel" ];
@@ -930,7 +916,7 @@ permcmp( id ob1, id ob2, void *context )
     [ cell release ];
                         
     [ localBrowser registerForDraggedTypes:
-            [ NSArray arrayWithObjects: NSFileContentsPboardType, nil ]];
+            [ NSArray arrayWithObjects: kFuguRemoteFilePboardType, nil ]];
     [ localBrowser setDataSource: self ];
     localDirPath = [[ NSString alloc ] init ];
     localDirContents = [[ NSMutableArray alloc ] init ];
@@ -5004,7 +4990,22 @@ INVALID_CONNECTION_SETTINGS:
     }
 }
 
-/* split view constraints are now managed by NSSplitViewItem.minimumThickness */
+/* NSSplitView delegate — enforce minimum pane widths */
+- ( CGFloat )splitView: ( NSSplitView * )splitView
+        constrainMinCoordinate: ( CGFloat )proposedMin
+        ofSubviewAt: ( NSInteger )dividerIndex
+{
+    (void)splitView; (void)dividerIndex;
+    return MAX( proposedMin, 175.0 );
+}
+
+- ( CGFloat )splitView: ( NSSplitView * )splitView
+        constrainMaxCoordinate: ( CGFloat )proposedMax
+        ofSubviewAt: ( NSInteger )dividerIndex
+{
+    (void)dividerIndex;
+    return MIN( proposedMax, NSWidth( [ splitView bounds ] ) - 175.0 );
+}
 
 /* tabview delegate methods */
 - ( BOOL )tabView: ( NSTabView * )tabView shouldSelectTabViewItem: ( NSTabViewItem * )tabViewItem
@@ -5410,7 +5411,7 @@ INVALID_CONNECTION_SETTINGS:
         }
         dragData = [ pb propertyListForType:
                 [ pb availableTypeFromArray:
-                    [ NSArray arrayWithObject: NSFileContentsPboardType ]]];
+                    [ NSArray arrayWithObject: kFuguRemoteFilePboardType ]]];
                     
         if ( [ dragData count ] == 1 &&
                 [[[ dragData objectAtIndex: 0 ] objectForKey: @"type" ]
@@ -5552,9 +5553,9 @@ INVALID_CONNECTION_SETTINGS:
               idx = [ rowIndexes indexGreaterThanIndex: idx ] ) {
             anArray = [ anArray arrayByAddingObject: [ dsrc objectAtIndex: idx ]];
         }
-        [ pboard declareTypes: [ NSArray arrayWithObject: NSFileContentsPboardType ]
+        [ pboard declareTypes: [ NSArray arrayWithObject: kFuguRemoteFilePboardType ]
                     owner: self ];
-        [ pboard setPropertyList: anArray forType: NSFileContentsPboardType ];
+        [ pboard setPropertyList: anArray forType: kFuguRemoteFilePboardType ];
         [ remoteBrowser setDragPromisedFiles: YES ];
     }
 
@@ -5579,6 +5580,7 @@ INVALID_CONNECTION_SETTINGS:
     }
     [ dirImage release ];
     [ fileImage release ];
+    [ linkImage release ];
     [ remoteDirBuf release ];
     [ uploadQueue release ];
     [ remoteDirContents release ];

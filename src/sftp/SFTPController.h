@@ -252,9 +252,6 @@
     /* deferred keychain save: set when user opts in, committed after auth succeeds */
     BOOL                        _pendingKeychainSave;
 
-    /* split view controller — manages pane min-width constraints */
-    NSSplitViewController       *_splitViewController;
-
     /* path controls replace popup buttons from NIB */
     NSPathControl               *lPathControl;
     NSPathControl               *rPathControl;
