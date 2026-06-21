@@ -5417,7 +5417,9 @@ INVALID_CONNECTION_SETTINGS:
             }
             
             image = [ dict objectForKey: @"icon" ];
-            
+            if ( [[ path lastPathComponent ] isEqualToString: @".." ] )
+                image = dirImage;
+
             [ cell setImage: image ];
             [ cell setEditable: YES ];
             attrString = [[[ NSAttributedString alloc ] initWithString: name ] autorelease ];
