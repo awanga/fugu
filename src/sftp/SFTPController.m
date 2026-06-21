@@ -5406,7 +5406,9 @@ INVALID_CONNECTION_SETTINGS:
             path = [ dict objectForKey: @"name" ];
             ext = [ path pathExtension ];
 
-            if ( access(( char * )[ path UTF8String ], F_OK ) == 0 &&
+            if ( [[ path lastPathComponent ] isEqualToString: @".." ] ) {
+                name = @"..";
+            } else if ( access(( char * )[ path UTF8String ], F_OK ) == 0 &&
                         resolvedpath == nil ) {
                 /* display name at path shows resolved symlink names */
                 name = [[ NSFileManager defaultManager ] displayNameAtPath: path ];
