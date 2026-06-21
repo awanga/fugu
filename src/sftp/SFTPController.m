@@ -79,6 +79,28 @@ static NSString * const kFuguRemoteFilePboardType = @"edu.umich.fugu.remote-file
 
 /* Walk view tree and replace image on buttons with the given action+target. */
 static void
+setButtonImage( NSView *view, SEL action, id target, NSImage *image );
+
+/* Walk view tree and normalise height of buttons matching title. */
+static void
+normalizeButton( NSView *view, NSString *title )
+{
+    for ( NSView *sub in [ view subviews ] ) {
+        if ( [ sub isKindOfClass: [ NSButton class ] ] ) {
+            NSButton *btn = ( NSButton * )sub;
+            if ( [[ btn title ] isEqualToString: title ] ) {
+                [ btn setControlSize: NSControlSizeSmall ];
+                NSRect frame = [ btn frame ];
+                [ btn sizeToFit ];
+                frame.size.height = [ btn frame ].size.height;
+                [ btn setFrame: frame ];
+            }
+        }
+        normalizeButton( sub, title );
+    }
+}
+
+static void
 setButtonImage( NSView *view, SEL action, id target, NSImage *image )
 {
     for ( NSView *sub in [ view subviews ] ) {
@@ -996,6 +1018,12 @@ permcmp( id ob1, id ob2, void *context )
         NSView *root = [ mainWindow contentView ];
         setButtonImage( root, @selector( localCdDotDot: ),  self, upImg );
         setButtonImage( root, @selector( remoteCdDotDot: ), self, upImg );
+    }
+
+    /* fix info panel Apply/Revert button height (NIB used undersized mini metrics) */
+    {
+        for ( NSString *t in @[ @"Apply", @"Revert" ] )
+            normalizeButton( [ infoPanel contentView ], t );
     }
 
     [ self cleanupStaleTempDirectories ];
