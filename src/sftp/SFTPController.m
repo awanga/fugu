@@ -1018,6 +1018,11 @@ permcmp( id ob1, id ob2, void *context )
         NSView *root = [ mainWindow contentView ];
         setButtonImage( root, @selector( localCdDotDot: ),  self, upImg );
         setButtonImage( root, @selector( remoteCdDotDot: ), self, upImg );
+
+        /* advanced-options disclosure: initial collapsed state (was righttriangle.png) */
+        NSImage *collapseImg = [ NSImage imageWithSystemSymbolName: @"chevron.right"
+                                             accessibilityDescription: nil ];
+        setButtonImage( root, @selector( toggleAdvConnectionView: ), self, collapseImg );
     }
 
     /* fix info panel Apply/Revert button height (NIB used undersized mini metrics) */

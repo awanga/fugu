@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		090BAD410A3606BB00517A93 /* NSPanel(Resizing).h in Headers */ = {isa = PBXBuildFile; fileRef = 090BAD3F0A3606BB00517A93 /* NSPanel(Resizing).h */; };
 		090BAD420A3606BB00517A93 /* NSPanel(Resizing).m in Sources */ = {isa = PBXBuildFile; fileRef = 090BAD400A3606BB00517A93 /* NSPanel(Resizing).m */; };
-		0962B4D4086663200072CC46 /* OnePaneBrowser.png in Resources */ = {isa = PBXBuildFile; fileRef = 0962B4D3086663200072CC46 /* OnePaneBrowser.png */; };
-		0962B4D6086663270072CC46 /* TwoPaneBrowser.png in Resources */ = {isa = PBXBuildFile; fileRef = 0962B4D5086663270072CC46 /* TwoPaneBrowser.png */; };
 		09682FA707C5528A00210847 /* SFTPMainWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = F58418F201B4201501D5E771 /* SFTPMainWindow.h */; };
 		09682FA807C5528A00210847 /* SFTPController.h in Headers */ = {isa = PBXBuildFile; fileRef = F589A63901B43A7301D5E771 /* SFTPController.h */; };
 		09682FA907C5528A00210847 /* SFTPErrorHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = F589A63B01B43A7301D5E771 /* SFTPErrorHandler.h */; };
@@ -58,9 +56,6 @@
 		09682FD307C5528A00210847 /* Prefs.nib in Resources */ = {isa = PBXBuildFile; fileRef = F5B12CC002DF4E6001D5EA79 /* Prefs.nib */; };
 		09682FD407C5528A00210847 /* COPYRIGHT.txt in Resources */ = {isa = PBXBuildFile; fileRef = F517810B03083F4A01A8002B /* COPYRIGHT.txt */; };
 		09682FD507C5528A00210847 /* SSHTunnel.nib in Resources */ = {isa = PBXBuildFile; fileRef = F517DFAD0312049F01A8002B /* SSHTunnel.nib */; };
-		09682FD607C5528A00210847 /* home.png in Resources */ = {isa = PBXBuildFile; fileRef = F5EA815603785CDD01A8002B /* home.png */; };
-		09682FD707C5528A00210847 /* favorites.png in Resources */ = {isa = PBXBuildFile; fileRef = 239A5C18038C2294FED5EA79 /* favorites.png */; };
-		09682FD807C5528A00210847 /* bookmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 238577620392BB76FED5EA79 /* bookmark.png */; };
 		09682FD907C5528A00210847 /* fugu.icns in Resources */ = {isa = PBXBuildFile; fileRef = 238577660392BFBCFED5EA79 /* fugu.icns */; };
 		09682FDA07C5528A00210847 /* SCP.nib in Resources */ = {isa = PBXBuildFile; fileRef = 09F5CD7203F04CF600A8002B /* SCP.nib */; };
 		09682FDB07C5528A00210847 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 09448C5E03F052C200A8002B /* Localizable.strings */; };
@@ -69,32 +64,9 @@
 		09682FDE07C5528A00210847 /* SFTPInfoPanel.strings in Resources */ = {isa = PBXBuildFile; fileRef = 096A883B03F1B71700A8002B /* SFTPInfoPanel.strings */; };
 		09682FDF07C5528A00210847 /* SCP.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0971F3FA03F2DFC700A8002B /* SCP.strings */; };
 		09682FE007C5528A00210847 /* SSHTunnel.strings in Resources */ = {isa = PBXBuildFile; fileRef = 09FFFC6303F992BE00A8002B /* SSHTunnel.strings */; };
-		09682FE107C5528A00210847 /* history.png in Resources */ = {isa = PBXBuildFile; fileRef = 09FFFC7903FC38BF00A8002B /* history.png */; };
-		09682FE207C5528A00210847 /* remotehistory.png in Resources */ = {isa = PBXBuildFile; fileRef = 09FFFC7B03FC3CA600A8002B /* remotehistory.png */; };
-		09682FE307C5528A00210847 /* remotehome.png in Resources */ = {isa = PBXBuildFile; fileRef = 09FFFC7C03FC3CA600A8002B /* remotehome.png */; };
 		09682FE407C5528A00210847 /* Fugu README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 09E1EBF20452494200D5EA79 /* Fugu README.rtfd */; };
-		09682FE507C5528A00210847 /* generalprefs.png in Resources */ = {isa = PBXBuildFile; fileRef = 09274DEC04B36372003075E6 /* generalprefs.png */; };
-		09682FE607C5528A00210847 /* favoritesprefs.png in Resources */ = {isa = PBXBuildFile; fileRef = 09274DEE04B36AFF003075E6 /* favoritesprefs.png */; };
-		09682FE707C5528A00210847 /* knownhosts.png in Resources */ = {isa = PBXBuildFile; fileRef = 09274DF004B36B27003075E6 /* knownhosts.png */; };
-		09682FE807C5528A00210847 /* zeroconf.png in Resources */ = {isa = PBXBuildFile; fileRef = 09274DF204B3826E003075E6 /* zeroconf.png */; };
-		09682FE907C5528A00210847 /* downtriangle.png in Resources */ = {isa = PBXBuildFile; fileRef = 092E4A3D04B89F4E00341390 /* downtriangle.png */; };
-		09682FEA07C5528A00210847 /* righttriangle.png in Resources */ = {isa = PBXBuildFile; fileRef = 092E4A3E04B89F4F00341390 /* righttriangle.png */; };
-		09682FEB07C5528A00210847 /* files.png in Resources */ = {isa = PBXBuildFile; fileRef = 09F9EDCE04CC74CB00D5EA79 /* files.png */; };
-		09682FEC07C5528A00210847 /* transfers.png in Resources */ = {isa = PBXBuildFile; fileRef = 09F9EDD004CC841F00D5EA79 /* transfers.png */; };
-		09682FED07C5528A00210847 /* reload.png in Resources */ = {isa = PBXBuildFile; fileRef = 09D38E9D04F6A0A800000102 /* reload.png */; };
-		09682FEE07C5528A00210847 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 0916ACC104F728EA00000102 /* download.png */; };
-		09682FEF07C5528A00210847 /* upload.png in Resources */ = {isa = PBXBuildFile; fileRef = 0916ACC204F728EA00000102 /* upload.png */; };
-		09682FF007C5528A00210847 /* goto.png in Resources */ = {isa = PBXBuildFile; fileRef = 0916ACC504F72A0600000102 /* goto.png */; };
-		09682FF107C5528A00210847 /* preview.png in Resources */ = {isa = PBXBuildFile; fileRef = 0916ACC904F7323100000102 /* preview.png */; };
-		09682FF207C5528A00210847 /* disconnect.png in Resources */ = {isa = PBXBuildFile; fileRef = 0981B76604F81AC900000102 /* disconnect.png */; };
-		09682FF307C5528A00210847 /* edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 0981B76D04FA546F00000102 /* edit.png */; };
 		09682FF407C5528A00210847 /* SFTPPrefToolbar.strings in Resources */ = {isa = PBXBuildFile; fileRef = 09B7ACF90507596B00000106 /* SFTPPrefToolbar.strings */; };
 		09682FF507C5528A00210847 /* keys.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 09DA7590051B939700D5E7DF /* keys.rtf */; };
-		09682FF607C5528A00210847 /* newfolder.png in Resources */ = {isa = PBXBuildFile; fileRef = 0934447B0524C5E500D5E7DF /* newfolder.png */; };
-		09682FF707C5528A00210847 /* symlink.png in Resources */ = {isa = PBXBuildFile; fileRef = 0934447C0524C5E500D5E7DF /* symlink.png */; };
-		09682FF907C5528A00210847 /* trash.png in Resources */ = {isa = PBXBuildFile; fileRef = 093444890524CA3800D5E7DF /* trash.png */; };
-		09682FFA07C5528A00210847 /* remotetrash.png in Resources */ = {isa = PBXBuildFile; fileRef = 0934448B0524CAB600D5E7DF /* remotetrash.png */; };
-		09682FFB07C5528A00210847 /* info.png in Resources */ = {isa = PBXBuildFile; fileRef = 094AF260054772B6006D53C9 /* info.png */; };
 		09682FFC07C5528A00210847 /* externaleditor in Resources */ = {isa = PBXBuildFile; fileRef = 097EE2D0070BA9ED00305C66 /* externaleditor */; };
 		09682FFD07C5528A00210847 /* ODBEditors.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0985D5CC074A9A2A00B8ED3B /* ODBEditors.plist */; };
 		09682FFF07C5528A00210847 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -177,17 +149,9 @@
 		090BAD3F0A3606BB00517A93 /* NSPanel(Resizing).h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/ui/NSPanel(Resizing).h"; sourceTree = "<group>"; };
 		090BAD400A3606BB00517A93 /* NSPanel(Resizing).m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/ui/NSPanel(Resizing).m"; sourceTree = "<group>"; };
 		0911C537050D04630022D49F /* Dutch */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Dutch; path = resources/Dutch.lproj/SFTPPrefToolbar.strings; sourceTree = "<group>"; };
-		0916ACC104F728EA00000102 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/download.png"; sourceTree = "<group>"; };
-		0916ACC204F728EA00000102 /* upload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/upload.png"; sourceTree = "<group>"; };
-		0916ACC504F72A0600000102 /* goto.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/goto.png"; sourceTree = "<group>"; };
-		0916ACC904F7323100000102 /* preview.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/preview.png"; sourceTree = "<group>"; };
 		09173BB3050E461700D5E7DF /* French */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = French; path = resources/French.lproj/SFTPPrefToolbar.strings; sourceTree = "<group>"; };
 		0923B08803E846EE00A8002B /* UMFileLauncher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/util/UMFileLauncher.h"; sourceTree = "<group>"; };
 		0923B08903E846EE00A8002B /* UMFileLauncher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/util/UMFileLauncher.m"; sourceTree = "<group>"; };
-		09274DEC04B36372003075E6 /* generalprefs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/generalprefs.png"; sourceTree = "<group>"; };
-		09274DEE04B36AFF003075E6 /* favoritesprefs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/favoritesprefs.png"; sourceTree = "<group>"; };
-		09274DF004B36B27003075E6 /* knownhosts.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/knownhosts.png"; sourceTree = "<group>"; };
-		09274DF204B3826E003075E6 /* zeroconf.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/zeroconf.png"; sourceTree = "<group>"; };
 		092DD4C905F3D40700EA362F /* Chinese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Chinese; path = resources/Chinese.lproj/HelpMenu.strings; sourceTree = "<group>"; };
 		092DD4CB05F3D40700EA362F /* Chinese */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = Chinese; path = resources/Chinese.lproj/keys.rtf; sourceTree = "<group>"; };
 		092DD4CC05F3D40700EA362F /* Chinese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Chinese; path = resources/Chinese.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -200,8 +164,6 @@
 		092DD4D305F3D40700EA362F /* Chinese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Chinese; path = resources/Chinese.lproj/SFTPToolbar.strings; sourceTree = "<group>"; };
 		092DD4D405F3D40700EA362F /* Chinese */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Chinese; path = resources/Chinese.lproj/SSHTunnel.nib; sourceTree = "<group>"; };
 		092DD4D505F3D40700EA362F /* Chinese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Chinese; path = resources/Chinese.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
-		092E4A3D04B89F4E00341390 /* downtriangle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/downtriangle.png"; sourceTree = "<group>"; };
-		092E4A3E04B89F4F00341390 /* righttriangle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/righttriangle.png"; sourceTree = "<group>"; };
 		09338C9703FD986F00D5EA79 /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = resources/German.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		09338C9903FD98AE00D5EA79 /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = resources/German.lproj/Prefs.nib; sourceTree = "<group>"; };
 		09338C9A03FD98C300D5EA79 /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = resources/German.lproj/SCP.nib; sourceTree = "<group>"; };
@@ -212,14 +174,9 @@
 		09338C9F03FD997F00D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = resources/German.lproj/SFTPInfoPanel.strings; sourceTree = "<group>"; };
 		09338CA003FD999600D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = resources/German.lproj/SFTPToolbar.strings; sourceTree = "<group>"; };
 		09338CA103FD99AC00D5EA79 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = resources/German.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
-		0934447B0524C5E500D5E7DF /* newfolder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/newfolder.png"; sourceTree = "<group>"; };
-		0934447C0524C5E500D5E7DF /* symlink.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/symlink.png"; sourceTree = "<group>"; };
-		093444890524CA3800D5E7DF /* trash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/trash.png"; sourceTree = "<group>"; };
-		0934448B0524CAB600D5E7DF /* remotetrash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/remotetrash.png"; sourceTree = "<group>"; };
 		0936A56005220F8600D5E7DF /* NSMutableArray(Extensions).h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/extensions/NSMutableArray(Extensions).h"; sourceTree = "<group>"; };
 		0936A56105220F8600D5E7DF /* NSMutableArray(Extensions).m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/extensions/NSMutableArray(Extensions).m"; sourceTree = "<group>"; };
 		09448C5F03F052C200A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = resources/English.lproj/Localizable.strings; sourceTree = "<group>"; };
-		094AF260054772B6006D53C9 /* info.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/info.png"; sourceTree = "<group>"; };
 		094AF26405481FDF006D53C9 /* French */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = French; path = "resources/French.lproj/Fugu README.rtfd"; sourceTree = "<group>"; };
 		09554B1D03CE87CA00D5E7D1 /* SFTPScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/ui/SFTPScrollView.h"; sourceTree = "<group>"; };
 		09554B1E03CE87CA00D5E7D1 /* SFTPScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/ui/SFTPScrollView.m"; sourceTree = "<group>"; };
@@ -239,8 +196,6 @@
 		095D40E5048E86BC009C52F5 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Spanish; path = resources/Spanish.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
 		0960E33503F05A2800A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = resources/English.lproj/SFTPToolbar.strings; sourceTree = "<group>"; };
 		0960E33803F063A700A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = resources/English.lproj/HelpMenu.strings; sourceTree = "<group>"; };
-		0962B4D3086663200072CC46 /* OnePaneBrowser.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/OnePaneBrowser.png"; sourceTree = "<group>"; };
-		0962B4D5086663270072CC46 /* TwoPaneBrowser.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/TwoPaneBrowser.png"; sourceTree = "<group>"; };
 		09682E8207C4F07300210847 /* UMTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/ui/UMTextField.h"; sourceTree = "<group>"; };
 		09682E8307C4F07300210847 /* UMTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/ui/UMTextField.m"; sourceTree = "<group>"; };
 		09682EE507C5005400210847 /* UMDragDropImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/ui/UMDragDropImageView.h"; sourceTree = "<group>"; };
@@ -262,8 +217,6 @@
 		0977864F0430BF2000BEE8BF /* keychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/util/keychain.h"; sourceTree = "<group>"; };
 		097786500430BF2000BEE8BF /* keychain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "src/util/keychain.c"; sourceTree = "<group>"; };
 		097EE2D0070BA9ED00305C66 /* externaleditor */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = externaleditor; path = build/externaleditor; sourceTree = "<group>"; };
-		0981B76604F81AC900000102 /* disconnect.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/disconnect.png"; sourceTree = "<group>"; };
-		0981B76D04FA546F00000102 /* edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/edit.png"; sourceTree = "<group>"; };
 		09830E5504B4AABA00F63E62 /* Danish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Danish; path = resources/Danish.lproj/HelpMenu.strings; sourceTree = "<group>"; };
 		09830E5704B4AABA00F63E62 /* Danish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Danish; path = resources/Danish.lproj/Localizable.strings; sourceTree = "<group>"; };
 		09830E5804B4AABA00F63E62 /* Danish */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Danish; path = resources/Danish.lproj/MainMenu.nib; sourceTree = "<group>"; };
@@ -332,7 +285,6 @@
 		09D38E9004F5A20000000102 /* NSFileManager(mktemp).m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/extensions/NSFileManager(mktemp).m"; sourceTree = "<group>"; };
 		09D38E9304F5AE1400000102 /* NSImage(IconForType).h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/extensions/NSImage(IconForType).h"; sourceTree = "<group>"; };
 		09D38E9404F5AE1400000102 /* NSImage(IconForType).m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/extensions/NSImage(IconForType).m"; sourceTree = "<group>"; };
-		09D38E9D04F6A0A800000102 /* reload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/reload.png"; sourceTree = "<group>"; };
 		09DA7588051B891000D5E7DF /* NSArray(CreateArgv).h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/extensions/NSArray(CreateArgv).h"; sourceTree = "<group>"; };
 		09DA7589051B891000D5E7DF /* NSArray(CreateArgv).m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/extensions/NSArray(CreateArgv).m"; sourceTree = "<group>"; };
 		09DA758C051B8E4300D5E7DF /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = English; path = "resources/English.lproj/Fugu README.rtfd"; sourceTree = "<group>"; };
@@ -367,16 +319,9 @@
 		09F12F5F0494F76D00A8022B /* Italian */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Italian; path = resources/Italian.lproj/SSHTunnel.nib; sourceTree = "<group>"; };
 		09F12F600494F76D00A8022B /* Italian */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Italian; path = resources/Italian.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
 		09F5CD7303F04CF600A8002B /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = resources/English.lproj/SCP.nib; sourceTree = "<group>"; };
-		09F9EDCE04CC74CB00D5EA79 /* files.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/files.png"; sourceTree = "<group>"; };
-		09F9EDD004CC841F00D5EA79 /* transfers.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/transfers.png"; sourceTree = "<group>"; };
 		09FFFC6403F992BE00A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = resources/English.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
-		09FFFC7903FC38BF00A8002B /* history.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/history.png"; sourceTree = "<group>"; };
-		09FFFC7B03FC3CA600A8002B /* remotehistory.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/remotehistory.png"; sourceTree = "<group>"; };
-		09FFFC7C03FC3CA600A8002B /* remotehome.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/remotehome.png"; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		238577620392BB76FED5EA79 /* bookmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/bookmark.png"; sourceTree = "<group>"; };
 		238577660392BFBCFED5EA79 /* fugu.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "assets/fugu.icns"; sourceTree = "<group>"; };
-		239A5C18038C2294FED5EA79 /* favorites.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/favorites.png"; sourceTree = "<group>"; };
 		23A1B7410389BD23FED5EA79 /* sshversion.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/util/sshversion.h"; sourceTree = "<group>"; };
 		23A1B7420389BD23FED5EA79 /* sshversion.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "src/util/sshversion.c"; sourceTree = "<group>"; };
 		23EAEE0C0385949DFE27C9B8 /* SFTPSplitView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/ui/SFTPSplitView.h"; sourceTree = "<group>"; };
@@ -421,7 +366,6 @@
 		F5D6EBAD0316911201A8002B /* fdwrite.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/util/fdwrite.h"; sourceTree = "<group>"; };
 		F5D6EBBC03199D2901A8002B /* SSHTunnelAuth.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = "src/ssh/SSHTunnelAuth.m"; sourceTree = "<group>"; };
 		F5D6EBBD03199D2901A8002B /* SSHTunnelAuth.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/ssh/SSHTunnelAuth.h"; sourceTree = "<group>"; };
-		F5EA815603785CDD01A8002B /* home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "assets/home.png"; sourceTree = "<group>"; };
 		F5FC36BC036A339A01E16655 /* SFTPTableView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/ui/SFTPTableView.h"; sourceTree = "<group>"; };
 		F5FC36BD036A339A01E16655 /* SFTPTableView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = "src/ui/SFTPTableView.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -651,34 +595,6 @@
 		F558B96301E3994C01D5E771 /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				0962B4D5086663270072CC46 /* TwoPaneBrowser.png */,
-				0962B4D3086663200072CC46 /* OnePaneBrowser.png */,
-				F5EA815603785CDD01A8002B /* home.png */,
-				239A5C18038C2294FED5EA79 /* favorites.png */,
-				238577620392BB76FED5EA79 /* bookmark.png */,
-				09FFFC7903FC38BF00A8002B /* history.png */,
-				09FFFC7B03FC3CA600A8002B /* remotehistory.png */,
-				09FFFC7C03FC3CA600A8002B /* remotehome.png */,
-				09274DEC04B36372003075E6 /* generalprefs.png */,
-				09274DF004B36B27003075E6 /* knownhosts.png */,
-				09274DEE04B36AFF003075E6 /* favoritesprefs.png */,
-				09274DF204B3826E003075E6 /* zeroconf.png */,
-				092E4A3D04B89F4E00341390 /* downtriangle.png */,
-				092E4A3E04B89F4F00341390 /* righttriangle.png */,
-				09F9EDCE04CC74CB00D5EA79 /* files.png */,
-				09F9EDD004CC841F00D5EA79 /* transfers.png */,
-				09D38E9D04F6A0A800000102 /* reload.png */,
-				0916ACC104F728EA00000102 /* download.png */,
-				0916ACC204F728EA00000102 /* upload.png */,
-				0916ACC504F72A0600000102 /* goto.png */,
-				0916ACC904F7323100000102 /* preview.png */,
-				0981B76604F81AC900000102 /* disconnect.png */,
-				0981B76D04FA546F00000102 /* edit.png */,
-				0934447B0524C5E500D5E7DF /* newfolder.png */,
-				0934447C0524C5E500D5E7DF /* symlink.png */,
-				093444890524CA3800D5E7DF /* trash.png */,
-				0934448B0524CAB600D5E7DF /* remotetrash.png */,
-				094AF260054772B6006D53C9 /* info.png */,
 			);
 			name = Images;
 			sourceTree = "<group>";
@@ -851,9 +767,6 @@
 				09682FD307C5528A00210847 /* Prefs.nib in Resources */,
 				09682FD407C5528A00210847 /* COPYRIGHT.txt in Resources */,
 				09682FD507C5528A00210847 /* SSHTunnel.nib in Resources */,
-				09682FD607C5528A00210847 /* home.png in Resources */,
-				09682FD707C5528A00210847 /* favorites.png in Resources */,
-				09682FD807C5528A00210847 /* bookmark.png in Resources */,
 				09682FD907C5528A00210847 /* fugu.icns in Resources */,
 				09682FDA07C5528A00210847 /* SCP.nib in Resources */,
 				09682FDB07C5528A00210847 /* Localizable.strings in Resources */,
@@ -862,35 +775,10 @@
 				09682FDE07C5528A00210847 /* SFTPInfoPanel.strings in Resources */,
 				09682FDF07C5528A00210847 /* SCP.strings in Resources */,
 				09682FE007C5528A00210847 /* SSHTunnel.strings in Resources */,
-				09682FE107C5528A00210847 /* history.png in Resources */,
-				09682FE207C5528A00210847 /* remotehistory.png in Resources */,
-				09682FE307C5528A00210847 /* remotehome.png in Resources */,
 				09682FE407C5528A00210847 /* Fugu README.rtfd in Resources */,
-				09682FE507C5528A00210847 /* generalprefs.png in Resources */,
-				09682FE607C5528A00210847 /* favoritesprefs.png in Resources */,
-				09682FE707C5528A00210847 /* knownhosts.png in Resources */,
-				09682FE807C5528A00210847 /* zeroconf.png in Resources */,
-				09682FE907C5528A00210847 /* downtriangle.png in Resources */,
-				09682FEA07C5528A00210847 /* righttriangle.png in Resources */,
-				09682FEB07C5528A00210847 /* files.png in Resources */,
-				09682FEC07C5528A00210847 /* transfers.png in Resources */,
-				09682FED07C5528A00210847 /* reload.png in Resources */,
-				09682FEE07C5528A00210847 /* download.png in Resources */,
-				09682FEF07C5528A00210847 /* upload.png in Resources */,
-				09682FF007C5528A00210847 /* goto.png in Resources */,
-				09682FF107C5528A00210847 /* preview.png in Resources */,
-				09682FF207C5528A00210847 /* disconnect.png in Resources */,
-				09682FF307C5528A00210847 /* edit.png in Resources */,
 				09682FF407C5528A00210847 /* SFTPPrefToolbar.strings in Resources */,
 				09682FF507C5528A00210847 /* keys.rtf in Resources */,
-				09682FF607C5528A00210847 /* newfolder.png in Resources */,
-				09682FF707C5528A00210847 /* symlink.png in Resources */,
-				09682FF907C5528A00210847 /* trash.png in Resources */,
-				09682FFA07C5528A00210847 /* remotetrash.png in Resources */,
-				09682FFB07C5528A00210847 /* info.png in Resources */,
 				09682FFD07C5528A00210847 /* ODBEditors.plist in Resources */,
-				0962B4D4086663200072CC46 /* OnePaneBrowser.png in Resources */,
-				0962B4D6086663270072CC46 /* TwoPaneBrowser.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
