@@ -77,6 +77,38 @@ extern int		master;
 
 static NSString * const kFuguRemoteFilePboardType = @"edu.umich.fugu.remote-file-plist";
 
+/*
+ * Compose a base SF Symbol icon with a small badge icon at the bottom-right.
+ * Used to distinguish "remote" toolbar items from their local counterparts.
+ */
+static NSImage *
+badgedIcon( NSString *baseName, NSString *badgeName )
+{
+    NSImage *base  = [ NSImage imageWithSystemSymbolName: baseName
+                                   accessibilityDescription: nil ];
+    NSImage *badge = [ NSImage imageWithSystemSymbolName: badgeName
+                                   accessibilityDescription: nil ];
+    if ( !base )  return( nil );
+    if ( !badge ) return( base );
+    return [ NSImage imageWithSize: NSMakeSize( 18.0, 18.0 )
+                           flipped: NO
+                    drawingHandler: ^BOOL( NSRect rect ) {
+        [ base drawInRect: rect
+                 fromRect: NSZeroRect
+                operation: NSCompositingOperationSourceOver
+                 fraction: 1.0 ];
+        NSRect badgeRect = NSMakeRect( rect.size.width  * 0.54,
+                                       0,
+                                       rect.size.width  * 0.46,
+                                       rect.size.height * 0.46 );
+        [ badge drawInRect: badgeRect
+                  fromRect: NSZeroRect
+                 operation: NSCompositingOperationSourceOver
+                  fraction: 0.9 ];
+        return( YES );
+    }];
+}
+
 /* Walk view tree and replace image on buttons with the given action+target. */
 static void
 setButtonImage( NSView *view, SEL action, id target, NSImage *image );
@@ -461,8 +493,9 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"Go to remote home directory.", @"SFTPToolbar",
                                             @"Go to remote home directory." ) ];
-        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"house"
-                                         accessibilityDescription: @"Remote Home" ]];
+        [ sftptbarItem setImage: badgedIcon( @"house", @"network" ) ?:
+                [ NSImage imageWithSystemSymbolName: @"house.fill"
+                                accessibilityDescription: @"Remote Home" ]];
         [ sftptbarItem setAction: @selector( cdRemoteHome: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarRefreshIdentifier ] ) {
@@ -545,8 +578,9 @@ permcmp( id ob1, id ob2, void *context )
         [ sftptbarItem setToolTip:
                 NSLocalizedStringFromTable( @"List of remote directories visited during this session.",
                         @"SFTPToolbar", @"List of remote directories visited during this session." ) ];
-        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"clock.arrow.circlepath"
-                                         accessibilityDescription: @"Remote History" ]];
+        [ sftptbarItem setImage: badgedIcon( @"clock.arrow.circlepath", @"network" ) ?:
+                [ NSImage imageWithSystemSymbolName: @"clock.arrow.circlepath"
+                                accessibilityDescription: @"Remote History" ]];
         [ sftptbarItem setAction: @selector( showRemoteHistoryMenu: ) ];
         [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarRemoteItemPreviewIdentifier ] ) {
