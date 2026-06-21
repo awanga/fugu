@@ -77,6 +77,20 @@ extern int		master;
 
 static NSString * const kFuguRemoteFilePboardType = @"edu.umich.fugu.remote-file-plist";
 
+/* Walk view tree and replace image on buttons with the given action+target. */
+static void
+setButtonImage( NSView *view, SEL action, id target, NSImage *image )
+{
+    for ( NSView *sub in [ view subviews ] ) {
+        if ( [ sub isKindOfClass: [ NSButton class ] ] ) {
+            NSButton *btn = ( NSButton * )sub;
+            if ( [ btn action ] == action && [ btn target ] == target )
+                [ btn setImage: image ];
+        }
+        setButtonImage( sub, action, target, image );
+    }
+}
+
 static float		dltime, ultime;
 static int		scp_service = 0;
 static NSTimer		*timer;
@@ -973,6 +987,15 @@ permcmp( id ob1, id ob2, void *context )
         [ remoteTableMenu addItem: [ NSMenuItem separatorItem ]];
         [ remoteTableMenu addItem: delTreeItem ];
         [ delTreeItem release ];
+    }
+
+    /* replace NIB-embedded uparrow image with SF Symbol on both parent-dir buttons */
+    {
+        NSImage *upImg = [ NSImage imageWithSystemSymbolName: @"chevron.up.circle"
+                                      accessibilityDescription: @"Go to Parent Directory" ];
+        NSView *root = [ mainWindow contentView ];
+        setButtonImage( root, @selector( localCdDotDot: ),  self, upImg );
+        setButtonImage( root, @selector( remoteCdDotDot: ), self, upImg );
     }
 
     [ self cleanupStaleTempDirectories ];
