@@ -1065,6 +1065,10 @@ permcmp( id ob1, id ob2, void *context )
             normalizeButton( [ infoPanel contentView ], t );
     }
 
+    /* alternating row colors to match Finder's visual treatment */
+    [ localBrowser  setUsesAlternatingRowBackgroundColors: YES ];
+    [ remoteBrowser setUsesAlternatingRowBackgroundColors: YES ];
+
     [ self cleanupStaleTempDirectories ];
 
     /* search for rendezvous-enabled ssh servers */
