@@ -31,7 +31,6 @@
 		09682FB907C5528A00210847 /* NSMutableDictionary(Fugu).h in Headers */ = {isa = PBXBuildFile; fileRef = 09C448BB03D0D37E00D5EA68 /* NSMutableDictionary(Fugu).h */; };
 		09682FBA07C5528A00210847 /* UMFileLauncher.h in Headers */ = {isa = PBXBuildFile; fileRef = 0923B08803E846EE00A8002B /* UMFileLauncher.h */; };
 		09682FBB07C5528A00210847 /* UMVersionCheck.h in Headers */ = {isa = PBXBuildFile; fileRef = 0991811803F0262300A8002B /* UMVersionCheck.h */; };
-		09682FBC07C5528A00210847 /* keychain.h in Headers */ = {isa = PBXBuildFile; fileRef = 0977864F0430BF2000BEE8BF /* keychain.h */; };
 		0A4B8F1C0430BF2000BEE8BF /* UMKeychain.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A4B8F1A0430BF2000BEE8BF /* UMKeychain.h */; };
 		09682FBD07C5528A00210847 /* SFTPScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 09554B1D03CE87CA00D5E7D1 /* SFTPScrollView.h */; };
 		09682FBE07C5528A00210847 /* SFTPItemCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 095C52200442121400A8002B /* SFTPItemCell.h */; };
@@ -92,7 +91,6 @@
 		0968301207C5528A00210847 /* NSMutableDictionary(Fugu).m in Sources */ = {isa = PBXBuildFile; fileRef = 09C448BC03D0D37E00D5EA68 /* NSMutableDictionary(Fugu).m */; };
 		0968301307C5528A00210847 /* UMFileLauncher.m in Sources */ = {isa = PBXBuildFile; fileRef = 0923B08903E846EE00A8002B /* UMFileLauncher.m */; };
 		0968301407C5528A00210847 /* UMVersionCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = 0991811903F0262300A8002B /* UMVersionCheck.m */; };
-		0968301507C5528A00210847 /* keychain.c in Sources */ = {isa = PBXBuildFile; fileRef = 097786500430BF2000BEE8BF /* keychain.c */; };
 		0A4B8F1D0430BF2000BEE8BF /* UMKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B8F1B0430BF2000BEE8BF /* UMKeychain.m */; };
 		0968301607C5528A00210847 /* SFTPScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 09554B1E03CE87CA00D5E7D1 /* SFTPScrollView.m */; };
 		0968301707C5528A00210847 /* SFTPItemCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 095C52210442121400A8002B /* SFTPItemCell.m */; };
@@ -214,8 +212,6 @@
 		096C4A8E0413F74C003D9332 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Japanese; path = resources/Japanese.lproj/SSHTunnel.nib; sourceTree = "<group>"; };
 		096C4A8F0413F74D003D9332 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = resources/Japanese.lproj/SSHTunnel.strings; sourceTree = "<group>"; };
 		0971F3FB03F2DFC700A8002B /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = resources/English.lproj/SCP.strings; sourceTree = "<group>"; };
-		0977864F0430BF2000BEE8BF /* keychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/util/keychain.h"; sourceTree = "<group>"; };
-		097786500430BF2000BEE8BF /* keychain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "src/util/keychain.c"; sourceTree = "<group>"; };
 		097EE2D0070BA9ED00305C66 /* externaleditor */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = externaleditor; path = build/externaleditor; sourceTree = "<group>"; };
 		09830E5504B4AABA00F63E62 /* Danish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Danish; path = resources/Danish.lproj/HelpMenu.strings; sourceTree = "<group>"; };
 		09830E5704B4AABA00F63E62 /* Danish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Danish; path = resources/Danish.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -495,8 +491,6 @@
 				F585905002D2393A01D5EA79 /* typeforchar.h */,
 				F5D6EBAC0316911201A8002B /* fdwrite.c */,
 				F5D6EBAD0316911201A8002B /* fdwrite.h */,
-				097786500430BF2000BEE8BF /* keychain.c */,
-				0977864F0430BF2000BEE8BF /* keychain.h */,
 				09E0A0F804C091C000D5EA79 /* ODBEditorSuite.h */,
 			);
 			name = "Other Sources";
@@ -655,7 +649,6 @@
 				09682FB907C5528A00210847 /* NSMutableDictionary(Fugu).h in Headers */,
 				09682FBA07C5528A00210847 /* UMFileLauncher.h in Headers */,
 				09682FBB07C5528A00210847 /* UMVersionCheck.h in Headers */,
-				09682FBC07C5528A00210847 /* keychain.h in Headers */,
 				0A4B8F1C0430BF2000BEE8BF /* UMKeychain.h in Headers */,
 				09682FBD07C5528A00210847 /* SFTPScrollView.h in Headers */,
 				09682FBE07C5528A00210847 /* SFTPItemCell.h in Headers */,
@@ -838,7 +831,6 @@
 				0968301207C5528A00210847 /* NSMutableDictionary(Fugu).m in Sources */,
 				0968301307C5528A00210847 /* UMFileLauncher.m in Sources */,
 				0968301407C5528A00210847 /* UMVersionCheck.m in Sources */,
-				0968301507C5528A00210847 /* keychain.c in Sources */,
 				0A4B8F1D0430BF2000BEE8BF /* UMKeychain.m in Sources */,
 				0968301607C5528A00210847 /* SFTPScrollView.m in Sources */,
 				0968301707C5528A00210847 /* SFTPItemCell.m in Sources */,

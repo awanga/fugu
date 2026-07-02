@@ -11,6 +11,7 @@
 #import "SFTPItemCell.h"
 #import "SCPController.h"
 #import "SSHTunnel.h"
+#import "UMKeychain.h"
 #import "UMVersionCheck.h"
 #import "UMFileLauncher.h"
 
@@ -60,7 +61,6 @@ zero_buf( volatile char *buf, size_t len )
 {
     while ( len-- ) *buf++ = '\0';
 }
-#include "keychain.h"
 #include "sshversion.h"
 
 #ifndef typeFSS
@@ -3510,30 +3510,59 @@ NSLog( @"setting springloaded root" );
 
 - ( BOOL )retrievePasswordFromKeychain
 {
-    char		*password;
+    NSString		*password;
     OSStatus		error;
-    
-    if (( password = getpwdfromkeychain( [[ remoteHost stringValue  ] UTF8String ],
-                                [[ userName stringValue ] UTF8String ], &error )) == NULL ) {
+
+    password = [[ UMKeychain defaultKeychain ]
+                        passwordForService: [ remoteHost stringValue ]
+                        account: [ userName stringValue ]
+                        keychainItem: NULL error: &error ];
+    if ( password == nil ) {
         if ( error == errSecItemNotFound ) {
             NSLog( @"Keychain item not found" );
         } else {
-            NSLog( @"Attempting to retrieve password from keychain return error %d", error );
+            NSLog( @"Attempting to retrieve password from keychain return error %d", ( int )error );
         }
         return( NO );
     }
-    
+
     [ self setGotPasswordFromKeychain: YES ];
-    [ self writeCommand: password ];
-    free( password );
+    [ self writeCommand: ( char * )[ password UTF8String ]];
     return( YES );
 }
 
 - ( void )addPasswordToKeychain
 {
-    addpwdtokeychain( [[ remoteHost stringValue ] UTF8String ],
-                        [[ userName stringValue ] UTF8String ],
-                        [[ passWord stringValue ] UTF8String ] );
+    NSString		*password;
+    SecKeychainItemRef	kcItem;
+    OSStatus		err;
+
+    err = [[ UMKeychain defaultKeychain ]
+                        storePassword: [ passWord stringValue ]
+                        forService: [ remoteHost stringValue ]
+                        account: [ userName stringValue ]
+                        keychainItem: NULL ];
+    switch ( err ) {
+    case noErr:
+        break;
+
+    case errSecDuplicateItem:
+        password = [[ UMKeychain defaultKeychain ]
+                        passwordForService: [ remoteHost stringValue ]
+                        account: [ userName stringValue ]
+                        keychainItem: &kcItem error: &err ];
+        if ( password != nil ) {
+            [[ UMKeychain defaultKeychain ]
+                        changePassword: [ passWord stringValue ]
+                        forKeychainItem: kcItem ];
+            CFRelease( kcItem );
+        }
+        break;
+
+    default:
+        NSLog( @"Failed to store password in keychain: error %d", ( int )err );
+        break;
+    }
 }
 
 - ( void )setGotPasswordFromKeychain: ( BOOL )rp
