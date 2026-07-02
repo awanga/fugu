@@ -554,6 +554,20 @@ permcmp( id ob1, id ob2, void *context )
                                          accessibilityDescription: @"Go To" ]];
         [ sftptbarItem setAction: @selector( getGotoDirPanel: ) ];
         [ sftptbarItem setTarget: self ];
+    } else if ( [ itemIdent isEqualToString: SFTPToolbarLocalFavoritesIdentifier ] ) {
+        [ sftptbarItem setLabel:
+                NSLocalizedStringFromTable( @"Quick Access", @"SFTPToolbar",
+                                            @"Quick Access" ) ];
+        [ sftptbarItem setPaletteLabel:
+                NSLocalizedStringFromTable( @"Quick Access", @"SFTPToolbar",
+                                            @"Quick Access" ) ];
+        [ sftptbarItem setToolTip:
+                NSLocalizedStringFromTable( @"Go to a favorite local folder.", @"SFTPToolbar",
+                                            @"Go to a favorite local folder." ) ];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"star"
+                                         accessibilityDescription: @"Quick Access" ]];
+        [ sftptbarItem setAction: @selector( showLocalFavoritesMenu: ) ];
+        [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarLocalHistoryIdentifier ] ) {
         [ sftptbarItem setLabel:
                 NSLocalizedStringFromTable( @"History", @"SFTPToolbar",
@@ -701,6 +715,7 @@ permcmp( id ob1, id ob2, void *context )
     NSArray	*tmp = [ NSArray arrayWithObjects:
                             SFTPToolbarLocalHomeIdentifier,
                             SFTPToolbarLocalHistoryIdentifier,
+                            SFTPToolbarLocalFavoritesIdentifier,
                             NSToolbarFlexibleSpaceItemIdentifier,
                             SFTPToolbarGotoIdentifier,
                             SFTPToolbarRefreshIdentifier,
@@ -731,6 +746,7 @@ permcmp( id ob1, id ob2, void *context )
                             SFTPToolbarGotoIdentifier,
                             SFTPToolbarRemoteHomeIdentifier,
                             SFTPToolbarLocalHistoryIdentifier,
+                            SFTPToolbarLocalFavoritesIdentifier,
                             SFTPToolbarRemoteHistoryIdentifier,
                             SFTPToolbarRemoteItemPreviewIdentifier,
                             SFTPToolbarEditDocumentIdentifier, nil ];
@@ -911,6 +927,8 @@ permcmp( id ob1, id ob2, void *context )
     
     remoteHistoryMenu = [[ NSMenu alloc ] init ];
     localHistoryMenu = [[ NSMenu alloc ] init ];
+    localFavoritesMenu = [[ NSMenu alloc ] init ];
+    [ self reloadLocalFavoritesMenu ];
     
     /*	set up visible table columns */
     while ( [[ localBrowser tableColumns ] count ] > 1 ) {
@@ -2087,8 +2105,111 @@ WRITE_ERR:
 - ( IBAction )showRemoteHistoryMenu: ( id )sender
 {
     NSEvent		*e = [ NSApp currentEvent ];
-                                    
+
     [ NSMenu popUpContextMenu: remoteHistoryMenu withEvent: e forView: nil ];
+}
+
+- ( IBAction )showLocalFavoritesMenu: ( id )sender
+{
+    NSEvent		*e = [ NSApp currentEvent ];
+
+    if ( ! [ sender isKindOfClass: [ NSToolbarItem class ]] ) {
+	return;
+    }
+
+    [ NSMenu popUpContextMenu: localFavoritesMenu withEvent: e forView: [ sender view ]];
+}
+
+- ( void )goToLocalFavoritePath: ( id )sender
+{
+    NSString		*path = [ sender representedObject ];
+
+    if ( [ path length ] ) {
+        [ self localBrowserReloadForPath: path ];
+    }
+}
+
+- ( void )reloadLocalFavoritesMenu
+{
+    NSFileManager	*fm = [ NSFileManager defaultManager ];
+    NSArray		*wellKnown = [ NSArray arrayWithObjects:
+                            [ NSNumber numberWithInteger: NSUserDirectory ],
+                            [ NSNumber numberWithInteger: NSDesktopDirectory ],
+                            [ NSNumber numberWithInteger: NSDownloadsDirectory ],
+                            [ NSNumber numberWithInteger: NSDocumentDirectory ], nil ];
+    NSArray		*saved;
+    int			i;
+
+    [ localFavoritesMenu removeAllItems ];
+
+    for ( i = 0; i < [ wellKnown count ]; i++ ) {
+        NSSearchPathDirectory	dir = [[ wellKnown objectAtIndex: i ] integerValue ];
+        NSArray			*urls = [ fm URLsForDirectory: dir
+                                            inDomains: NSUserDomainMask ];
+        NSURL			*url = [ urls firstObject ];
+        NSMenuItem		*item;
+
+        if ( url == nil ) continue;
+
+        item = [ localFavoritesMenu addItemWithTitle: [ fm displayNameAtPath: [ url path ]]
+                    action: @selector( goToLocalFavoritePath: ) keyEquivalent: @"" ];
+        [ item setTarget: self ];
+        [ item setRepresentedObject: [ url path ]];
+        [ item setImage: dirImage ];
+    }
+
+    saved = [[ NSUserDefaults standardUserDefaults ] objectForKey: @"LocalFavorites" ];
+    if ( [ saved count ] > 0 ) {
+        [ localFavoritesMenu addItem: [ NSMenuItem separatorItem ]];
+        for ( i = 0; i < [ saved count ]; i++ ) {
+            NSDictionary	*fav = [ saved objectAtIndex: i ];
+            NSString		*name = [ fav objectForKey: @"name" ];
+            NSString		*path = [ fav objectForKey: @"path" ];
+            NSMenuItem		*item;
+
+            if ( ! [ path length ] ) continue;
+            if ( ! [ name length ] ) name = [ path lastPathComponent ];
+
+            item = [ localFavoritesMenu addItemWithTitle: name
+                        action: @selector( goToLocalFavoritePath: ) keyEquivalent: @"" ];
+            [ item setTarget: self ];
+            [ item setRepresentedObject: path ];
+            [ item setImage: dirImage ];
+        }
+    }
+
+    [ localFavoritesMenu addItem: [ NSMenuItem separatorItem ]];
+    [ localFavoritesMenu addItemWithTitle:
+                NSLocalizedString( @"Add Current Folder to Quick Access",
+                                    @"Add Current Folder to Quick Access" )
+                action: @selector( addCurrentFolderToLocalFavorites: )
+                keyEquivalent: @"" ];
+    [[ localFavoritesMenu itemAtIndex: ( [ localFavoritesMenu numberOfItems ] - 1 )] setTarget: self ];
+}
+
+- ( IBAction )addCurrentFolderToLocalFavorites: ( id )sender
+{
+    NSUserDefaults	*defaults = [ NSUserDefaults standardUserDefaults ];
+    NSMutableArray	*favarray;
+    NSArray		*tmp;
+    NSDictionary	*dict;
+
+    if ( ! [ localDirPath length ] ) return;
+
+    dict = [ NSDictionary dictionaryWithObjectsAndKeys:
+                [ localDirPath lastPathComponent ], @"name",
+                localDirPath, @"path", nil ];
+
+    tmp = [ defaults objectForKey: @"LocalFavorites" ];
+    favarray = [ NSMutableArray array ];
+    if ( tmp ) {
+        [ favarray addObjectsFromArray: tmp ];
+    }
+    [ favarray addObject: dict ];
+
+    [ defaults setObject: favarray forKey: @"LocalFavorites" ];
+    [ defaults synchronize ];
+    [ self reloadLocalFavoritesMenu ];
 }
 
 - ( NSMutableArray * )uploadQ

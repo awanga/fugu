@@ -25,6 +25,7 @@
 #define SFTPToolbarRemoteHistoryIdentifier	@"rhistory"
 #define SFTPToolbarRemoteItemPreviewIdentifier	@"preview"
 #define SFTPToolbarEditDocumentIdentifier	@"edit"
+#define SFTPToolbarLocalFavoritesIdentifier	@"lfavorites"
 
 @class 		SFTPTServer;
 @class		SCPController;
@@ -229,6 +230,7 @@
     /* menus for history */
     NSMenu			*localHistoryMenu;
     NSMenu			*remoteHistoryMenu;
+    NSMenu			*localFavoritesMenu;
     
     /* queues from which to dispatch items to the session */
     NSMutableArray		*uploadQueue;
