@@ -826,6 +826,34 @@ permcmp( id ob1, id ob2, void *context )
         [ rPathPopUp removeFromSuperview ];
     }
 
+    /*
+     * Add a per-bookmark "local directory" field to the connect sheet.
+     * loginView has no free row in its NIB layout, so this is built at
+     * runtime and placed in the one open strip between the Directory
+     * field (y=238) and the Advanced Options box (y=0-207), mirroring
+     * the existing row spacing (~28pt) and label/field column layout.
+     */
+    {
+        NSTextField *localDirLabel = [[[ NSTextField alloc ]
+                initWithFrame: NSMakeRect( -3, 212, 80, 17 )] autorelease ];
+        [ localDirLabel setEditable: NO ];
+        [ localDirLabel setBordered: NO ];
+        [ localDirLabel setDrawsBackground: NO ];
+        [ localDirLabel setSelectable: NO ];
+        [ localDirLabel setFont: [ loginDirField font ]];
+        [ localDirLabel setAlignment: [ loginDirField alignment ]];
+        [ localDirLabel setStringValue: NSLocalizedString( @"Local Dir:", @"Local Dir:" ) ];
+        [ loginView addSubview: localDirLabel ];
+
+        localDirField = [[ NSTextField alloc ]
+                initWithFrame: NSMakeRect( 82, 210, 243, 22 )];
+        [ localDirField setFont: [ loginDirField font ]];
+        [ localDirField setAutoresizingMask: [ loginDirField autoresizingMask ]];
+        [[ localDirField cell ] setPlaceholderString:
+                NSLocalizedString( @"Optional", @"Optional local directory placeholder" ) ];
+        [ loginView addSubview: localDirField ];
+    }
+
     /* persist split-view divider position across sessions */
     {
         NSSplitView *sv = ( NSSplitView * )[ localBox superview ];
@@ -1499,7 +1527,11 @@ NSLog( @"setting home directory" );
     
     [ remoteBox setContentView: nil ];
     [ remoteBox setContentView: remoteView ];
-    
+
+    if ( [[ localDirField stringValue ] length ] ) {
+        [ self localBrowserReloadForPath: [ localDirField stringValue ]];
+    }
+
     if ( [[ loginDirField stringValue ] length ] ) {
         dpath = ( char * )[[ loginDirField stringValue ] UTF8String ];
     } else {
@@ -3635,45 +3667,74 @@ NSLog( @"setting springloaded root" );
 - ( IBAction )addToFavorites:( id )sender
 {
     if ( [ remoteHost stringValue ] ) {
+        NSString		*host = [ remoteHost stringValue ];
+        NSString		*nick = [ self promptForBookmarkNicknameWithDefault: host ];
+
+        if ( nick == nil ) return; /* user cancelled */
+
         NSUserDefaults		*defaults;
         NSMutableArray		*favarray;
         NSArray			*tmp;
         NSDictionary		*dict;
-        NSString		*host = [ remoteHost stringValue ];
         NSString		*user = [ userName stringValue ];
         NSString		*port = [ portField stringValue ];
         NSString		*dir = [ loginDirField stringValue ];
+        NSString		*localdir = [ localDirField stringValue ];
         NSString                *opts = [ advAdditionalOptionsField stringValue ];
         int                     ssh1 = [ advForceSSH1Switch state ];
         int                     compress = [ advEnableCompressionSwitch state ];
-        
+
         if ( ! user ) user = @"";
         if ( ! port ) port = @"";
         if ( ! dir ) dir = @"";
+        if ( ! localdir ) localdir = @"";
         if ( ! opts ) opts = @"";
-        
+
         dict = [ NSMutableDictionary dictionaryWithObjectsAndKeys:
-                    @"", @"nick",
+                    nick, @"nick",
                     host, @"host",
                     user, @"user",
                     port, @"port",
                     dir, @"dir",
+                    localdir, @"localdir",
                     opts, @"options",
                     [ NSNumber numberWithInt: ssh1 ], @"ssh1",
                     [ NSNumber numberWithInt: compress ], @"compress", nil ];
-                        
+
         defaults = [ NSUserDefaults standardUserDefaults ];
         tmp = [ defaults objectForKey: @"Favorites" ];
         favarray = [ NSMutableArray array ];
         if ( tmp ) {
             [ favarray addObjectsFromArray: tmp ];
         }
-            
+
         [ favarray addObject: dict ];
         [[ NSUserDefaults standardUserDefaults ] setObject: favarray forKey: @"Favorites" ];
         [ defaults synchronize ];
         [ self reloadDefaults ];
     }
+}
+
+/* returns the user-entered nickname, "" if left blank, or nil if the user cancelled */
+- ( NSString * )promptForBookmarkNicknameWithDefault: ( NSString * )defaultNick
+{
+    NSAlert		*alert = [[[ NSAlert alloc ] init ] autorelease ];
+    NSTextField		*input = [[[ NSTextField alloc ]
+                        initWithFrame: NSMakeRect( 0, 0, 240, 24 )] autorelease ];
+
+    [ alert setMessageText: NSLocalizedString( @"Add Bookmark", @"Add Bookmark" ) ];
+    [ alert setInformativeText: NSLocalizedString(
+                @"Enter a nickname for this bookmark, or leave it blank to use the hostname.",
+                @"Enter a nickname for this bookmark, or leave it blank to use the hostname." ) ];
+    [ input setStringValue: ( defaultNick ? defaultNick : @"" ) ];
+    [ alert setAccessoryView: input ];
+    [ alert addButtonWithTitle: NSLocalizedString( @"Add", @"Add" ) ];
+    [ alert addButtonWithTitle: NSLocalizedString( @"Cancel", @"Cancel" ) ];
+    [ alert.window setInitialFirstResponder: input ];
+
+    if ( [ alert runModal ] != NSAlertFirstButtonReturn ) return( nil );
+
+    return( [ input stringValue ] );
 }
 
 - ( IBAction )selectFromFavorites: ( id )sender
@@ -3694,6 +3755,8 @@ NSLog( @"setting springloaded root" );
         [ userName setStringValue: [ fobj objectForKey: @"user" ]];
         [ portField setStringValue: [ fobj objectForKey: @"port" ]];
         [ loginDirField setStringValue: [ fobj objectForKey: @"dir" ]];
+        /* older bookmarks predate this field */
+        [ localDirField setStringValue: [ fobj objectForKey: @"localdir" ] ?: @"" ];
         if ( [ fobj objectForKey: @"options" ] ) {
             [ advAdditionalOptionsField setStringValue: [ fobj objectForKey: @"options" ]];
         }

@@ -255,6 +255,9 @@
     /* path controls replace popup buttons from NIB */
     NSPathControl               *lPathControl;
     NSPathControl               *rPathControl;
+
+    /* per-bookmark default local directory field, added at runtime (no NIB slot) */
+    NSTextField                 *localDirField;
 }
 
 - ( void )showUploadProgress;
