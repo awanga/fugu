@@ -26,6 +26,7 @@
 #define SFTPToolbarRemoteItemPreviewIdentifier	@"preview"
 #define SFTPToolbarEditDocumentIdentifier	@"edit"
 #define SFTPToolbarLocalFavoritesIdentifier	@"lfavorites"
+#define SFTPToolbarSSHKeysIdentifier		@"sshkeys"
 
 @class 		SFTPTServer;
 @class		SCPController;

@@ -25,6 +25,8 @@
 		09682FB307C5528A00210847 /* SSHTunnel.h in Headers */ = {isa = PBXBuildFile; fileRef = F5D6EBA4031686A101A8002B /* SSHTunnel.h */; };
 		09682FB407C5528A00210847 /* fdwrite.h in Headers */ = {isa = PBXBuildFile; fileRef = F5D6EBAD0316911201A8002B /* fdwrite.h */; };
 		09682FB507C5528A00210847 /* SSHTunnelAuth.h in Headers */ = {isa = PBXBuildFile; fileRef = F5D6EBBD03199D2901A8002B /* SSHTunnelAuth.h */; };
+		861F9C327B4C20D959ECBE7A /* SSHKeyAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = F33E192FDBD5623DA7218A6D /* SSHKeyAgent.h */; };
+		1090C6F47613837DE47D3132 /* SSHKeysWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 92C3FACAB8E9D3600F0C999A /* SSHKeysWindowController.h */; };
 		09682FB607C5528A00210847 /* SFTPTableView.h in Headers */ = {isa = PBXBuildFile; fileRef = F5FC36BC036A339A01E16655 /* SFTPTableView.h */; };
 		09682FB707C5528A00210847 /* SFTPSplitView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23EAEE0C0385949DFE27C9B8 /* SFTPSplitView.h */; };
 		09682FB807C5528A00210847 /* sshversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 23A1B7410389BD23FED5EA79 /* sshversion.h */; };
@@ -85,6 +87,8 @@
 		0968300C07C5528A00210847 /* SSHTunnel.m in Sources */ = {isa = PBXBuildFile; fileRef = F5D6EBA5031686A101A8002B /* SSHTunnel.m */; };
 		0968300D07C5528A00210847 /* fdwrite.c in Sources */ = {isa = PBXBuildFile; fileRef = F5D6EBAC0316911201A8002B /* fdwrite.c */; };
 		0968300E07C5528A00210847 /* SSHTunnelAuth.m in Sources */ = {isa = PBXBuildFile; fileRef = F5D6EBBC03199D2901A8002B /* SSHTunnelAuth.m */; };
+		724DD0FA6BD597B582724A43 /* SSHKeyAgent.m in Sources */ = {isa = PBXBuildFile; fileRef = F511ED56AF492C879F11D299 /* SSHKeyAgent.m */; };
+		55A410275122B5207D9920DF /* SSHKeysWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = CC41EB7C256847F67A6CEBA5 /* SSHKeysWindowController.m */; };
 		0968300F07C5528A00210847 /* SFTPTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = F5FC36BD036A339A01E16655 /* SFTPTableView.m */; };
 		0968301007C5528A00210847 /* SFTPSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23EAEE0D0385949DFE27C9B8 /* SFTPSplitView.m */; };
 		0968301107C5528A00210847 /* sshversion.c in Sources */ = {isa = PBXBuildFile; fileRef = 23A1B7420389BD23FED5EA79 /* sshversion.c */; };
@@ -362,6 +366,10 @@
 		F5D6EBAD0316911201A8002B /* fdwrite.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/util/fdwrite.h"; sourceTree = "<group>"; };
 		F5D6EBBC03199D2901A8002B /* SSHTunnelAuth.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = "src/ssh/SSHTunnelAuth.m"; sourceTree = "<group>"; };
 		F5D6EBBD03199D2901A8002B /* SSHTunnelAuth.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/ssh/SSHTunnelAuth.h"; sourceTree = "<group>"; };
+		F33E192FDBD5623DA7218A6D /* SSHKeyAgent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/ssh/SSHKeyAgent.h"; sourceTree = "<group>"; };
+		F511ED56AF492C879F11D299 /* SSHKeyAgent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/ssh/SSHKeyAgent.m"; sourceTree = "<group>"; };
+		92C3FACAB8E9D3600F0C999A /* SSHKeysWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/ssh/SSHKeysWindowController.h"; sourceTree = "<group>"; };
+		CC41EB7C256847F67A6CEBA5 /* SSHKeysWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/ssh/SSHKeysWindowController.m"; sourceTree = "<group>"; };
 		F5FC36BC036A339A01E16655 /* SFTPTableView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/ui/SFTPTableView.h"; sourceTree = "<group>"; };
 		F5FC36BD036A339A01E16655 /* SFTPTableView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = "src/ui/SFTPTableView.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -571,6 +579,10 @@
 				F5D6EBA5031686A101A8002B /* SSHTunnel.m */,
 				F5D6EBBC03199D2901A8002B /* SSHTunnelAuth.m */,
 				F5D6EBBD03199D2901A8002B /* SSHTunnelAuth.h */,
+				F33E192FDBD5623DA7218A6D /* SSHKeyAgent.h */,
+				F511ED56AF492C879F11D299 /* SSHKeyAgent.m */,
+				92C3FACAB8E9D3600F0C999A /* SSHKeysWindowController.h */,
+				CC41EB7C256847F67A6CEBA5 /* SSHKeysWindowController.m */,
 			);
 			name = SSHTunnel;
 			sourceTree = "<group>";
@@ -643,6 +655,8 @@
 				09682FB307C5528A00210847 /* SSHTunnel.h in Headers */,
 				09682FB407C5528A00210847 /* fdwrite.h in Headers */,
 				09682FB507C5528A00210847 /* SSHTunnelAuth.h in Headers */,
+				861F9C327B4C20D959ECBE7A /* SSHKeyAgent.h in Headers */,
+				1090C6F47613837DE47D3132 /* SSHKeysWindowController.h in Headers */,
 				09682FB607C5528A00210847 /* SFTPTableView.h in Headers */,
 				09682FB707C5528A00210847 /* SFTPSplitView.h in Headers */,
 				09682FB807C5528A00210847 /* sshversion.h in Headers */,
@@ -825,6 +839,8 @@
 				0968300C07C5528A00210847 /* SSHTunnel.m in Sources */,
 				0968300D07C5528A00210847 /* fdwrite.c in Sources */,
 				0968300E07C5528A00210847 /* SSHTunnelAuth.m in Sources */,
+				724DD0FA6BD597B582724A43 /* SSHKeyAgent.m in Sources */,
+				55A410275122B5207D9920DF /* SSHKeysWindowController.m in Sources */,
 				0968300F07C5528A00210847 /* SFTPTableView.m in Sources */,
 				0968301007C5528A00210847 /* SFTPSplitView.m in Sources */,
 				0968301107C5528A00210847 /* sshversion.c in Sources */,

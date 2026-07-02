@@ -11,6 +11,7 @@
 #import "SFTPItemCell.h"
 #import "SCPController.h"
 #import "SSHTunnel.h"
+#import "SSHKeysWindowController.h"
 #import "UMKeychain.h"
 #import "UMVersionCheck.h"
 #import "UMFileLauncher.h"
@@ -568,6 +569,20 @@ permcmp( id ob1, id ob2, void *context )
                                          accessibilityDescription: @"Quick Access" ]];
         [ sftptbarItem setAction: @selector( showLocalFavoritesMenu: ) ];
         [ sftptbarItem setTarget: self ];
+    } else if ( [ itemIdent isEqualToString: SFTPToolbarSSHKeysIdentifier ] ) {
+        [ sftptbarItem setLabel:
+                NSLocalizedStringFromTable( @"SSH Keys", @"SFTPToolbar",
+                                            @"SSH Keys" ) ];
+        [ sftptbarItem setPaletteLabel:
+                NSLocalizedStringFromTable( @"SSH Keys", @"SFTPToolbar",
+                                            @"SSH Keys" ) ];
+        [ sftptbarItem setToolTip:
+                NSLocalizedStringFromTable( @"Manage SSH keys and ssh-agent.", @"SFTPToolbar",
+                                            @"Manage SSH keys and ssh-agent." ) ];
+        [ sftptbarItem setImage: [ NSImage imageWithSystemSymbolName: @"key"
+                                         accessibilityDescription: @"SSH Keys" ]];
+        [ sftptbarItem setAction: @selector( showSSHKeysWindow: ) ];
+        [ sftptbarItem setTarget: self ];
     } else if ( [ itemIdent isEqualToString: SFTPToolbarLocalHistoryIdentifier ] ) {
         [ sftptbarItem setLabel:
                 NSLocalizedStringFromTable( @"History", @"SFTPToolbar",
@@ -749,7 +764,8 @@ permcmp( id ob1, id ob2, void *context )
                             SFTPToolbarLocalFavoritesIdentifier,
                             SFTPToolbarRemoteHistoryIdentifier,
                             SFTPToolbarRemoteItemPreviewIdentifier,
-                            SFTPToolbarEditDocumentIdentifier, nil ];
+                            SFTPToolbarEditDocumentIdentifier,
+                            SFTPToolbarSSHKeysIdentifier, nil ];
                             
     return( tmp );
 }
@@ -6040,10 +6056,15 @@ INVALID_CONNECTION_SETTINGS:
 - ( IBAction )newSSHTunnel: ( id )sender
 {
     SSHTunnel		*t = [[ SSHTunnel alloc ] init ];
-    
+
     [ NSBundle loadNibNamed: @"SSHTunnel" owner: t ];
     [ t displayWindow ];
     [ t autorelease ];
+}
+
+- ( IBAction )showSSHKeysWindow: ( id )sender
+{
+    [[ SSHKeysWindowController sharedController ] showWindow: self ];
 }
 
 - ( IBAction )secureCopy: ( id )sender
