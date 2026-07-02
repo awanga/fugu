@@ -19,7 +19,6 @@
 #include <util.h>
 
 #include "argcargv.h"
-#include "sshversion.h"
 
 extern int	errno;
 
@@ -73,35 +72,21 @@ int		scpconnecting = 0;
 	}
     }
 
-    /* OpenSSH 3.7 and above use a different progress output in scp */
-    if ( sshversion() > 3.6 ) {
-        t_amount = tav[ pc_index + 1 ];
+    /*
+     * scp's progress line format has been stable since OpenSSH 3.7
+     * (2003); every OpenSSH build in realistic use today postdates
+     * that. This used to be gated on sshversion() > 3.6, but
+     * sshversion() returns an SFTP_LS_* listing-format enum (0-2, or
+     * 255 for a non-OpenSSH client), not a version number, so that
+     * comparison was never true for a real OpenSSH client and this
+     * branch was silently dead code.
+     */
+    t_amount = tav[ pc_index + 1 ];
 
-        if ( pc_index == ( tac - 5 )) {
-            t_eta = tav[ pc_index + 3 ];
-        } else {
-            t_eta = "--:--";
-        }
+    if ( pc_index == ( tac - 5 )) {
+        t_eta = tav[ pc_index + 3 ];
     } else {
-        int		pos;
-
-        if ( strcmp( "ETA", tav[ tac - 1 ] ) == 0 ) {
-            t_eta = tav[ tac - 2 ];
-
-            if ( ! isdigit( *tav[ tac - 3 ] )) {
-                pos = ( tac - 4 );
-            } else {
-                pos = ( tac - 3 );
-            }
-        } else {
-            t_eta = tav[ tac - 1 ];
-            if ( ! isdigit( *tav[ tac - 2 ] )) {
-                pos = ( tac - 3 );
-            } else {
-                pos = ( tac - 2 );
-            }
-        }
-        t_amount = tav[ pos ];
+        t_eta = "--:--";
     }
 
     /* everything before the %-done field is a filename */
@@ -135,7 +120,7 @@ int		scpconnecting = 0;
     char		*unknownmsg;
     char		ttyname[ MAXPATHLEN ];
     unichar		buf[ MAXPATHLEN ];
-    char		executable[ MAXPATHLEN], portarg[ MAXPATHLEN ], *execargs[ 7 ];
+    char		executable[ MAXPATHLEN], portarg[ MAXPATHLEN ], *execargs[ 8 ];
     NSString		*scpBinary;
     dispatch_queue_t	main_q = dispatch_get_main_queue();
 
@@ -164,10 +149,16 @@ int		scpconnecting = 0;
 
     execargs[ 1 ] = "-r";
     execargs[ 2 ] = "-p";
-    execargs[ 3 ] = portarg;
-    execargs[ 4 ] = ( scpType == 0 ? localfile : userathost );
-    execargs[ 5 ] = ( scpType == 0 ? userathost : localfile );
-    execargs[ 6 ] = NULL;
+    /*
+     * Modern OpenSSH scp defaults to the SFTP protocol, whose progress
+     * output parseProgressOutputString: does not understand. Force the
+     * legacy SCP protocol so the existing progress parser keeps working.
+     */
+    execargs[ 3 ] = "-O";
+    execargs[ 4 ] = portarg;
+    execargs[ 5 ] = ( scpType == 0 ? localfile : userathost );
+    execargs[ 6 ] = ( scpType == 0 ? userathost : localfile );
+    execargs[ 7 ] = NULL;
 
     if ( scppid = forkpty( &masterfd, ttyname, NULL, NULL )) {
         if ( fcntl( masterfd, F_SETFL, O_NONBLOCK ) < 0 ) {	/* prevent master from blocking */
