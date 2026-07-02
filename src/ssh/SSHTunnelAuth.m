@@ -54,7 +54,7 @@ int		mfd = 0;
     int			status, validpw = 0, threestrikes = 0;
     char		*unknownmsg;
     char		ttyname[ MAXPATHLEN ], buf[ MAXPATHLEN ], tportarg[ MAXPATHLEN ];
-    char		executable[ MAXPATHLEN], portarg[ MAXPATHLEN ], *execargs[ 7 ];
+    char		executable[ MAXPATHLEN], portarg[ MAXPATHLEN ], *execargs[ 8 ];
     NSString    	*sshBinary;
     
     if (( sshBinary = [ NSString pathForExecutable: @"ssh" ] ) == nil ) {
@@ -81,7 +81,16 @@ int		mfd = 0;
     execargs[ 3 ] = userathost;
     execargs[ 4 ] = tportarg;
     execargs[ 5 ] = "-v";
-    execargs[ 6 ] = NULL;
+    /*
+     * Without this, a local port already in use just prints a
+     * warning and the session stays up with no actual forward,
+     * while tunnelCreated still fires on successful auth below --
+     * the user would see "tunnel created" for a tunnel forwarding
+     * nothing. This makes ssh exit instead so the failure is
+     * detected below.
+     */
+    execargs[ 6 ] = "-oExitOnForwardFailure=yes";
+    execargs[ 7 ] = NULL;
 
     if ( sshpid = forkpty( &mfd, ttyname, NULL, NULL )) {
         if ( fcntl( mfd, F_SETFL, O_NONBLOCK ) < 0 ) {	/* prevent master from blocking */
@@ -137,6 +146,14 @@ int		mfd = 0;
                         NSString *_errMsg = [ NSString stringWithUTF8String: buf ];
                         dispatch_async( dispatch_get_main_queue(), ^{
                             [ controller connectionError: _errMsg ];
+                        } );
+                    } else if ( strstr( buf, "Could not request local forwarding" ) != NULL
+                            || strstr( buf, "cannot listen to port" ) != NULL ) {
+                        dispatch_async( dispatch_get_main_queue(), ^{
+                            [ controller connectionError: NSLocalizedStringFromTable(
+                                @"Could not create the tunnel: the local port is already in use.",
+                                @"SSHTunnel",
+                                @"Could not create the tunnel: the local port is already in use." )];
                         } );
                     } else if ( strstr( buf, "successful: method" ) != NULL ) {
                         if ( strstr( buf, "debug" ) != NULL ) {
