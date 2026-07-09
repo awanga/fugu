@@ -327,12 +327,12 @@
 		23EAEE0C0385949DFE27C9B8 /* SFTPSplitView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/ui/SFTPSplitView.h"; sourceTree = "<group>"; };
 		23EAEE0D0385949DFE27C9B8 /* SFTPSplitView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = "src/ui/SFTPSplitView.m"; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = "src/main.m"; sourceTree = "<group>"; };
-		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = resources/English.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = resources/English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		AF1234560000000000000001 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = /System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		F517810B03083F4A01A8002B /* COPYRIGHT.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = COPYRIGHT.txt; sourceTree = "<group>"; };
-		F517DFAE0312049F01A8002B /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = resources/English.lproj/SSHTunnel.nib; sourceTree = "<group>"; };
+		F517DFAE0312049F01A8002B /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = resources/English.lproj/SSHTunnel.xib; sourceTree = "<group>"; };
 		F517DFB00312A0A901A8002B /* NSString(SSHAdditions).m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = "src/extensions/NSString(SSHAdditions).m"; sourceTree = "<group>"; };
 		F517DFB10312A0A901A8002B /* NSString(SSHAdditions).h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/extensions/NSString(SSHAdditions).h"; sourceTree = "<group>"; };
 		F538D79D030CADCC01A8002B /* SCPController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/scp/SCPController.h"; sourceTree = "<group>"; };
@@ -359,7 +359,7 @@
 		F5939902021C375F01D5E771 /* SFTPTServer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/sftp/SFTPTServer.h"; sourceTree = "<group>"; };
 		AA000002021C375F01D5E771 /* SFTPListingParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "src/sftp/SFTPListingParser.m"; sourceTree = "<group>"; };
 		AA000001021C375F01D5E771 /* SFTPListingParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "src/sftp/SFTPListingParser.h"; sourceTree = "<group>"; };
-		F5B12CC102DF4E6001D5EA79 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = resources/English.lproj/Prefs.nib; sourceTree = "<group>"; };
+		F5B12CC102DF4E6001D5EA79 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = resources/English.lproj/Prefs.xib; sourceTree = "<group>"; };
 		F5D6EBA4031686A101A8002B /* SSHTunnel.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "src/ssh/SSHTunnel.h"; sourceTree = "<group>"; };
 		F5D6EBA5031686A101A8002B /* SSHTunnel.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = "src/ssh/SSHTunnel.m"; sourceTree = "<group>"; };
 		F5D6EBAC0316911201A8002B /* fdwrite.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "src/util/fdwrite.c"; sourceTree = "<group>"; };
