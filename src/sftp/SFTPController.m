@@ -1738,9 +1738,10 @@ WRITE_ERR:
     }
     
     if ( connected ) {
+        _userInitiatedDisconnect = YES;
         [ self writeCommand: "quit" ];
     }
-    
+
     if ( [ self cachedPreviews ] != nil ) {
         [ cachedPreviews release ];
         cachedPreviews = nil;
@@ -3621,6 +3622,42 @@ NSLog( @"setting springloaded root" );
     [alert release];
 }
 
+- ( BOOL )userInitiatedDisconnect
+{
+    return( _userInitiatedDisconnect );
+}
+
+- ( void )setUserInitiatedDisconnect: ( BOOL )flag
+{
+    _userInitiatedDisconnect = flag;
+}
+
+/*
+ * Called when the sftp session ends on its own -- host went down, network
+ * dropped, etc. -- rather than because the user asked to disconnect.
+ */
+- ( void )connectionLostUnexpectedly
+{
+    NSString *host = [ userParameters objectForKey: @"rhost" ];
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSAlertStyleWarning];
+    [alert setMessageText:NSLocalizedString( @"Connection Lost", @"Connection Lost" )];
+    [alert setInformativeText: host ?
+            [ NSString stringWithFormat: NSLocalizedString(
+                @"Fugu lost its connection to %@. The server may have gone offline "
+                @"or the network connection may have been interrupted.",
+                @"Fugu lost its connection to %@. The server may have gone offline "
+                @"or the network connection may have been interrupted." ), host ] :
+            NSLocalizedString(
+                @"Fugu lost its connection to the server. It may have gone offline "
+                @"or the network connection may have been interrupted.",
+                @"Fugu lost its connection to the server. It may have gone offline "
+                @"or the network connection may have been interrupted." )];
+    [alert addButtonWithTitle:NSLocalizedString( @"OK", @"OK" )];
+    [alert runModal];
+    [alert release];
+}
+
 - ( IBAction )showConnectingInterface: ( id )sender
 {
     [ mainWindow makeKeyAndOrderFront: nil ];
@@ -4904,6 +4941,7 @@ LaunchFailed:
         userParameters = [[ NSMutableDictionary alloc ] initWithObjectsAndKeys:
                     [ userName stringValue ], @"user",
                     [ remoteHost stringValue ], @"rhost", nil ];
+        _userInitiatedDisconnect = NO;
     } else {
         NSAlert *alert = [[NSAlert alloc] init];
         [alert setAlertStyle:NSAlertStyleWarning];
@@ -4940,7 +4978,21 @@ LaunchFailed:
     if ( port ) {
         params = [ params arrayByAddingObject: [ NSString stringWithFormat: @"-oPort=%d", port ]];
     }
-    
+
+    /*
+     * Detect a host that goes dark mid-session (network drop, host powered
+     * off, etc.) instead of hanging forever: ssh will probe the server
+     * after 15s of silence, and give up after 3 unanswered probes. Skipped
+     * if the user already set their own ServerAliveInterval, whether via
+     * Advanced Options below or .ssh/config -- ssh honors the first -o
+     * occurrence, so ours would otherwise silently win.
+     */
+    if ( [[ advAdditionalOptionsField stringValue ] rangeOfString: @"ServerAliveInterval"
+                options: NSCaseInsensitiveSearch ].location == NSNotFound ) {
+        params = [ params arrayByAddingObject: @"-oServerAliveInterval=15" ];
+        params = [ params arrayByAddingObject: @"-oServerAliveCountMax=3" ];
+    }
+
     if ( [[ advAdditionalOptionsField stringValue ] length ] ) {
         params = [ params arrayByAddingObjectsFromArray:
                     [[ advAdditionalOptionsField stringValue ] componentsSeparatedByString: @" " ]];

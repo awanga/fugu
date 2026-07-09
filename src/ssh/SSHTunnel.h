@@ -47,6 +47,11 @@
     BOOL			_firstPasswordPrompt;
     BOOL			_gotPasswordFromKeychain;
     pid_t			sshpid;
+
+    /* set just before we SIGTERM our own ssh, so an unexpected exit (host
+     * went down, network dropped) can be told apart from the user closing
+     * the tunnel themselves */
+    BOOL			_userInitiatedTunnelClose;
 }
 
 - ( void )write: ( char * )buf;
@@ -72,6 +77,9 @@
 - ( void )setSSHPID: ( pid_t )pid;
 
 - ( void )tunnelCreated;
+- ( void )tunnelClosedUnexpectedly;
+- ( BOOL )userInitiatedTunnelClose;
+- ( void )setUserInitiatedTunnelClose: ( BOOL )flag;
 - ( void )addTunneledHostToDefaults: ( NSString * )rHost;
 
 #ifdef notdef

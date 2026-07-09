@@ -151,7 +151,11 @@ int		master = 0;
                                     "No route to host",
                                     "Network is unreachable",
                                     "Host is down",
-                                    "REMOTE HOST IDENTIFICATION HAS CHANGED" };
+                                    "REMOTE HOST IDENTIFICATION HAS CHANGED",
+                                    "Timeout, server",
+                                    "Connection closed by remote host",
+                                    "Connection reset by peer",
+                                    "Broken pipe" };
                                     
     if ( buf == NULL ) {
         return( NO );
@@ -312,7 +316,8 @@ int		master = 0;
     fd_set		readmask;
     struct winsize	win_size = { 24, 512, 0, 0 };
     FILE		*mf = NULL;
-    int			rc, status, validpw = 0, threestrikes = 0;
+    int			rc, status, validpw = 0, threestrikes = 0, wasConnected = 0;
+    int			sawFatalError = 0;
     __block int		was_uploading = 0, was_downloading = 0, was_changing = 0, sethomedir = 0;
     __block int		was_removing = 0, was_renaming = 0, was_listing = 0;
     int			suppress_auth_log = 0;
@@ -546,6 +551,7 @@ int		master = 0;
                     threestrikes++;
                 } else if ( [ self bufferContainsError: buf ] ) {
                     NSString *_err = [ NSString stringWithUTF8String: buf ];
+                    sawFatalError = 1;
                     dispatch_async( dispatch_get_main_queue(), ^{ [ controller connectionError: _err ]; } );
                 } else if ( [ self currentTransferName ] != nil ) {
                     if ( strstr(( char * )buf, [[ self currentTransferName ] UTF8String ] ) != NULL
@@ -649,6 +655,7 @@ int		master = 0;
         if ( cancelflag ) break;
     }
 
+    wasConnected = connected;
     sftppid = wait( &status );
 
     free( execargs );
@@ -660,7 +667,12 @@ int		master = 0;
     {
         NSString *_log = [ NSString stringWithUTF8String: ( void * )buf ];
         NSString *_logpid = [ NSString stringWithFormat: @"\nsftp task with pid %d ended.\n", sftppid ];
+        BOOL _unexpected = wasConnected && !sawFatalError && ![ controller userInitiatedDisconnect ];
         dispatch_async( dispatch_get_main_queue(), ^{
+            if ( _unexpected ) {
+                [ controller connectionLostUnexpectedly ];
+            }
+            [ controller setUserInitiatedDisconnect: NO ];
             [ controller cleanUp ];
             [ controller addToLog: _log ];
             [ controller addToLog: _logpid ];

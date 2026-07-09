@@ -52,9 +52,10 @@ int		mfd = 0;
     fd_set		readmask;
     FILE		*mfp;
     int			status, validpw = 0, threestrikes = 0;
+    int			wasEstablished = 0, sawFatalError = 0;
     char		*unknownmsg;
     char		ttyname[ MAXPATHLEN ], buf[ MAXPATHLEN ], tportarg[ MAXPATHLEN ];
-    char		executable[ MAXPATHLEN], portarg[ MAXPATHLEN ], *execargs[ 8 ];
+    char		executable[ MAXPATHLEN], portarg[ MAXPATHLEN ], *execargs[ 10 ];
     NSString    	*sshBinary;
     
     if (( sshBinary = [ NSString pathForExecutable: @"ssh" ] ) == nil ) {
@@ -90,7 +91,14 @@ int		mfd = 0;
      * detected below.
      */
     execargs[ 6 ] = "-oExitOnForwardFailure=yes";
-    execargs[ 7 ] = NULL;
+    /*
+     * Detect a host that goes dark mid-tunnel instead of leaving the
+     * forward silently dangling: probe after 15s of silence, give up
+     * after 3 unanswered probes.
+     */
+    execargs[ 7 ] = "-oServerAliveInterval=15";
+    execargs[ 8 ] = "-oServerAliveCountMax=3";
+    execargs[ 9 ] = NULL;
 
     if ( sshpid = forkpty( &mfd, ttyname, NULL, NULL )) {
         if ( fcntl( mfd, F_SETFL, O_NONBLOCK ) < 0 ) {	/* prevent master from blocking */
@@ -144,11 +152,13 @@ int		mfd = 0;
                         free( unknownmsg );
                     } else if ( strncmp( buf, "Secure ", strlen( "Secure" )) == 0 ) {
                         NSString *_errMsg = [ NSString stringWithUTF8String: buf ];
+                        sawFatalError = 1;
                         dispatch_async( dispatch_get_main_queue(), ^{
                             [ controller connectionError: _errMsg ];
                         } );
                     } else if ( strstr( buf, "Could not request local forwarding" ) != NULL
                             || strstr( buf, "cannot listen to port" ) != NULL ) {
+                        sawFatalError = 1;
                         dispatch_async( dispatch_get_main_queue(), ^{
                             [ controller connectionError: NSLocalizedStringFromTable(
                                 @"Could not create the tunnel: the local port is already in use.",
@@ -157,21 +167,27 @@ int		mfd = 0;
                         } );
                     } else if ( strstr( buf, "successful: method" ) != NULL ) {
                         if ( strstr( buf, "debug" ) != NULL ) {
+                            wasEstablished = 1;
                             dispatch_async( dispatch_get_main_queue(), ^{ [ controller tunnelCreated ]; } );
                         }
                     } else if ( strstr( buf, "Authentication succeeded" ) != NULL ) {
                         if ( strstr( buf, "debug" ) != NULL ) {
+                            wasEstablished = 1;
                             dispatch_async( dispatch_get_main_queue(), ^{ [ controller tunnelCreated ]; } );
                         }
                     }
                 }
-                
+
                 if ( strstr( buf, "Operation timed out" ) != NULL
-                        || strstr( buf, "REMOTE HOST IDENTIFICATION HAS CHANGED" ) != NULL ) {
+                        || strstr( buf, "REMOTE HOST IDENTIFICATION HAS CHANGED" ) != NULL
+                        || strstr( buf, "Timeout, server" ) != NULL
+                        || strstr( buf, "Connection closed by remote host" ) != NULL
+                        || strstr( buf, "Connection reset by peer" ) != NULL ) {
                     char		*p = strdup( buf ), *q;
 
                     if (( q = strrchr( p, '\r' )) != NULL ) *q = '\0';
                     NSString *_connErr = [ NSString stringWithUTF8String: p ];
+                    sawFatalError = 1;
                     dispatch_async( dispatch_get_main_queue(), ^{
                         [ controller connectionError: _connErr ];
                     } );
@@ -183,6 +199,7 @@ int		mfd = 0;
             [ pool release ];
         }
         if ( threestrikes == 3 ) {
+            sawFatalError = 1;
             dispatch_async( dispatch_get_main_queue(), ^{
                 [ controller connectionError: @"Authentication failed." ];
             } );
@@ -191,7 +208,17 @@ int		mfd = 0;
         fclose( mfp );  /* also closes the mfd fd */
 
         wait( &status );
-        
+
+        if ( wasEstablished && !sawFatalError ) {
+            BOOL _userClosed = [ controller userInitiatedTunnelClose ];
+            dispatch_async( dispatch_get_main_queue(), ^{
+                if ( !_userClosed ) {
+                    [ controller tunnelClosedUnexpectedly ];
+                }
+                [ controller setUserInitiatedTunnelClose: NO ];
+            } );
+        }
+
         NSLog( @"exited with %d", WEXITSTATUS( status ));
     } else if ( sshpid < 0 ) {
         NSLog( @"forkpty failed: %s", strerror( errno ));

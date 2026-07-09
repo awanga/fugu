@@ -295,6 +295,7 @@ WRITE_ERR:
 - ( IBAction )cancelTunnelCreation: ( id )sender
 {
     if ( sshpid > 0 ) {
+        _userInitiatedTunnelClose = YES;
         if ( kill( sshpid, SIGTERM ) < 0 ) {
             NSAlert *alert = [[ NSAlert alloc ] init ];
             [ alert setAlertStyle: NSAlertStyleCritical ];
@@ -336,6 +337,7 @@ WRITE_ERR:
     if ( rc != NSAlertFirstButtonReturn ) return;
 
     if ( sshpid > 0 ) {
+        _userInitiatedTunnelClose = YES;
         if ( kill( sshpid, SIGTERM ) < 0 ) {
             NSAlert *errAlert = [[ NSAlert alloc ] init ];
             [ errAlert setAlertStyle: NSAlertStyleCritical ];
@@ -428,6 +430,7 @@ WRITE_ERR:
     NSString *_tport    = [ NSString stringWithUTF8String: tport ];
     SSHTunnelAuth *_auth = ssh;
     SSHTunnel *_controller = self;
+    _userInitiatedTunnelClose = NO;
     dispatch_async( _serverQueue, ^{
         [ _auth sshTunnelLocalPort: ( char * )[ _lport UTF8String ]
                        remoteHost: ( char * )[ _rhost UTF8String ]
@@ -498,6 +501,50 @@ WRITE_ERR:
                                         @"Tunnel Host: %@" ), [ tunnelHostField stringValue ]],
                 nil ]];
     [ sshtunnelWindow makeKeyAndOrderFront: nil ];
+}
+
+- ( BOOL )userInitiatedTunnelClose
+{
+    return( _userInitiatedTunnelClose );
+}
+
+- ( void )setUserInitiatedTunnelClose: ( BOOL )flag
+{
+    _userInitiatedTunnelClose = flag;
+}
+
+/*
+ * Called when the ssh process behind an established tunnel exits on its
+ * own -- host went down, network dropped, etc. -- rather than because the
+ * user closed the tunnel themselves.
+ */
+- ( void )tunnelClosedUnexpectedly
+{
+    NSString *host = [ remoteHostField stringValue ];
+    NSAlert *alert = [[ NSAlert alloc ] init ];
+    [ alert setAlertStyle: NSAlertStyleWarning ];
+    [ alert setMessageText: NSLocalizedStringFromTable(
+                @"Tunnel Closed", @"SSHTunnel", @"Tunnel Closed" )];
+    [ alert setInformativeText: [ host length ] ?
+            [ NSString stringWithFormat: NSLocalizedStringFromTable(
+                @"Fugu lost the SSH tunnel to %@. The server may have gone offline "
+                @"or the network connection may have been interrupted.", @"SSHTunnel",
+                @"Fugu lost the SSH tunnel to %@. The server may have gone offline "
+                @"or the network connection may have been interrupted." ), host ] :
+            NSLocalizedStringFromTable(
+                @"Fugu lost the SSH tunnel. The server may have gone offline "
+                @"or the network connection may have been interrupted.", @"SSHTunnel",
+                @"Fugu lost the SSH tunnel. The server may have gone offline "
+                @"or the network connection may have been interrupted." )];
+    [ alert addButtonWithTitle: NSLocalizedString( @"OK", @"OK" )];
+    [ alert runModal ];
+    [ alert release ];
+
+    if ( [ sshtunnelWindow isVisible ] ) {
+        [ sshtunnelWindow close ];
+    }
+    [ self setFirstPasswordPrompt: YES ];
+    [ self setGotPasswordFromKeychain: NO ];
 }
 
 @end

@@ -261,6 +261,11 @@
 
     /* per-bookmark default local directory field, added at runtime (no NIB slot) */
     NSTextField                 *localDirField;
+
+    /* set just before we send "quit" ourselves, so an unexpected session
+     * exit (host went down, network dropped) can be told apart from the
+     * user asking to disconnect */
+    BOOL                        _userInitiatedDisconnect;
 }
 
 - ( void )showUploadProgress;
@@ -287,6 +292,9 @@
 - ( IBAction )continueConnecting: ( id )sender;
 - ( void )connectionError: ( NSString * )errmsg;
 - ( void )sessionError: ( NSString * )errmsg;
+- ( void )connectionLostUnexpectedly;
+- ( BOOL )userInitiatedDisconnect;
+- ( void )setUserInitiatedDisconnect: ( BOOL )flag;
 - ( IBAction )toggleDots: ( id )sender;
 
 - ( IBAction )toggleAdvConnectionView: ( id )sender;
