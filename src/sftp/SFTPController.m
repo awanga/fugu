@@ -79,8 +79,40 @@ extern int		master;
 static NSString * const kFuguRemoteFilePboardType = @"edu.umich.fugu.remote-file-plist";
 
 /*
+ * Return a copy of a template image filled with a solid color, clipped to
+ * the template's own alpha shape. Done in an isolated canvas the size of
+ * the template alone, so the tint can't bleed into anything it's later
+ * composited over (a directly-inline SourceAtop fill would pick up
+ * whatever alpha is already on the destination canvas, not just the
+ * template's).
+ */
+static NSImage *
+tintedTemplateImage( NSImage *templateImage, NSColor *color )
+{
+    NSSize size = [ templateImage size ];
+    return [ NSImage imageWithSize: size
+                           flipped: NO
+                    drawingHandler: ^BOOL( NSRect rect ) {
+        [ templateImage drawInRect: rect
+                          fromRect: NSZeroRect
+                         operation: NSCompositingOperationSourceOver
+                          fraction: 1.0 ];
+        [ color set ];
+        NSRectFillUsingOperation( rect, NSCompositingOperationSourceAtop );
+        return( YES );
+    }];
+}
+
+/*
  * Compose a base SF Symbol icon with a small badge icon at the bottom-right.
  * Used to distinguish "remote" toolbar items from their local counterparts.
+ *
+ * The canvas is sized up from the base glyph's own natural size (rather
+ * than a fixed square) so the base renders crisply, at the same size as
+ * an un-badged toolbar icon, without being squashed to fit a square. The
+ * badge sits in the margin that creates, tinted with the accent color and
+ * given a plain backing disc, so it reads as a distinct marker rather than
+ * more of the same monochrome glyph fused into the icon.
  */
 static NSImage *
 badgedIcon( NSString *baseName, NSString *badgeName )
@@ -91,23 +123,42 @@ badgedIcon( NSString *baseName, NSString *badgeName )
                                    accessibilityDescription: nil ];
     if ( !base )  return( nil );
     if ( !badge ) return( base );
-    return [ NSImage imageWithSize: NSMakeSize( 18.0, 18.0 )
-                           flipped: NO
-                    drawingHandler: ^BOOL( NSRect rect ) {
-        [ base drawInRect: rect
+
+    NSImage *tintedBadge = tintedTemplateImage( badge, [ NSColor controlAccentColor ] );
+
+    NSSize baseSize = [ base size ];
+    NSSize canvasSize = NSMakeSize( baseSize.width  * 1.3,
+                                     baseSize.height * 1.3 );
+    NSSize badgeSize  = NSMakeSize( baseSize.width  * 0.55,
+                                     baseSize.height * 0.55 );
+
+    NSImage *result = [ NSImage imageWithSize: canvasSize
+                                       flipped: NO
+                                drawingHandler: ^BOOL( NSRect rect ) {
+        NSRect baseRect = NSMakeRect( 0, rect.size.height - baseSize.height,
+                                      baseSize.width, baseSize.height );
+        [ base drawInRect: baseRect
                  fromRect: NSZeroRect
                 operation: NSCompositingOperationSourceOver
                  fraction: 1.0 ];
-        NSRect badgeRect = NSMakeRect( rect.size.width  * 0.54,
-                                       0,
-                                       rect.size.width  * 0.46,
-                                       rect.size.height * 0.46 );
-        [ badge drawInRect: badgeRect
-                  fromRect: NSZeroRect
-                 operation: NSCompositingOperationSourceOver
-                  fraction: 0.9 ];
+
+        NSRect badgeRect = NSMakeRect( rect.size.width - badgeSize.width, 0,
+                                       badgeSize.width, badgeSize.height );
+        NSRect backingRect = NSInsetRect( badgeRect,
+                                          -badgeSize.width  * 0.18,
+                                          -badgeSize.height * 0.18 );
+        [[ NSColor controlBackgroundColor ] set ];
+        [[ NSBezierPath bezierPathWithOvalInRect: backingRect ] fill ];
+
+        [ tintedBadge drawInRect: badgeRect
+                        fromRect: NSZeroRect
+                       operation: NSCompositingOperationSourceOver
+                        fraction: 1.0 ];
+
         return( YES );
     }];
+    [ result setTemplate: NO ];
+    return( result );
 }
 
 /* Walk view tree and replace image on buttons with the given action+target. */
