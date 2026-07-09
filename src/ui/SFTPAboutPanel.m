@@ -35,7 +35,7 @@
 - ( IBAction )visitHomePage:( id )sender
 {
     [[ NSWorkspace sharedWorkspace ] openURL: [ NSURL URLWithString:
-                                        @"http://rsug.itd.umich.edu/software/fugu" ]];
+                                        @"https://github.com/awanga/fugu" ]];
 }
 
 @end
